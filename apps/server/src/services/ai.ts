@@ -180,6 +180,42 @@ export function redFlagHints(answers: Record<string, unknown>): string[] {
 }
 
 // ---- providers ----
+/** HTTP-ish status of a Gemini SDK error (ApiError has .status; otherwise parse the JSON message). */
+function errorStatus(e: unknown): number | undefined {
+  const err = e as { status?: number; message?: string };
+  if (typeof err?.status === 'number') return err.status;
+  const m = /"code"\s*:\s*(\d{3})/.exec(err?.message ?? '');
+  return m ? Number(m[1]) : undefined;
+}
+
+/**
+ * Run a Gemini call with model fallback. Each model gets ONE attempt with its own time limit:
+ * an overloaded model can take ~55 s just to answer 503, and Hostinger's proxy gives up at ~55 s.
+ * Overload/timeout (429/500/503/504/abort) or unknown model (404) → next model;
+ * anything else (bad key, bad request) → throw at once.
+ */
+export async function withGemini<T>(
+  call: (model: string, signal: AbortSignal) => Promise<T>,
+  opts: { budgetMs?: number; perCallMs?: number } = {},
+): Promise<{ value: T; model: string }> {
+  const models = [...new Set([config.gemini.model, ...config.gemini.fallbackModels])];
+  const deadline = Date.now() + (opts.budgetMs ?? 45_000);
+  let lastError: unknown = new Error('Gemini: ingen modell svarade i tid.');
+  for (const model of models) {
+    const left = deadline - Date.now();
+    if (left < 3_000) break;
+    try {
+      return { value: await call(model, AbortSignal.timeout(Math.min(opts.perCallMs ?? 18_000, left))), model };
+    } catch (e) {
+      lastError = e;
+      const status = errorStatus(e);
+      console.warn(`[ai] ${model} failed (${status ?? (e as Error)?.name ?? 'error'})`);
+      if (status !== undefined && ![404, 429, 500, 503, 504].includes(status)) throw e;
+    }
+  }
+  throw lastError;
+}
+
 export interface AIResult {
   guidance: SkinGuidance;
   provider: string;
@@ -229,23 +265,24 @@ export async function analyze(context: string, images: ImageInput[], hints: stri
     ...images.map((img) => ({ inlineData: { data: img.data.toString('base64'), mimeType: img.mimeType } })),
     { text: `${context}\n\n## Regelbaserade varningssignaler (måste vägas in)\n${hints.map((h) => `- ${h}`).join('\n') || '- inga'}\n\nAnalysera bilderna och svaren. Svara enligt schemat, på svenska.` },
   ];
-  const response = await ai.models.generateContent({
-    model: config.gemini.model,
+  const { value: response, model } = await withGemini((model, abortSignal) => ai.models.generateContent({
+    model,
     contents: [{ role: 'user', parts }],
     config: {
       systemInstruction: GUIDANCE_SYSTEM_PROMPT,
       responseMimeType: 'application/json',
       responseJsonSchema: GUIDANCE_JSON_SCHEMA,
       temperature: 0.3,
+      abortSignal,
     },
-  });
+  }));
   const text = response.text;
   if (!text) throw new Error('AI-tjänsten gav inget svar (möjligen blockerat av säkerhetsfilter).');
   const guidance = normalise(JSON.parse(text) as SkinGuidance, hints);
   return {
     guidance,
     provider: 'gemini',
-    model: config.gemini.model,
+    model,
     inputTokens: response.usageMetadata?.promptTokenCount,
     outputTokens: response.usageMetadata?.candidatesTokenCount,
   };
@@ -265,8 +302,10 @@ export async function chatReply(context: string, guidance: SkinGuidance, history
     else past.push({ role, parts: [{ text: t.content }] });
   }
   if (past.length && past[past.length - 1].role === 'user') past.push({ role: 'model', parts: [{ text: 'Jag förstår.' }] });
-  const chat = ai.chats.create({ model: config.gemini.model, history: past, config: { systemInstruction: system, temperature: 0.5, maxOutputTokens: 800 } });
-  const res = await chat.sendMessage({ message });
+  const contents: Content[] = [...past, { role: 'user', parts: [{ text: message }] }];
+  const { value: res } = await withGemini((model, abortSignal) =>
+    ai.models.generateContent({ model, contents, config: { systemInstruction: system, temperature: 0.5, maxOutputTokens: 800, abortSignal } }),
+  );
   return (res.text ?? '').trim() || 'Jag kan tyvärr inte svara på det. Kontakta vården om du är orolig.';
 }
 
