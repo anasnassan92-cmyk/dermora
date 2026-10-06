@@ -71,9 +71,9 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .footnote { font-size: .85rem; color: var(--ink-muted); margin-top: 24px; }
 svg.icon { width: 24px; height: 24px; flex: none; }
 
-/* Brand patterns – seamless tiles from the brand kit (background removed), faded behind the content */
+/* Brand patterns – arcs, cross-field, domes and monogram tiles from the brand kit (background removed), faded behind the content */
 .pat-dots::before, .pat-arcs::before { content: ''; position: absolute; inset: 0; pointer-events: none; }
-.pat-dots::before { background: url('../assets/patterns/dots-cross-skin.svg') center / 72px repeat; opacity: .38; }
+.pat-dots::before { background: url('../assets/patterns/cross-field-skin.svg') center / 64px repeat; opacity: .13; }
 .pat-arcs::before { background: url('../assets/patterns/arcs-skin.svg') center / 480px repeat; opacity: .28; -webkit-mask-image: linear-gradient(90deg, transparent 35%, #000 100%); mask-image: linear-gradient(90deg, transparent 35%, #000 100%); }
 .pat-dots > *, .pat-arcs > * { position: relative; }
 
@@ -106,8 +106,8 @@ svg.icon { width: 24px; height: 24px; flex: none; }
 .hero { position: relative; overflow: hidden; color: #fff; background: linear-gradient(160deg, var(--teal) 0%, var(--teal-mid) 55%, var(--deep-teal) 100%); padding: clamp(56px, 8vw, 104px) 0 clamp(120px, 14vw, 170px); }
 .hero::before { /* bubbles pattern rising from the bottom, like the brand launch story */
   content: ''; position: absolute; inset: auto 0 0 0; height: 62%; pointer-events: none;
-  background: url('../assets/patterns/bubbles-teal.svg') center bottom / 300px repeat;
-  opacity: .5; -webkit-mask-image: linear-gradient(to top, #000 30%, transparent); mask-image: linear-gradient(to top, #000 30%, transparent);
+  background: url('../assets/patterns/arcs-teal.svg') center bottom / 420px repeat;
+  opacity: .4; -webkit-mask-image: linear-gradient(to top, #000 30%, transparent); mask-image: linear-gradient(to top, #000 30%, transparent);
 }
 .hero::after { /* soft light circle top-left */
   content: ''; position: absolute; width: 640px; height: 640px; border-radius: 50%; left: -260px; top: -300px; pointer-events: none;
@@ -147,7 +147,7 @@ svg.icon { width: 24px; height: 24px; flex: none; }
 .start-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .start-card { background: #fff; border-radius: var(--r-lg); padding: 26px 24px 24px; box-shadow: var(--shadow-md); border: 1px solid rgba(221,227,226,.7); display: flex; flex-direction: column; gap: 10px; }
 .start-card.is-brand { position: relative; overflow: hidden; background: var(--deep-teal); color: #fff; border-color: transparent; }
-.start-card.is-brand::before { content: ''; position: absolute; inset: 0; background: url('../assets/patterns/droplets-teal.svg') right -20px bottom -30px / 150px repeat; opacity: .35; pointer-events: none; -webkit-mask-image: linear-gradient(200deg, #000 10%, transparent 75%); mask-image: linear-gradient(200deg, #000 10%, transparent 75%); }
+.start-card.is-brand::before { content: ''; position: absolute; inset: 0; background: url('../assets/patterns/cross-field-teal.svg') center / 84px repeat; opacity: .8; pointer-events: none; }
 .start-card.is-brand > * { position: relative; }
 .start-card.is-brand h3 { color: #fff; }
 .start-card.is-brand p { color: rgba(255,255,255,.85); }
@@ -183,7 +183,7 @@ svg.icon { width: 24px; height: 24px; flex: none; }
 
 /* ---------- App screens ---------- */
 .section-screens { background-color: var(--mint); padding-bottom: clamp(48px, 7vw, 88px); }
-.section-screens::before { content: ''; position: absolute; inset: 0; background: url('../assets/patterns/waves-mint.svg') center / 192px 132px repeat; opacity: .22; pointer-events: none; }
+.section-screens::before { content: ''; position: absolute; inset: 0; background: url('../assets/patterns/monogram-mint.svg') center / 360px 211px repeat; opacity: .09; pointer-events: none; }
 .section-screens > * { position: relative; }
 .screens { display: flex; gap: 26px; overflow-x: auto; padding: 8px max(20px, calc((100vw - var(--container)) / 2)) 24px; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: var(--teal-light) transparent; }
 .screen { flex: 0 0 auto; margin: 0; scroll-snap-align: start; text-align: center; }
@@ -208,7 +208,7 @@ svg.icon { width: 24px; height: 24px; flex: none; }
 .checklist li { display: flex; gap: 12px; align-items: flex-start; font-size: .97rem; }
 .checklist svg { width: 22px; height: 22px; color: var(--teal); flex: none; margin-top: 2px; }
 .trust-card { position: relative; overflow: hidden; background: var(--deep-teal); color: #fff; border-radius: var(--r-xl); padding: 36px 32px; box-shadow: var(--shadow-lg); }
-.trust-card::before { content: ''; position: absolute; inset: 0; background: url('../assets/patterns/droplets-teal.svg') right -30px top -20px / 230px repeat; opacity: .55; pointer-events: none; -webkit-mask-image: linear-gradient(200deg, #000 20%, transparent 70%); mask-image: linear-gradient(200deg, #000 20%, transparent 70%); }
+.trust-card::before { content: ''; position: absolute; inset: 0; background: url('../assets/patterns/domes-teal.svg') right top / 200px repeat; opacity: .45; pointer-events: none; -webkit-mask-image: linear-gradient(200deg, #000 15%, transparent 70%); mask-image: linear-gradient(200deg, #000 15%, transparent 70%); }
 .trust-card > * { position: relative; }
 .trust-card img { width: 56px; height: auto; margin-bottom: 18px; }
 .trust-card h3 { color: #fff; font-size: 1.35rem; margin-bottom: 10px; }
@@ -229,7 +229,7 @@ svg.icon { width: 24px; height: 24px; flex: none; }
 
 /* ---------- Beta (subscribe) ---------- */
 .section-beta { position: relative; overflow: hidden; color: #fff; background: linear-gradient(135deg, var(--teal) 0%, var(--deep-teal) 100%); }
-.section-beta::before { content: ''; position: absolute; inset: 0; background: url('../assets/patterns/bubbles-teal.svg') center / 280px repeat; opacity: .35; pointer-events: none; -webkit-mask-image: radial-gradient(ellipse at 50% 100%, #000 30%, transparent 75%); mask-image: radial-gradient(ellipse at 50% 100%, #000 30%, transparent 75%); }
+.section-beta::before { content: ''; position: absolute; inset: 0; background: url('../assets/patterns/monogram-teal.svg') center / 300px 176px repeat; opacity: .14; pointer-events: none; -webkit-mask-image: linear-gradient(90deg, #000 35%, transparent 80%); mask-image: linear-gradient(90deg, #000 35%, transparent 80%); }
 .section-beta .container { position: relative; }
 .beta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 64px); align-items: center; }
 .beta-copy .eyebrow { color: var(--mint); }
