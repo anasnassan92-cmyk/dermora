@@ -57,7 +57,15 @@ export const config = {
     .split(',')
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean),
-  gemini: { apiKey: setting('GEMINI_API_KEY'), model: setting('GEMINI_MODEL') || 'gemini-flash-latest' },
+  gemini: {
+    apiKey: setting('GEMINI_API_KEY'),
+    model: setting('GEMINI_MODEL') || 'gemini-flash-latest',
+    // Tried in order when the main model is overloaded (503/429) or unknown (404).
+    fallbackModels: (setting('GEMINI_FALLBACK_MODELS') || 'gemini-flash-lite-latest,gemini-2.5-flash,gemini-2.5-flash-lite')
+      .split(',')
+      .map((m) => m.trim())
+      .filter(Boolean),
+  },
   visionApiKey: setting('GOOGLE_VISION_API_KEY'),
   googleClientId: setting('GOOGLE_CLIENT_ID'),
   smtp: {
