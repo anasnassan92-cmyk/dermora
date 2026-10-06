@@ -98,6 +98,8 @@ svg.icon { width: 24px; height: 24px; flex: none; }
 .nav-menu a { color: var(--ink); font-weight: 500; font-size: .95rem; }
 .nav-menu a:hover { color: var(--deep-teal); text-decoration: none; }
 .nav-auth { display: flex; gap: 8px; margin-left: 8px; }
+.nav-github { display: inline-flex; align-items: center; color: var(--ink-muted); padding: 6px; border-radius: 50%; }
+.nav-github:hover { color: var(--deep-teal); background: var(--mint); text-decoration: none; }
 .nav-auth .btn { font-size: .92rem; }
 .nav-toggle { display: none; background: none; border: 0; padding: 8px; color: var(--ink); cursor: pointer; border-radius: 10px; }
 .nav-toggle svg { width: 26px; height: 26px; }
@@ -283,6 +285,8 @@ svg.icon { width: 24px; height: 24px; flex: none; }
   .nav-menu.is-open { display: flex; }
   .nav-menu li a { display: block; padding: 12px 0; }
   .nav-auth { flex-direction: column; margin: 8px 0 0; }
+  .nav-github { padding: 12px 0; border-radius: 0; }
+  .nav-github::after { content: 'Källkod på GitHub'; margin-left: 10px; font-weight: 500; font-size: .95rem; color: var(--ink); }
   .nav-auth .btn { width: 100%; }
   .beta-card { margin-top: 48px; }
 }
