@@ -37,3 +37,10 @@ Skapa Figma-variabler från `packages/brand/dermora-colors.json` (färger) och t
 Koppla skärmarna i page `App – Screens` i samma ordning som användarresan:
 Welcome → Register → VerifyEmail → Hem → Frågeformulär → Bild → Analyserar → Bedömning → (Chat) → Plan → Hem.
 Det ger en klickbar prototyp till redovisningen även om man inte kör appen live.
+
+## Öppen för redigering (hela gruppen)
+
+1. Skapa Figma-filerna i ett **Team** (Figma → Teams → *Dermora – Grupp 6*) och bjud in alla sex som *Editor*; eller sätt filens delning till *Anyone with the link → can edit*.
+2. Appen körs live på <https://lightslategray-wallaby-444786.hostingersite.com/app/> – ingen lokal server behövs. Installera Chrome-tillägget **html.to.design – Capture**, gå igenom flödet i appen (skapa konto → kod → grundprofil → frågor → bilder → analys → chat → plan → hem) och klicka *Capture* på varje skärm; importera sedan i Figma-pluginet. Inloggade skärmar fungerar eftersom tillägget läser det som visas i webbläsaren.
+3. Landningssidan importeras direkt med URL: `https://lightslategray-wallaby-444786.hostingersite.com/` (1440 och 390 px).
+4. Lägg Figma-länken i README under *Design* så att den syns för läraren.
