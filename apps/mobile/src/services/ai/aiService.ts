@@ -9,7 +9,8 @@ import { mockChatReply, mockGuidance } from '../mock/mockData';
 const mockChats = new Map<string, ChatMessage[]>();
 const mockResults = new Map<string, AnalyzeResult>();
 
-const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const PREVIEW = typeof window !== 'undefined' && !!window.location && new URLSearchParams(window.location.search).has('preview');
+const wait = (ms: number) => new Promise((r) => setTimeout(r, PREVIEW ? 0 : ms));
 
 export const aiService = {
   async analyze(assessmentId: string): Promise<AnalyzeResult> {

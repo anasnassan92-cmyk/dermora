@@ -6,7 +6,9 @@
 |---|---|---|---|---|
 | GitHub (organisation eller repo) | Youssef | Ja | Repo, Pages aktiverat, branch protection | – |
 | Supabase (region: EU, t.ex. Frankfurt/Stockholm) | Assad | Ja (free tier: 500 MB DB, 1 GB storage) | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`, anon key | `apps/api/.env`, `apps/mobile/.env` |
-| Anthropic API | Youssef | Startkredit, därefter betalkort | `ANTHROPIC_API_KEY` | `apps/api/.env` (aldrig i appen) |
+| Google AI Studio (Gemini) | Youssef | **Ja**, gratisnivå | `GEMINI_API_KEY` | `apps/api/.env` (aldrig i appen) |
+| Google Cloud (Cloud Vision API) | Ali | Gratis kvot (1 000 bilder/mån), kräver att fakturering aktiveras | `GOOGLE_VISION_API_KEY` (API-nyckel begränsad till Vision) | `apps/api/.env` |
+| Anthropic API (valfritt alternativ) | – | Nej | `ANTHROPIC_API_KEY` | `apps/api/.env` |
 | Expo (expo.dev) | Even | Ja | Konto för EAS Build om ni vill ha installerbar app | – |
 | Backend-hosting (Render / Railway / Fly.io) | Assad | Free/hobby-nivå | Deploy av `apps/api`, env-variabler | – |
 | Domän (valfritt) | – | ~100–150 kr/år | `dermora.se` eller liknande till Pages | – |
@@ -30,10 +32,11 @@ SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=...
 SUPABASE_JWT_SECRET=...
 SUPABASE_BUCKET=skin-images
-AI_PROVIDER=anthropic         # mock | anthropic
-ANTHROPIC_API_KEY=sk-ant-...
-AI_MODEL=claude-opus-5-5
-AI_EFFORT=medium
+AI_PROVIDER=gemini            # mock | gemini | anthropic
+GEMINI_API_KEY=AIza...
+GEMINI_MODEL=gemini-2.5-flash
+FACE_DETECTOR=google          # opencv | google
+GOOGLE_VISION_API_KEY=AIza...
 ```
 
 `apps/mobile/.env`
@@ -57,14 +60,15 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 |---|---|
 | Supabase free tier | 0 kr |
 | GitHub Pages, Actions | 0 kr |
-| Anthropic: ~200 analyser + chat under utveckling | ca 50–150 kr beroende på modell |
+| Gemini gratisnivå: utveckling + demo | 0 kr |
+| Google Cloud Vision: under 1 000 bilder/mån | 0 kr (därefter ca 15 kr per 1 000) |
 | Backend-hosting hobby | 0–70 kr/mån |
 | Expo EAS build (valfritt) | gratis nivå räcker för några builds |
 
 ## Checklista innan "riktig" demo
 
 - [ ] `DEV_AUTH=false` i backendens produktionsmiljö.
-- [ ] `/health` visar `database: supabase`, `ai_provider: anthropic`.
+- [ ] `/health` visar `database: supabase`, `ai_provider: gemini`, `face_detector: google`.
 - [ ] Ett testkonto registrerat, mejl verifierat, profil med samtycke.
 - [ ] En bild uppladdad: syns i Storage under rätt `user_id`, EXIF borta.
 - [ ] En analys klar: rad i `ai_assessments`, `red_flags` rimligt.
@@ -76,6 +80,6 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 
 - Beta-formuläret på landningssidan skickar inget än (ingen endpoint ännu; tabellen `beta_signups` finns).
 - `expo-camera` i Expo Go fungerar, men ansiktsguiden är bara en visuell ram – kvalitetskontrollen sker på servern.
-- Anthropic-providern är skriven enligt SDK-dokumentationen men inte körd mot API:et i det här repot (ingen nyckel i miljön). Första körningen görs i Sprint 1 av Youssef.
+- Gemini- och Anthropic-providrarna samt Google Vision-anropet är skrivna enligt SDK-/API-dokumentationen men inte körda mot tjänsterna i det här repot (inga nycklar i miljön). Första körningen görs i Sprint 1 av Youssef (Gemini) och Ali (Vision).
 - Supabase-repositories är skrivna mot schemat men inte körda mot ett riktigt projekt här. Första körningen görs i Sprint 1 av Assad.
-- Ikoner i appens flikfält är tecken (⌂ ✓ ●); byt till brand kit-ikoner via `react-native-svg` i Sprint 2.
+- Språkväljaren på välkomstskärmen är visuell (appen är bara på svenska i MVP).

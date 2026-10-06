@@ -8,7 +8,7 @@ Fel returneras som `{"detail": "..."}` (sträng) eller `{"detail": {"errors": [.
 |---|---|---|---|
 | GET | `/health` | Assad | Status, vilken databas/AI-provider som körs |
 | GET | `/profile` | Anas | Hämta profil (skapas om den saknas) |
-| PUT | `/profile` | Anas | Uppdatera `display_name`, `birth_year`, `skin_type`, `consent_images`, `locale` |
+| PUT | `/profile` | Anas | Uppdatera `display_name`, `birth_year`, `age_range`, `gender`, `country`, `skin_type`, `consent_images`, `locale` |
 | DELETE | `/profile` | Anas | GDPR: radera all data för användaren |
 | GET | `/questionnaire?version=1.0.0` | Adam | Frågor inkl. `show_if`-regler |
 | POST | `/assessments` | Adam | Ny bedömning (draft) |
@@ -60,7 +60,7 @@ GET /questionnaire
 }
 ```
 
-`show_if` stöder `equals` (single/boolean), `includes` (multi) och `gte` (scale). Samma regel finns i `apps/mobile/src/utils/questionnaire.ts` och `apps/api/src/services/context_builder.py`.
+`show_if` stöder `equals` (single/boolean), `includes` (multi) och `gte` (scale). `layout` (`cards` | `grid`) och `options[].icon/description` styr hur appen ritar frågan (skärm 6–7 i designen). Samma regel finns i `apps/mobile/src/utils/questionnaire.ts` och `apps/api/src/services/context_builder.py`.
 
 ### Bilduppladdning
 
@@ -96,7 +96,9 @@ POST /ai/analyze/{assessment_id}
     "plan": {
       "title": "Lugn start för blandhud med mild akne",
       "summary": "…",
+      "goals": [ "Minska utbrott", "Balansera talgproduktion" ],
       "morning": [ { "step": "Rengöring", "product_type": "Mild, parfymfri rengöring", "active_ingredient": null, "frequency": "Varje morgon", "why": "…" } ],
+      "key_ingredients": [ "Salicylsyra 2 % – rensar porer" ], "tips": [ "Byt örngott varje vecka" ],
       "evening": [ … ], "weekly": [], "avoid": [ "Skrubbar med korn" ],
       "expectations": "…", "follow_up_days": 14
     },

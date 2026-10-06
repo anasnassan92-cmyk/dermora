@@ -25,7 +25,7 @@ export function QuestionRenderer({ question, value, onChange }: Props) {
       </T>
       <T variant="small" muted mb="lg">
         {question.help ?? (question.type === 'multi' ? 'Välj ett eller flera alternativ.' : 'Välj det alternativ som bäst beskriver din upplevelse.')}
-        {!question.required ? ' (valfritt)' : ''}
+        {question.required === false ? ' (valfritt)' : ''}
       </T>
 
       {question.layout === 'cards' &&

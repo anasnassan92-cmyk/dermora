@@ -35,3 +35,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: test -f apps/web/index.html && ! grep -q "{{icon:" apps/web/index.html
+      - name: questionnaire JSON identical in api and mobile
+        run: cmp apps/api/src/data/questionnaire_v1.json apps/mobile/src/services/mock/questionnaire_v1.json

@@ -13,6 +13,11 @@ import { mockImage } from '../mock/mockData';
 
 const mockImages: SkinImage[] = [];
 
+/** DEV ONLY – used by services/mock/seed.ts for screen previews. */
+export function __pushMockImage(assessmentId: string | null, uri: string): void {
+  mockImages.unshift(mockImage(assessmentId, uri));
+}
+
 /** Downscale + JPEG-encode on device before upload (faster, less data). */
 export async function prepareForUpload(uri: string): Promise<{ uri: string; width: number; height: number }> {
   const result = await ImageManipulator.manipulateAsync(uri, [{ resize: { width: 1600 } }], {

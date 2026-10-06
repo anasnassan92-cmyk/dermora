@@ -1,0 +1,18 @@
+[
+  {"file": "01-valkomst.png", "title": "Välkomstskärm"},
+  {"file": "02-skapa-konto.png", "title": "Skapa konto"},
+  {"file": "03-verifiera.png", "title": "Verifiera e-post"},
+  {"file": "04-grundprofil.png", "title": "Grundprofil"},
+  {"file": "05-intro.png", "title": "Frågeformulär – introduktion"},
+  {"file": "06-hudtyp.png", "title": "Hudtyp"},
+  {"file": "07-hudproblem.png", "title": "Hudproblem"},
+  {"file": "08-foljdfragor.png", "title": "Villkorliga frågor"},
+  {"file": "09-bilder.png", "title": "Bilduppladdning"},
+  {"file": "10-granska-bilder.png", "title": "Granska bilder"},
+  {"file": "11-analys.png", "title": "AI-analys"},
+  {"file": "12-chat.png", "title": "AI-vägledning (chat)"},
+  {"file": "13-plan.png", "title": "AI-föreslagen plan"},
+  {"file": "14-bekrafta.png", "title": "Bekräfta plan"},
+  {"file": "15-sparad.png", "title": "Plan sparad"},
+  {"file": "16-hem.png", "title": "Hem"}
+]

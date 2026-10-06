@@ -4,97 +4,10 @@
  */
 import type { Assessment, Questionnaire, SkinGuidance, SkinImage, TreatmentPlan } from '../../types/api';
 
-export const mockQuestionnaire: Questionnaire = {
-  version: '1.0.0',
-  title: 'Berätta om din hud',
-  questions: [
-    {
-      id: 'skin_type', type: 'single', title: 'Hur skulle du beskriva din hud?', help: 'Välj det som stämmer bäst de flesta dagar.', required: true,
-      options: [
-        { value: 'oily', label: 'Fet – blir glansig under dagen' },
-        { value: 'dry', label: 'Torr – stram eller fjällig' },
-        { value: 'combination', label: 'Blandhud – fet i T-zonen, torr på kinderna' },
-        { value: 'normal', label: 'Normal – varken fet eller torr' },
-        { value: 'unknown', label: 'Vet inte' },
-      ],
-    },
-    { id: 'sensitive', type: 'boolean', title: 'Reagerar din hud lätt med rodnad, sveda eller klåda?', required: true, options: [] },
-    {
-      id: 'concerns', type: 'multi', title: 'Vilka besvär vill du ha hjälp med?', help: 'Välj alla som stämmer.', required: true,
-      options: [
-        { value: 'acne', label: 'Finnar / akne' },
-        { value: 'blackheads', label: 'Pormaskar' },
-        { value: 'redness', label: 'Rodnad / irritation' },
-        { value: 'dark_spots', label: 'Mörka fläckar / ärr efter finnar' },
-        { value: 'dryness', label: 'Torrhet / fjällning' },
-        { value: 'texture', label: 'Ojämn hudstruktur' },
-        { value: 'other', label: 'Annat' },
-      ],
-    },
-    {
-      id: 'acne_area', type: 'multi', title: 'Var får du oftast finnar?', required: true, show_if: { question_id: 'concerns', includes: 'acne' },
-      options: [
-        { value: 'forehead', label: 'Panna' }, { value: 'nose', label: 'Näsa' }, { value: 'cheeks', label: 'Kinder' },
-        { value: 'chin', label: 'Haka / käklinje' }, { value: 'back', label: 'Rygg / bröst' },
-      ],
-    },
-    {
-      id: 'acne_frequency', type: 'single', title: 'Hur ofta får du nya finnar?', required: true, show_if: { question_id: 'concerns', includes: 'acne' },
-      options: [
-        { value: 'rarely', label: 'Någon gång i månaden' }, { value: 'weekly', label: 'Varje vecka' }, { value: 'constant', label: 'Nästan hela tiden' },
-      ],
-    },
-    {
-      id: 'acne_type', type: 'multi', title: 'Hur ser finnarna oftast ut?', required: true, show_if: { question_id: 'concerns', includes: 'acne' },
-      options: [
-        { value: 'whiteheads', label: 'Små vita' }, { value: 'papules', label: 'Röda, ömma' },
-        { value: 'cystic', label: 'Djupa, hårda knölar' }, { value: 'mixed', label: 'Blandat' },
-      ],
-    },
-    {
-      id: 'acne_pain', type: 'scale', title: 'Hur ömma eller smärtsamma är de? (0 = inte alls, 10 = mycket)', required: true,
-      show_if: { question_id: 'acne_type', includes: 'cystic' }, min: 0, max: 10, options: [],
-    },
-    {
-      id: 'duration', type: 'single', title: 'Hur länge har du haft besvären?', required: true,
-      options: [
-        { value: 'lt_1m', label: 'Mindre än en månad' }, { value: '1_6m', label: '1–6 månader' },
-        { value: '6_12m', label: '6–12 månader' }, { value: 'gt_1y', label: 'Mer än ett år' },
-      ],
-    },
-    {
-      id: 'sudden_change', type: 'boolean', required: true, options: [],
-      title: 'Har huden förändrats snabbt de senaste två veckorna (ny utbredd rodnad, svullnad, vätskande sår eller feber)?',
-      help: 'Detta hjälper oss att veta när du bör söka vård i stället för egenvård.',
-    },
-    {
-      id: 'current_routine', type: 'multi', title: 'Vad använder du i dag?', required: true,
-      options: [
-        { value: 'cleanser', label: 'Rengöring' }, { value: 'moisturizer', label: 'Fuktkräm' }, { value: 'spf', label: 'Solskydd (SPF)' },
-        { value: 'actives', label: 'Aktiva ingredienser (syror, retinol, bensoylperoxid)' },
-        { value: 'prescription', label: 'Receptbelagd behandling' }, { value: 'nothing', label: 'Inget särskilt' },
-      ],
-    },
-    { id: 'actives_which', type: 'text', title: 'Vilka aktiva ingredienser eller produkter använder du?', required: false, options: [], show_if: { question_id: 'current_routine', includes: 'actives' } },
-    { id: 'prescription_which', type: 'text', title: 'Vilken receptbelagd behandling använder du?', required: false, options: [], show_if: { question_id: 'current_routine', includes: 'prescription' } },
-    { id: 'tried_before', type: 'text', title: 'Vad har du provat tidigare, och hur fungerade det?', help: "Fri text. T.ex. 'Salicylsyra från apoteket, hjälpte lite men torkade ut'.", required: false, options: [] },
-    {
-      id: 'lifestyle', type: 'multi', title: 'Stämmer något av detta?', required: false,
-      options: [
-        { value: 'stress', label: 'Mycket stress just nu' }, { value: 'poor_sleep', label: 'Sover dåligt' },
-        { value: 'shaving', label: 'Rakar ansiktet regelbundet' }, { value: 'makeup_daily', label: 'Använder smink dagligen' },
-        { value: 'sport_sweat', label: 'Tränar/svettas mycket' }, { value: 'hormonal', label: 'Besvären följer menscykeln' },
-      ],
-    },
-    {
-      id: 'goal', type: 'single', title: 'Vad är viktigast för dig just nu?', required: true,
-      options: [
-        { value: 'fewer_breakouts', label: 'Färre finnar' }, { value: 'calm_skin', label: 'Lugnare, mindre irriterad hud' },
-        { value: 'even_tone', label: 'Jämnare hudton' }, { value: 'simple_routine', label: 'En enkel rutin jag orkar följa' },
-      ],
-    },
-  ],
-};
+// Same file as apps/api/src/data/questionnaire_v1.json (copied; CI checks they stay identical).
+import questionnaireJson from './questionnaire_v1.json';
+
+export const mockQuestionnaire: Questionnaire = questionnaireJson as Questionnaire;
 
 export const mockGuidance: SkinGuidance = {
   skin_type_estimate: 'combination',
