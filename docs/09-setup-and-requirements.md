@@ -48,8 +48,10 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 
 ## Supabase-inställningar att göra i dashboarden
 
+0. Authentication → Providers → **Google**: på. Skapa OAuth-klient i Google Cloud (Credentials → OAuth client ID → Web), lägg in Supabase callback-URL (`https://<projekt>.supabase.co/auth/v1/callback`) och klistra in client id/secret i Supabase. Lägg till webbappens adress under Redirect URLs.
+
 1. SQL Editor → kör `supabase/schema.sql`, sedan `supabase/seed.sql`.
-2. Authentication → Providers → Email: på. **Confirm email: på.**
+2. Authentication → Providers → Email: på. **Confirm email: på.** Email Templates → *Confirm signup*: ersätt länken med `{{ .Token }}` så att mejlet innehåller den 6-siffriga koden som appen frågar efter.
 3. Authentication → URL Configuration → Redirect URLs: lägg till `dermora://verified` och `exp://*`.
 4. Authentication → Email Templates: svensk text (valfritt).
 5. Storage → bucket `skin-images` ska vara **privat** (skapas av schema.sql).
@@ -82,4 +84,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 - `expo-camera` i Expo Go fungerar, men ansiktsguiden är bara en visuell ram – kvalitetskontrollen sker på servern.
 - Gemini- och Anthropic-providrarna samt Google Vision-anropet är skrivna enligt SDK-/API-dokumentationen men inte körda mot tjänsterna i det här repot (inga nycklar i miljön). Första körningen görs i Sprint 1 av Youssef (Gemini) och Ali (Vision).
 - Supabase-repositories är skrivna mot schemat men inte körda mot ett riktigt projekt här. Första körningen görs i Sprint 1 av Assad.
-- Språkväljaren på välkomstskärmen är visuell (appen är bara på svenska i MVP).
+- Google-inloggning är kopplad via Supabase OAuth men inte testad live (kräver Google Cloud OAuth-klient). Apple-inloggning finns inte (kräver betalt Apple-konto).
+- Produktkort visar produkttyper och ingredienser, inte varumärken (teamets beslut).
+- Fliken Framsteg är en platshållare för Release 2.
+- Mascoten och fotona i appen är urklippta ur designskärmarna (`apps/mobile/assets/design`); byt ut filerna när originalen finns.

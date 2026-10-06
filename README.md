@@ -108,9 +108,13 @@ Detaljer: [docs/09-setup-and-requirements.md](docs/09-setup-and-requirements.md)
 | [docs/09-setup-and-requirements.md](docs/09-setup-and-requirements.md) | Konton, nycklar, kostnader, checklista |
 | [docs/10-presentation-notes.md](docs/10-presentation-notes.md) | Talmanus och demo-flöde för redovisningen |
 
+## Webbappen på landningssidan
+
+Appen exporteras även som webbapp (`npx expo export --platform web` → `apps/web/app/`). Landningssidans knappar **Logga in** / **Skapa konto** och **Starta din hudanalys** öppnar `app/?start=register` så att vem som helst kan göra hela flödet i webbläsaren. `apps/api/.venv/Scripts/python scripts/package-web.py` exporterar appen och bygger `dist/dermora-web.zip` för Hostinger (ladda upp till `public_html` och extrahera).
+
 ## Skärmdumpar
 
-`python scripts/screenshots.py` tar 16 skärmdumpar från den körande webbversionen av appen (`?preview=<Screen>`, se `apps/mobile/src/dev/PreviewApp.tsx`) till `apps/web/assets/screens/`. Landningssidans sektion **Appen** visar dem.
+`apps/api/.venv/Scripts/python scripts/screenshots.py` tar 17 skärmdumpar från den körande webbversionen av appen (`?preview=<Screen>`, se `apps/mobile/src/dev/PreviewApp.tsx`) till `apps/web/assets/screens/`. Landningssidans sektion **Appen** visar dem.
 
 ## Repo-struktur
 
