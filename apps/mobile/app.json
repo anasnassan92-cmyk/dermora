@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "Dermora",
+    "slug": "dermora",
+    "version": "0.1.0",
+    "scheme": "dermora",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/logo/symbol.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F8FCFB"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "se.dermora.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Dermora använder kameran för att ta en bild på din hud. Bilden används bara för din egen hudvägledning.",
+        "NSPhotoLibraryUsageDescription": "Dermora behöver åtkomst till dina bilder för att du ska kunna välja en bild på din hud."
+      }
+    },
+    "android": {
+      "package": "se.dermora.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "permissions": [
+        "CAMERA",
+        "READ_MEDIA_IMAGES"
+      ],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/icon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Dermora använder kameran för att ta en bild på din hud."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Dermora behöver åtkomst till dina bilder."
+        }
+      ],
+      "expo-secure-store",
+      "expo-font",
+      "expo-splash-screen"
+    ]
+  }
+}
