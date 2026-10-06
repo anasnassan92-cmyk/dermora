@@ -3,7 +3,7 @@ name: Deploy landing page to GitHub Pages
 on:
   push:
     branches: [main]
-    paths: ["apps/web/**"]
+    paths: ["apps/web/**", "apps/mobile/**"]
   workflow_dispatch:
 
 permissions:
@@ -23,8 +23,23 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/mobile/package-lock.json
+      # Rebuild the web app for the Pages subpath (https://<user>.github.io/dermora/app/).
+      - name: Export web app for /dermora/app
+        working-directory: apps/mobile
+        env:
+          EXPO_BASE_URL: /dermora/app
+        run: |
+          npm ci
+          rm -rf ../web/app
+          npx expo export --platform web --output-dir ../web/app
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
-        with: { path: apps/web }
+        with:
+          path: apps/web
       - id: deployment
         uses: actions/deploy-pages@v4
