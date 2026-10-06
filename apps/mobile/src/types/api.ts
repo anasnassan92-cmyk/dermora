@@ -8,6 +8,7 @@ export type SkinType = 'oily' | 'dry' | 'combination' | 'normal' | 'sensitive' |
 
 export type AgeRange = 'under_18' | '18_24' | '25_34' | '35_44' | '45_54' | '55_plus';
 export type Gender = 'female' | 'male' | 'non_binary' | 'undisclosed';
+export type SkinTone = 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface Profile {
   id: string;
@@ -16,13 +17,14 @@ export interface Profile {
   age_range: AgeRange | null;
   gender: Gender | null;
   country: string | null;
+  skin_tone: SkinTone | null;
   skin_type: SkinType;
   consent_images: boolean;
   consent_at: string | null;
   locale: string;
 }
 
-export type ProfileUpdate = Partial<Pick<Profile, 'display_name' | 'birth_year' | 'age_range' | 'gender' | 'country' | 'skin_type' | 'consent_images' | 'locale'>>;
+export type ProfileUpdate = Partial<Pick<Profile, 'display_name' | 'birth_year' | 'age_range' | 'gender' | 'country' | 'skin_tone' | 'skin_type' | 'consent_images' | 'locale'>>;
 
 // ---- questionnaire ----
 export type QuestionType = 'single' | 'multi' | 'scale' | 'text' | 'boolean';
@@ -32,6 +34,7 @@ export interface QuestionOption {
   label: string;
   description?: string | null;
   icon?: string | null;
+  image?: string | null;
 }
 
 export interface ShowIf {
@@ -52,6 +55,8 @@ export interface Question {
   max?: number | null;
   show_if?: ShowIf | null;
   layout?: 'list' | 'grid' | 'cards' | null;
+  context?: string | null;
+  note?: string | null;
 }
 
 export interface Questionnaire {
@@ -78,7 +83,7 @@ export interface Assessment {
 }
 
 // ---- images ----
-export type ImageArea = 'face' | 'forehead' | 'left_cheek' | 'right_cheek' | 'chin' | 'other';
+export type ImageArea = 'face' | 'left' | 'right' | 'closeup' | 'forehead' | 'left_cheek' | 'right_cheek' | 'chin' | 'other';
 
 export interface FaceCheck {
   face_found: boolean;
@@ -120,6 +125,7 @@ export interface RoutineStep {
   product_type: string;
   active_ingredient: string | null;
   frequency: string;
+  duration?: string | null;
   why: string;
 }
 
@@ -140,6 +146,8 @@ export interface TreatmentPlanProposal {
 export interface SkinGuidance {
   skin_type_estimate: SkinType;
   primary_concern: string;
+  skin_texture?: string;
+  sensitivity?: string;
   observations: Observation[];
   overall_severity: Severity;
   image_quality_note: string | null;

@@ -12,3 +12,8 @@ export { IconBadge } from './IconBadge';
 export { StepHeader } from './StepHeader';
 export { OptionCard } from './OptionCard';
 export { ListRow } from './ListRow';
+export { FlowHeader } from './FlowHeader';
+export { FlowFooter } from './FlowFooter';
+export { Blob } from './Blob';
+export { InfoPanel } from './InfoPanel';
+export { PhotoOptionCard } from './PhotoOptionCard';

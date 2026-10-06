@@ -1,72 +1,101 @@
-import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+/** Design screen 03 – Verifiera din e-post (6-siffrig kod). Owner: Anas. */
+import React, { useEffect, useRef, useState } from 'react';
+import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
-import { Button, Card, Icon, IconBadge, Screen, T } from '../../components/ui';
+import { Blob, Button, FlowHeader, Screen, T } from '../../components/ui';
+import { DESIGN } from '../../constants/design';
 import { useAuth } from '../../hooks/useAuth';
 import type { AuthScreenProps } from '../../navigation/types';
 import { authService } from '../../services/auth/authService';
-import { colors, spacing } from '../../theme';
+import { colors, radius, shadow, spacing, typography } from '../../theme';
 
-/**
- * Shown after sign-up until the e-mail is verified. In real mode the user taps
- * the link in the e-mail (deep link dermora://verified) and we refresh the
- * session. In mock mode a button simulates the link.
- */
 export function VerifyEmailScreen({ route }: AuthScreenProps<'VerifyEmail'>) {
   const { email } = route.params;
-  const { refresh, markVerified, isMock, signOut } = useAuth();
-  const [sent, setSent] = useState(false);
+  const { refresh, isMock, signOut } = useAuth();
+  const [code, setCode] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [countdown, setCountdown] = useState(30);
+  const input = useRef<TextInput>(null);
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown]);
+
+  const submit = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      await authService.verifyCode(email, code);
+      await refresh();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resend = async () => {
+    await authService.resendVerification(email);
+    setCountdown(30);
+  };
 
   return (
     <Screen>
-      <View style={styles.logo}>
-        <IconBadge name="mail" size={96} />
-        <View style={styles.dot}><T variant="caption" color={colors.onPrimary}>1</T></View>
-      </View>
-      <T variant="h1" center mb="sm">Kontrollera din e-post</T>
-      <T variant="small" muted center>
-        Vi har skickat en verifieringslänk till
-      </T>
-      <T variant="bodyMedium" center mb="xs">{email}</T>
-      <T variant="small" muted center mb="xl">
-        Klicka på länken i e-posten för att verifiera ditt konto.
-      </T>
+      <Blob />
+      <FlowHeader step={2} onBack={signOut} />
+      <Image source={DESIGN.envelope} style={styles.envelope} resizeMode="contain" />
+      <T variant="display" center style={styles.title}>Verifiera din e-post</T>
+      <T variant="body" muted center>Vi har skickat en 6-siffrig kod till</T>
+      <T variant="bodyMedium" center mb="sm">{email}</T>
+      <T variant="small" muted center mb="xl">Ange koden nedan för att slutföra din registrering.</T>
 
-      <Card tone="mint">
-        <T variant="bodyMedium" center mb="xs">Har du inte fått något mejl?</T>
-        <T variant="caption" muted center mb="md">Kontrollera din skräppost.</T>
-        <Button
-          title={sent ? 'Skickat!' : 'Skicka e-post igen'}
-          variant="secondary"
-          disabled={sent}
-          onPress={async () => {
-            await authService.resendVerification(email);
-            setSent(true);
-          }}
+      <Pressable onPress={() => input.current?.focus()} style={styles.boxes} accessibilityLabel="Verifieringskod">
+        {Array.from({ length: 6 }, (_, i) => (
+          <View key={i} style={[styles.box, code.length === i && styles.boxActive]}>
+            <T variant="h1" style={styles.digit}>{code[i] ?? ''}</T>
+          </View>
+        ))}
+        <TextInput
+          ref={input}
+          value={code}
+          onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
+          keyboardType="number-pad"
+          maxLength={6}
+          autoFocus
+          style={styles.hiddenInput}
+          accessibilityLabel="Sexsiffrig kod"
         />
-      </Card>
+      </Pressable>
 
-      <T variant="small" color={colors.inkBrand} center onPress={signOut} accessibilityRole="link" style={styles.link}>
+      <T variant="small" muted center>Hittar du inte mejlet?</T>
+      <View style={styles.resendRow}>
+        <T variant="bodyMedium" color={countdown > 0 ? colors.inkMuted : colors.inkBrand} onPress={countdown > 0 ? undefined : resend}>Skicka ny kod</T>
+        {countdown > 0 ? <T variant="bodyMedium" muted>  (00:{String(countdown).padStart(2, '0')})</T> : null}
+      </View>
+      {isMock ? <T variant="caption" muted center style={styles.mock}>Demo-läge: vilka sex siffror som helst fungerar.</T> : null}
+      {error ? <T variant="small" color={colors.danger} center mb="md">{error}</T> : null}
+
+      <Button title="Fortsätt  →" onPress={submit} disabled={code.length < 6} loading={loading} style={styles.cta} />
+      <T variant="bodyMedium" color={colors.inkBrand} center onPress={signOut} accessibilityRole="link" style={styles.change}>
         Ändra e-postadress
       </T>
-
-      <View style={styles.actions}>
-        <Button title="Jag har verifierat" onPress={isMock ? markVerified : refresh} />
-        {isMock ? (
-          <View style={styles.mockRow}>
-            <Icon name="info" size={14} color={colors.inkMuted} />
-            <T variant="caption" muted>Demo-läge: knappen simulerar länken i mejlet.</T>
-          </View>
-        ) : null}
-      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  logo: { alignItems: 'center', marginVertical: spacing.xxl },
-  dot: { position: 'absolute', top: 2, right: '34%', width: 22, height: 22, borderRadius: 11, backgroundColor: colors.danger, alignItems: 'center', justifyContent: 'center' },
-  link: { marginTop: spacing.md },
-  actions: { marginTop: spacing.xxl },
-  mockRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: spacing.md },
+  envelope: { width: 200, height: 150, alignSelf: 'center', marginVertical: spacing.lg },
+  title: { fontSize: 30, lineHeight: 36, marginBottom: spacing.sm },
+  boxes: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.xl },
+  box: { width: 48, height: 64, borderRadius: radius.md, backgroundColor: colors.surfaceRaised, borderWidth: 1.5, borderColor: colors.line, alignItems: 'center', justifyContent: 'center', ...shadow.sm },
+  boxActive: { borderColor: colors.accent },
+  digit: { marginBottom: 0 },
+  hiddenInput: { position: 'absolute', opacity: 0, width: 1, height: 1, ...typography.body },
+  resendRow: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
+  mock: { marginBottom: spacing.md },
+  cta: { marginTop: spacing.md },
+  change: { marginTop: spacing.lg, marginBottom: spacing.lg },
 });

@@ -14,8 +14,8 @@ import { mockImage } from '../mock/mockData';
 const mockImages: SkinImage[] = [];
 
 /** DEV ONLY – used by services/mock/seed.ts for screen previews. */
-export function __pushMockImage(assessmentId: string | null, uri: string): void {
-  mockImages.unshift(mockImage(assessmentId, uri));
+export function __pushMockImage(assessmentId: string | null, uri: string, area: ImageArea = 'face'): void {
+  mockImages.unshift({ ...mockImage(assessmentId, uri), area });
 }
 
 /** Downscale + JPEG-encode on device before upload (faster, less data). */
@@ -39,7 +39,7 @@ export const imageStorageService = {
   async upload(uri: string, assessmentId: string | null, area: ImageArea = 'face'): Promise<SkinImage> {
     const prepared = await prepareForUpload(uri);
     if (USE_MOCK_API) {
-      const img = mockImage(assessmentId, prepared.uri);
+      const img = { ...mockImage(assessmentId, prepared.uri), area };
       mockImages.unshift(img);
       return img;
     }

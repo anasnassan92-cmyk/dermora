@@ -31,6 +31,7 @@ class MemoryProfiles:
             "age_range": None,
             "gender": None,
             "country": "SE",
+            "skin_tone": None,
             "skin_type": "unknown",
             "consent_images": False,
             "consent_at": None,

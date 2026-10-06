@@ -48,6 +48,7 @@ create table if not exists public.profiles (
   age_range      text check (age_range is null or age_range in ('under_18','18_24','25_34','35_44','45_54','55_plus')),
   gender         text check (gender is null or gender in ('female','male','non_binary','undisclosed')),
   country        char(2) default 'SE',
+  skin_tone      smallint check (skin_tone is null or skin_tone between 1 and 6),  -- Fitzpatrick I–VI
   skin_type      skin_type not null default 'unknown',
   consent_images boolean not null default false,  -- GDPR: explicit consent to process skin images
   consent_at     timestamptz,
@@ -109,7 +110,7 @@ create table if not exists public.skin_images (
   user_id        uuid not null references auth.users (id) on delete cascade,
   assessment_id  uuid references public.assessments (id) on delete set null,
   storage_path   text not null unique,         -- '<user_id>/<image_id>.jpg' in bucket skin-images
-  area           text not null default 'face', -- face | forehead | left_cheek | right_cheek | chin | other
+  area           text not null default 'face', -- face (framifrån) | left | right | closeup | other
   width          int,
   height         int,
   bytes          int,

@@ -7,6 +7,15 @@ import { planService } from '../../features/treatment-plan/services/planService'
 import { aiService } from '../ai/aiService';
 import { profileService } from '../profile/profileService';
 import { __pushMockImage } from '../storage/imageStorageService';
+import { DESIGN } from '../../constants/design';
+
+/** On web, require() of an image resolves to a URL string (or {uri}). */
+function exampleUri(name: string): string {
+  const src = DESIGN[name] as unknown as string | { uri?: string } | number;
+  if (typeof src === 'string') return src;
+  if (typeof src === 'object' && src && 'uri' in src && src.uri) return src.uri;
+  return PLACEHOLDER_PHOTO;
+}
 
 export interface DemoSeed {
   assessmentId: string;
@@ -15,7 +24,7 @@ export interface DemoSeed {
 
 const ORDER = [
   'Welcome', 'Login', 'Register', 'VerifyEmail', 'ProfileSetup', 'AssessmentIntro', 'Assessment', 'ImageUpload', 'ImageReview',
-  'Analyzing', 'Result', 'AIChat', 'TreatmentPlan', 'ConfirmPlan', 'PlanSaved', 'Home', 'Plan', 'Chat', 'Profile', 'Tabs', 'EditProfile',
+  'Analyzing', 'Result', 'AIChat', 'TreatmentPlan', 'ConfirmPlan', 'PlanSaved', 'Tabs', 'Plan', 'EditProfile',
 ];
 
 /** A tiny neutral "skin" placeholder (SVG data URL) so image screens have thumbnails without real photos. */
@@ -27,15 +36,15 @@ export const PLACEHOLDER_PHOTO =
 
 export async function seedDemo(screen: string): Promise<DemoSeed> {
   const stage = Math.max(0, ORDER.indexOf(screen));
-  await profileService.update({ display_name: 'Emma Andersson', age_range: '18_24', gender: 'female', country: 'SE', skin_type: 'combination', consent_images: stage >= ORDER.indexOf('ImageUpload') });
+  await profileService.update({ display_name: 'Emma Andersson', age_range: '18_24', gender: 'female', country: 'SE', skin_type: 'combination', skin_tone: 4, consent_images: stage >= ORDER.indexOf('ImageUpload') });
 
   const a = await assessmentService.create();
   await assessmentService.saveAnswers(a.id, {
     skin_type: 'combination',
-    sensitive: false,
-    concerns: ['acne', 'blackheads'],
+    sensitive: 'sometimes',
+    concerns: ['acne', 'dark_spots'],
     acne_area: ['forehead', 'chin'],
-    acne_frequency: 'weekly',
+    acne_frequency: 'often',
     acne_type: ['whiteheads', 'papules'],
     duration: '1_6m',
     sudden_change: false,
@@ -45,8 +54,10 @@ export async function seedDemo(screen: string): Promise<DemoSeed> {
 
   let planId = '';
   if (stage >= ORDER.indexOf('ImageReview')) {
-    __pushMockImage(a.id, PLACEHOLDER_PHOTO);
-    __pushMockImage(a.id, PLACEHOLDER_PHOTO);
+    __pushMockImage(a.id, exampleUri('example-front'), 'face');
+    __pushMockImage(a.id, exampleUri('example-left'), 'left');
+    __pushMockImage(a.id, exampleUri('example-right'), 'right');
+    __pushMockImage(a.id, exampleUri('example-closeup'), 'closeup');
   }
   if (stage >= ORDER.indexOf('Result')) {
     await assessmentService.submit(a.id);

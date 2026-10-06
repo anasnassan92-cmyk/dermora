@@ -9,6 +9,7 @@ let mockProfile: Profile = {
   age_range: '18_24',
   gender: 'female',
   country: 'SE',
+  skin_tone: 4,
   skin_type: 'unknown',
   consent_images: false,
   consent_at: null,
