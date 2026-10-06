@@ -77,10 +77,18 @@ export function createApp() {
   return app;
 }
 
-const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (isMain) {
-  await openDb();
-  createApp().listen(config.port, () => {
-    console.log(`Dermora server on :${config.port} · db=${config.db.host ? 'mysql' : 'sqlite'} · ai=${features.ai} · vision=${features.vision} · email=${features.email} · public=${PUBLIC_DIR ?? 'none'}`);
-  });
+// Always start, except when the tests import the app (they listen on a random port themselves).
+// Do not rely on process.argv[1]: Hostinger's process manager may load this file indirectly.
+// No top-level await: a loader that require()s this file would reject it.
+if (process.env.DERMORA_NO_LISTEN !== '1') {
+  openDb()
+    .then(() => {
+      createApp().listen(config.port, () => {
+        console.log(`Dermora server on :${config.port} · db=${config.db.host ? 'mysql' : 'sqlite'} · ai=${features.ai} · vision=${features.vision} · email=${features.email} · public=${PUBLIC_DIR ?? 'none'}`);
+      });
+    })
+    .catch((e) => {
+      console.error('[startup] could not open the database:', e);
+      process.exit(1);
+    });
 }

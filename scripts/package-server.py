@@ -29,7 +29,8 @@ MOBILE = ROOT / "apps/mobile"
 DIST = ROOT / "dist"
 FOLDER = "dermora-deploy"
 
-SERVER_FILES = ["package.json", "package-lock.json", "tsconfig.json", ".env.example"]
+# .env.example is NOT shipped: Hostinger turns every key in it into a required field.
+SERVER_FILES = ["package.json", "package-lock.json", "tsconfig.json"]
 SKIP_NAMES = {"node_modules", ".data", "dist", ".env", ".claude", "inline-icons.py"}
 
 

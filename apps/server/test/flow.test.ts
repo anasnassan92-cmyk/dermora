@@ -11,6 +11,7 @@ import type { Server } from 'node:http';
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dermora-test-'));
 process.env.DATA_DIR = tmp;
+process.env.DERMORA_NO_LISTEN = '1';
 process.env.ADMIN_EMAILS = 'admin@dermora.test';
 for (const k of ['DB_HOST', 'GEMINI_API_KEY', 'GOOGLE_VISION_API_KEY', 'SMTP_USER', 'SMTP_PASS', 'GOOGLE_CLIENT_ID']) delete process.env[k];
 
