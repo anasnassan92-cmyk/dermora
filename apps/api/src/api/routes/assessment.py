@@ -3,9 +3,9 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ..deps import CurrentUser, Repos, get_current_user, get_repos
 from ...schemas.assessment import AnswersIn, AssessmentCreate, AssessmentOut, Questionnaire
 from ...services.context_builder import load_questionnaire, validate_answers
+from ..deps import CurrentUser, Repos, get_current_user, get_repos
 
 router = APIRouter(tags=["assessment"])
 

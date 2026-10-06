@@ -24,8 +24,8 @@ COVERAGE_MIN = 0.04  # face box should cover at least 4 % of the image
 
 
 def _load_gray(data: bytes):
-    import numpy as np
     import cv2
+    import numpy as np
 
     cv2.setNumThreads(1)
 

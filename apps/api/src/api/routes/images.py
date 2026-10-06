@@ -9,10 +9,14 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile, status
 
-from ..deps import CurrentUser, Repos, get_current_user, get_repos
 from ...core.config import Settings, get_settings
 from ...schemas.image import FaceCheck, ImageArea, ImageOut
-from ...services.face_detection import image_dimensions, run_face_check, strip_metadata_and_normalize
+from ...services.face_detection import (
+    image_dimensions,
+    run_face_check,
+    strip_metadata_and_normalize,
+)
+from ..deps import CurrentUser, Repos, get_current_user, get_repos
 
 router = APIRouter(prefix="/images", tags=["images"])
 
