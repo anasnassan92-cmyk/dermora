@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dermora – Din hud, förstådd.</title>
+  <meta name="description" content="Dermora är appen som hjälper dig förstå din hud. Svara på några frågor, ta en bild och få personlig vägledning och en hudvårdsplan du faktiskt kan följa.">
+  <meta name="theme-color" content="#0C9387">
+  <meta property="og:title" content="Dermora – Din hud, förstådd.">
+  <meta property="og:description" content="Personlig hudvägledning i mobilen. Svara på några frågor, ta en bild och få en plan du kan följa.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="android-chrome-512x512.png">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preload" href="assets/fonts/Montserrat-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/Montserrat-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Hoppa till innehåll</a>
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header" id="top">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="Dermora – till startsidan">
+        <img src="assets/logo/logo-horizontal.svg" alt="Dermora" width="150" height="36">
+      </a>
+      <nav class="nav" aria-label="Huvudmeny">
+        <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Öppna meny">
+          <svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7L20 7"/><path d="M4 12L20 12"/><path d="M4 17L20 17"/></svg>
+
+        </button>
+        <ul class="nav-menu" id="nav-menu">
+          <li><a href="#how">Så fungerar det</a></li>
+          <li><a href="#features">Vad du får</a></li>
+          <li><a href="#safety">Trygghet</a></li>
+          <li><a href="#faq">Frågor</a></li>
+          <li class="nav-cta"><a class="btn btn-primary btn-sm" href="#beta">Få tidig tillgång</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6.5Q11.26 12.24 17 13.5Q11.26 14.76 10 20.5Q8.74 14.76 3 13.5Q8.74 12.24 10 6.5Z"/><path d="M17.75 3Q18.335 5.665 21 6.25Q18.335 6.835 17.75 9.5Q17.165 6.835 14.5 6.25Q17.165 5.665 17.75 3Z"/></svg>
+ Personlig hudvägledning i mobilen</span>
+          <h1 id="hero-title">Din hud,<br><span class="accent">förstådd.</span></h1>
+          <p class="lead">Trött på råd som inte passar din hud? Svara på några frågor, ta en bild och få en vägledning och en enkel plan som är gjord för just dig – inte för alla.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#beta">Få tidig tillgång <svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12L19.5 12"/><path d="M13.5 6L19.5 12L13.5 18"/></svg>
+</a>
+            <a class="btn btn-ghost" href="#how">Se hur det fungerar</a>
+          </div>
+          <ul class="hero-trust" aria-label="Bra att veta">
+            <li><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L19.5 5.8V11.3C19.5 15.8 16.4 19.4 12 21C7.6 19.4 4.5 15.8 4.5 11.3V5.8Z"/><path d="M8.8 12.2L11 14.4L15.4 9.8"/></svg>
+ Dina bilder är privata och kan raderas när du vill</li>
+            <li><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12A8.5 8.5 0 1 0 20.5 12A8.5 8.5 0 1 0 3.5 12Z"/><path d="M12 7.25L12 12L15.25 14"/></svg>
+ Klart på några minuter – inga väntetider</li>
+            <li><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3.5V8A5 5 0 0 0 14.5 8V3.5"/><path d="M9.5 13V15.5A4.5 4.5 0 0 0 18.5 15.5V13.75"/><path d="M16.5 11.75A2 2 0 1 0 20.5 11.75A2 2 0 1 0 16.5 11.75Z"/><path d="M3.5 3.5L5.5 3.5"/><path d="M13.5 3.5L15.5 3.5"/></svg>
+ Vi säger till om du bör kontakta vården</li>
+          </ul>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="phone">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="app-topbar">
+                <img src="assets/logo/symbol.svg" alt="" width="28" height="24">
+                <span class="app-topbar-title">Dermora</span>
+                <span class="app-avatar">S</span>
+              </div>
+              <p class="app-greeting">Hej Sara 👋</p>
+              <h2 class="app-h2">Din hudprofil är klar</h2>
+
+              <div class="app-card app-card-mint">
+                <div class="app-score">
+                  <svg viewBox="0 0 80 80" width="72" height="72">
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="#B5DFDB" stroke-width="8"/>
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="#0C9387" stroke-width="8" stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="54" transform="rotate(-90 40 40)"/>
+                    <text x="40" y="45" text-anchor="middle" font-family="Montserrat" font-weight="600" font-size="20" fill="#1F1F1F">73</text>
+                  </svg>
+                  <div>
+                    <p class="app-label">Hudbalans</p>
+                    <p class="app-strong">Mild akne, panna &amp; haka</p>
+                    <p class="app-muted">Blandhud · känslig för torrhet</p>
+                  </div>
+                </div>
+              </div>
+
+              <p class="app-section">Din plan – vecka 1</p>
+              <div class="app-row"><span class="app-dot app-dot-on"></span><div><p class="app-strong">Morgon</p><p class="app-muted">Mild rengöring · SPF 30+</p></div><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5L10 17.5L19 6.5"/></svg>
+</div>
+              <div class="app-row"><span class="app-dot"></span><div><p class="app-strong">Kväll</p><p class="app-muted">Rengöring · BHA 2 % (varannan kväll)</p></div><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 6L15.5 12L9.5 18"/></svg>
+</div>
+              <div class="app-row"><span class="app-dot"></span><div><p class="app-strong">Följ upp</p><p class="app-muted">Ny bild om 14 dagar</p></div><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5H18A2.5 2.5 0 0 1 20.5 7.5V18A2.5 2.5 0 0 1 18 20.5H6A2.5 2.5 0 0 1 3.5 18V7.5A2.5 2.5 0 0 1 6 5Z"/><path d="M8 3L8 6.75"/><path d="M16 3L16 6.75"/><path d="M3.5 10L20.5 10"/><path d="M9 15.25L11.1 17.25L15.25 13"/></svg>
+</div>
+
+              <div class="app-chat">
+                <span class="app-chat-ai"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H17.5A2.5 2.5 0 0 1 20 6.5V14.5A2.5 2.5 0 0 1 17.5 17H10.5L6.5 20.5V17H6.5A2.5 2.5 0 0 1 4 14.5Z"/><path d="M7.4 10.5A1.1 1.1 0 1 0 9.6 10.5A1.1 1.1 0 1 0 7.4 10.5Z" fill="currentColor" stroke="none"/><path d="M10.9 10.5A1.1 1.1 0 1 0 13.1 10.5A1.1 1.1 0 1 0 10.9 10.5Z" fill="currentColor" stroke="none"/><path d="M14.4 10.5A1.1 1.1 0 1 0 16.6 10.5A1.1 1.1 0 1 0 14.4 10.5Z" fill="currentColor" stroke="none"/></svg>
+</span>
+                <p>Fråga om din plan …</p>
+              </div>
+
+              <div class="app-tabbar">
+                <span class="is-active"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5L12 4L20 10.5V18.75A1.75 1.75 0 0 1 18.25 20.5H5.75A1.75 1.75 0 0 1 4 18.75Z"/><path d="M9.75 20.5V15.25A1 1 0 0 1 10.75 14.25H13.25A1 1 0 0 1 14.25 15.25V20.5"/></svg>
+Hem</span>
+                <span><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5V6A2 2 0 0 1 6 4H8.5"/><path d="M15.5 4H18A2 2 0 0 1 20 6V8.5"/><path d="M20 15.5V18A2 2 0 0 1 18 20H15.5"/><path d="M8.5 20H6A2 2 0 0 1 4 18V15.5"/><path d="M8.75 10.5A1 1 0 1 0 10.75 10.5A1 1 0 1 0 8.75 10.5Z" fill="currentColor" stroke="none"/><path d="M13.25 10.5A1 1 0 1 0 15.25 10.5A1 1 0 1 0 13.25 10.5Z" fill="currentColor" stroke="none"/><path d="M9.6 14.2C10.9 15.5 13.1 15.5 14.4 14.2"/></svg>
+Skanna</span>
+                <span><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 4.5H16.5A2.5 2.5 0 0 1 19 7V18.5A2.5 2.5 0 0 1 16.5 21H7.5A2.5 2.5 0 0 1 5 18.5V7A2.5 2.5 0 0 1 7.5 4.5Z"/><path d="M10 3H14A1 1 0 0 1 15 4V5A1 1 0 0 1 14 6H10A1 1 0 0 1 9 5V4A1 1 0 0 1 10 3Z"/><path d="M8.5 11L9.75 12.25L12 10"/><path d="M14 11.25L16 11.25"/><path d="M8.5 16L9.75 17.25L12 15"/><path d="M14 16.25L16 16.25"/></svg>
+Plan</span>
+                <span><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8.25 7.75A3.75 3.75 0 1 0 15.75 7.75A3.75 3.75 0 1 0 8.25 7.75Z"/><path d="M4.5 20.5C4.5 16.4 7.9 13.5 12 13.5C16.1 13.5 19.5 16.4 19.5 20.5"/></svg>
+Profil</span>
+              </div>
+            </div>
+          </div>
+          <div class="hero-blob hero-blob-1"></div>
+          <div class="hero-blob hero-blob-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROBLEM ============ -->
+    <section class="section section-problem" aria-labelledby="problem-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Känner du igen dig?</span>
+          <h2 id="problem-title">Alla har ett råd. Få av dem passar din hud.</h2>
+          <p class="lead">TikTok säger en sak, apoteket en annan och kompisen en tredje. Resultatet blir ofta en badrumshylla full av produkter – och en hud som fortfarande inte mår bra.</p>
+        </div>
+        <div class="grid-3">
+          <blockquote class="quote">
+            <p>”Det fanns för många olika råd och jag visste inte vad som passade mig.”</p>
+            <footer>23 år</footer>
+          </blockquote>
+          <blockquote class="quote">
+            <p>”Alla rekommenderar olika saker och det är svårt att veta vad huden behöver.”</p>
+            <footer>21 år</footer>
+          </blockquote>
+          <blockquote class="quote">
+            <p>”Jag spenderade mycket pengar innan jag fick en tydlig plan.”</p>
+            <footer>32 år</footer>
+          </blockquote>
+        </div>
+        <p class="footnote">Röster från våra användarintervjuer.</p>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section class="section" id="how" aria-labelledby="how-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Så fungerar det</span>
+          <h2 id="how-title">Från första fråga till en plan – på några minuter</h2>
+        </div>
+        <ol class="steps">
+          <li class="step">
+            <span class="step-num">1</span>
+            <div class="step-icon"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8.25 7.75A3.75 3.75 0 1 0 15.75 7.75A3.75 3.75 0 1 0 8.25 7.75Z"/><path d="M4.5 20.5C4.5 16.4 7.9 13.5 12 13.5C16.1 13.5 19.5 16.4 19.5 20.5"/></svg>
+</div>
+            <h3>Berätta om din hud</h3>
+            <p>Svara på smarta frågor om hudtyp, besvär och vad du redan provat. Följdfrågorna anpassas efter dina svar, så du slipper det som inte gäller dig.</p>
+          </li>
+          <li class="step">
+            <span class="step-num">2</span>
+            <div class="step-icon"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5A2 2 0 0 1 5.5 6.5H8L9.5 4.5H14.5L16 6.5H18.5A2 2 0 0 1 20.5 8.5V18A2 2 0 0 1 18.5 20H5.5A2 2 0 0 1 3.5 18Z"/><path d="M8.5 13A3.5 3.5 0 1 0 15.5 13A3.5 3.5 0 1 0 8.5 13Z"/></svg>
+</div>
+            <h3>Ta en bild</h3>
+            <p>Kameraguiden hjälper dig med ljus och avstånd. Bilden är privat, bara du kan se den.</p>
+          </li>
+          <li class="step">
+            <span class="step-num">3</span>
+            <div class="step-icon"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.75 4.6A8 8 0 1 0 19.4 13.25H10.75Z"/><path d="M13.25 2.6A8 8 0 0 1 21.4 10.75H13.25Z"/></svg>
+</div>
+            <h3>Få din vägledning</h3>
+            <p>Dermora väger samman bild och svar och förklarar vad den ser – område för område, på enkel svenska.</p>
+          </li>
+          <li class="step">
+            <span class="step-num">4</span>
+            <div class="step-icon"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 4.5H16.5A2.5 2.5 0 0 1 19 7V18.5A2.5 2.5 0 0 1 16.5 21H7.5A2.5 2.5 0 0 1 5 18.5V7A2.5 2.5 0 0 1 7.5 4.5Z"/><path d="M10 3H14A1 1 0 0 1 15 4V5A1 1 0 0 1 14 6H10A1 1 0 0 1 9 5V4A1 1 0 0 1 10 3Z"/><path d="M8.5 11L9.75 12.25L12 10"/><path d="M14 11.25L16 11.25"/><path d="M8.5 16L9.75 17.25L12 15"/><path d="M14 16.25L16 16.25"/></svg>
+</div>
+            <h3>Bekräfta din plan</h3>
+            <p>Ställ följdfrågor, justera och bekräfta. Planen sparas i appen så att du kan följa den dag för dag.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ FEATURES ============ -->
+    <section class="section section-mint" id="features" aria-labelledby="features-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Vad du får</span>
+          <h2 id="features-title">Hudvård som utgår från dig</h2>
+        </div>
+        <div class="grid-3 features">
+          <article class="card">
+            <div class="card-icon"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12A8.5 8.5 0 1 0 20.5 12A8.5 8.5 0 1 0 3.5 12Z"/><path d="M7.95 10A1.05 1.05 0 1 0 10.05 10A1.05 1.05 0 1 0 7.95 10Z" fill="currentColor" stroke="none"/><path d="M13.95 10A1.05 1.05 0 1 0 16.05 10A1.05 1.05 0 1 0 13.95 10Z" fill="currentColor" stroke="none"/><path d="M8.75 14.25C10.5 16.25 13.5 16.25 15.25 14.25"/></svg>
+</div>
+            <h3>En hudprofil som är din</h3>
+            <p>Inte ”fet” eller ”torr” i största allmänhet, utan en bild av din hud just nu: var, hur ofta och vad som triggar.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.75 4.6A8 8 0 1 0 19.4 13.25H10.75Z"/><path d="M13.25 2.6A8 8 0 0 1 21.4 10.75H13.25Z"/></svg>
+</div>
+            <h3>Förklaring, inte bara svar</h3>
+            <p>Du får veta varför ett steg föreslås och vad du kan förvänta dig – så att du förstår din hud, inte bara följer en lista.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 4.5H16.5A2.5 2.5 0 0 1 19 7V18.5A2.5 2.5 0 0 1 16.5 21H7.5A2.5 2.5 0 0 1 5 18.5V7A2.5 2.5 0 0 1 7.5 4.5Z"/><path d="M10 3H14A1 1 0 0 1 15 4V5A1 1 0 0 1 14 6H10A1 1 0 0 1 9 5V4A1 1 0 0 1 10 3Z"/><path d="M8.5 11L9.75 12.25L12 10"/><path d="M14 11.25L16 11.25"/><path d="M8.5 16L9.75 17.25L12 15"/><path d="M14 16.25L16 16.25"/></svg>
+</div>
+            <h3>En plan du orkar följa</h3>
+            <p>Max tre steg morgon och kväll, en ny aktiv ingrediens i taget och tydliga tidsramar. Enkelt slår perfekt.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H17.5A2.5 2.5 0 0 1 20 6.5V14.5A2.5 2.5 0 0 1 17.5 17H10.5L6.5 20.5V17H6.5A2.5 2.5 0 0 1 4 14.5Z"/><path d="M7.4 10.5A1.1 1.1 0 1 0 9.6 10.5A1.1 1.1 0 1 0 7.4 10.5Z" fill="currentColor" stroke="none"/><path d="M10.9 10.5A1.1 1.1 0 1 0 13.1 10.5A1.1 1.1 0 1 0 10.9 10.5Z" fill="currentColor" stroke="none"/><path d="M14.4 10.5A1.1 1.1 0 1 0 16.6 10.5A1.1 1.1 0 1 0 14.4 10.5Z" fill="currentColor" stroke="none"/></svg>
+</div>
+            <h3>Fråga när du undrar</h3>
+            <p>”Kan jag kombinera det här?” ”Varför blir jag torr?” Chatten känner till din profil och din plan och svarar på svenska.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.25 4.5H16.75A1.25 1.25 0 0 1 18 5.75V7.25A1.25 1.25 0 0 1 16.75 8.5H7.25A1.25 1.25 0 0 1 6 7.25V5.75A1.25 1.25 0 0 1 7.25 4.5Z"/><path d="M7.5 10.5H16.5A3 3 0 0 1 19.5 13.5V17.5A3 3 0 0 1 16.5 20.5H7.5A3 3 0 0 1 4.5 17.5V13.5A3 3 0 0 1 7.5 10.5Z"/><path d="M8.5 15.5L15.5 15.5"/></svg>
+</div>
+            <h3>Ingredienser, inte reklam</h3>
+            <p>Vi föreslår produkttyper och aktiva ingredienser – aldrig varumärken. Du väljer själv var du handlar.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 17L9 11.5L13 15.5L20.5 8"/><path d="M15.5 8L20.5 8L20.5 13"/></svg>
+</div>
+            <h3>Följ din utveckling</h3>
+            <p>Spara bilder, jämför över tid och se om rutinen faktiskt gör skillnad. Fler uppföljningsfunktioner kommer.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SAFETY ============ -->
+    <section class="section" id="safety" aria-labelledby="safety-title">
+      <div class="container split">
+        <div class="split-copy">
+          <span class="eyebrow">Trygghet</span>
+          <h2 id="safety-title">Dina bilder, dina regler</h2>
+          <p>Vi vet att en bild på ditt ansikte är personlig. Därför är integritet inte en inställning i Dermora – det är grunden.</p>
+          <ul class="checklist">
+            <li><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5L10 17.5L19 6.5"/></svg>
+ <span><strong>Privat lagring.</strong> Dina bilder krypteras, kopplas bara till ditt konto och kan raderas med ett knapptryck.</span></li>
+            <li><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5L10 17.5L19 6.5"/></svg>
+ <span><strong>Ingen ansiktsigenkänning.</strong> Dermora identifierar aldrig vem du är. Tekniken hjälper dig bara att ta en bra bild och tittar sedan på huden.</span></li>
+            <li><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5L10 17.5L19 6.5"/></svg>
+ <span><strong>Vägledning, inte diagnos.</strong> Dermora ersätter inte en hudläkare. Ser vi tecken på att du bör söka vård säger vi det direkt.</span></li>
+            <li><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5L10 17.5L19 6.5"/></svg>
+ <span><strong>Data inom EU.</strong> Vi följer GDPR och säljer aldrig dina uppgifter vidare.</span></li>
+          </ul>
+        </div>
+        <div class="split-visual">
+          <div class="trust-card">
+            <img src="assets/logo/symbol.svg" alt="" width="48" height="42">
+            <h3>Vårt löfte</h3>
+            <p>Vi bygger Dermora för att hudhjälp ska bli mer personlig och mer tillgänglig – inte för att sälja fler produkter. Allt du får i appen ska gå att förstå, ifrågasätta och radera.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section section-mint" id="faq" aria-labelledby="faq-title">
+      <div class="container narrow">
+        <div class="section-head">
+          <span class="eyebrow">Vanliga frågor</span>
+          <h2 id="faq-title">Bra att veta</h2>
+        </div>
+        <div class="faq">
+          <details>
+            <summary>Är Dermora en medicinsk tjänst?</summary>
+            <p>Nej. Dermora ger personlig vägledning kring hudvård utifrån dina svar och bilder. Det är inte en diagnos och ersätter inte vård. Vid smärta, snabb förändring, feber eller tecken på infektion ska du kontakta vården.</p>
+          </details>
+          <details>
+            <summary>Vad händer med mina bilder?</summary>
+            <p>Bilderna lagras krypterat och är bara tillgängliga för ditt konto. De används för din vägledning och för att du ska kunna jämföra utveckling över tid. Du kan radera dem när som helst.</p>
+          </details>
+          <details>
+            <summary>Använder ni ansiktsigenkänning?</summary>
+            <p>Nej. Vi använder bara ansiktsdetektering, som hittar att det finns ett ansikte i bild och hjälper dig med inramning. Vi skapar inga biometriska profiler och kan inte identifiera personer.</p>
+          </details>
+          <details>
+            <summary>Säljer ni produkter?</summary>
+            <p>Nej. Dermora föreslår produkttyper och aktiva ingredienser, aldrig varumärken. Du väljer själv vad du köper och var.</p>
+          </details>
+          <details>
+            <summary>Vad kostar det?</summary>
+            <p>Under betan är Dermora gratis. Vi berättar i god tid innan något förändras.</p>
+          </details>
+          <details>
+            <summary>När kan jag ladda ner appen?</summary>
+            <p>Vi släpper in testare i omgångar. Anmäl dig nedan så får du en inbjudan när det är din tur.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BETA CTA ============ -->
+    <section class="section section-cta" id="beta" aria-labelledby="beta-title">
+      <div class="container narrow center">
+        <img src="assets/logo/symbol-white.svg" alt="" width="56" height="48">
+        <h2 id="beta-title">Bli en av de första att testa Dermora</h2>
+        <p class="lead">Lämna din e-post så skickar vi en inbjudan när betan öppnar. Inget nyhetsbrev, inget spam.</p>
+        <form class="beta-form" action="#" method="post" data-beta-form>
+          <label class="sr-only" for="beta-email">E-postadress</label>
+          <input id="beta-email" type="email" name="email" placeholder="din@epost.se" required autocomplete="email">
+          <button class="btn btn-light" type="submit">Få tidig tillgång</button>
+        </form>
+        <p class="beta-status" aria-live="polite" data-beta-status></p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <img src="assets/logo/logo-stacked-tagline.svg" alt="Dermora – Din hud, förstådd." width="140" height="110">
+      </div>
+      <div>
+        <h3>Dermora</h3>
+        <ul>
+          <li><a href="#how">Så fungerar det</a></li>
+          <li><a href="#features">Vad du får</a></li>
+          <li><a href="#faq">Vanliga frågor</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Trygghet</h3>
+        <ul>
+          <li><a href="#safety">Integritet &amp; säkerhet</a></li>
+          <li><a href="#">Integritetspolicy (kommer)</a></li>
+          <li><a href="#">Användarvillkor (kommer)</a></li>
+        </ul>
+      </div>
+      <div class="footer-note">
+        <p><strong>Viktigt:</strong> Dermora ger vägledning, inte medicinsk diagnos eller behandling. Kontakta alltid vården vid oro.</p>
+        <p>© 2026 Dermora</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js" defer></script>
+</body>
+</html>
