@@ -33,7 +33,9 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/icon.png"
+      "favicon": "./assets/icon.png",
+      "bundler": "metro",
+      "output": "single"
     },
     "plugins": [
       [
@@ -51,6 +53,9 @@
       "expo-secure-store",
       "expo-font",
       "expo-splash-screen"
-    ]
+    ],
+    "experiments": {
+      "baseUrl": "/app"
+    }
   }
 }

@@ -22,6 +22,7 @@ class RoutineStep(BaseModel):
     product_type: str = Field(description="Produkttyp, inte varumärke. T.ex. 'Mild rengöring utan parfym'")
     active_ingredient: str | None = Field(default=None, description="T.ex. 'Salicylsyra 2 %'")
     frequency: str = Field(description="T.ex. 'Varje morgon' / 'Varannan kväll'")
+    duration: str | None = Field(default=None, description="Ungefärlig tid, t.ex. '30 sek' eller '1 min'")
     why: str = Field(description="En mening om varför")
 
 
@@ -46,6 +47,8 @@ class TreatmentPlanProposal(BaseModel):
 class SkinGuidance(BaseModel):
     skin_type_estimate: Literal["oily", "dry", "combination", "normal", "sensitive", "unknown"]
     primary_concern: str
+    skin_texture: str = Field(default="", description="Kort, t.ex. 'Ojämn' eller 'Jämn'")
+    sensitivity: str = Field(default="", description="Kort, t.ex. 'Lätt irriterad' eller 'Låg'")
     observations: list[Observation]
     overall_severity: Severity
     image_quality_note: str | None = Field(default=None, description="Om bilden var svår att bedöma")

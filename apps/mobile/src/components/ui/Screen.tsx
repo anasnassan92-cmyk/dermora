@@ -32,10 +32,10 @@ export function Screen({ children, scroll = true, padded = true, style, footer }
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.surface },
+  safe: { flex: 1, backgroundColor: colors.surface, overflow: 'hidden' },
   flex: { flex: 1 },
-  scrollContent: { flexGrow: 1 },
-  padded: { flex: 1, paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xxl },
+  scrollContent: { flexGrow: 1, overflow: 'hidden' },
+  padded: { flex: 1, paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xxl, overflow: 'hidden' },
   footer: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.md,

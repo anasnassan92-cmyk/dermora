@@ -53,7 +53,9 @@ class MockProvider:
         seek_care = bool(red_flag_hints)
         guidance = SkinGuidance(
             skin_type_estimate="combination",
-            primary_concern="Mild till måttlig akne i T-zonen",
+            primary_concern="Akne, pigmentfläckar",
+            skin_texture="Ojämn",
+            sensitivity="Lätt irriterad",
             observations=[
                 {"area": "forehead", "finding": "Några små finnar och pormaskar", "severity": "mild", "confidence": "medium"},
                 {"area": "chin", "finding": "Enstaka röda, ömma finnar", "severity": "mild", "confidence": "medium"},
@@ -72,16 +74,22 @@ class MockProvider:
                 "title": "Lugn start för blandhud med mild akne",
                 "summary": "En enkel rutin i tre steg morgon och kväll, med salicylsyra varannan kväll. Uppföljning med ny bild om två veckor.",
                 "morning": [
-                    {"step": "Rengöring", "product_type": "Mild, parfymfri rengöring", "active_ingredient": None, "frequency": "Varje morgon", "why": "Tar bort talg utan att torka ut."},
-                    {"step": "Fukt", "product_type": "Lätt, oljefri fuktkräm", "active_ingredient": "Niacinamid", "frequency": "Varje morgon", "why": "Stärker hudbarriären och lugnar rodnad."},
-                    {"step": "Solskydd", "product_type": "SPF 30+ för ansiktet", "active_ingredient": None, "frequency": "Varje morgon", "why": "Förebygger mörka fläckar efter finnar."},
+                    {"step": "Rengöring", "product_type": "Skonsam gelrengöring", "active_ingredient": None, "frequency": "Varje morgon", "duration": "30 sek", "why": "Tar bort talg utan att torka ut."},
+                    {"step": "Toner", "product_type": "Balanserande toner", "active_ingredient": "Niacinamid", "frequency": "Varje morgon", "duration": "30 sek", "why": "Balanserar huden och lugnar rodnad."},
+                    {"step": "Serum", "product_type": "Serum mot akne och pigmentfläckar", "active_ingredient": "Niacinamid 10 %", "frequency": "Varje morgon", "duration": "1 min", "why": "Minskar inflammation och jämnar ut hudtonen."},
+                    {"step": "Solskydd", "product_type": "SPF 50, bredspektrum", "active_ingredient": None, "frequency": "Varje morgon", "duration": "30 sek", "why": "Förebygger mörka fläckar efter finnar."},
                 ],
                 "evening": [
-                    {"step": "Rengöring", "product_type": "Samma milda rengöring", "active_ingredient": None, "frequency": "Varje kväll", "why": "Tar bort dagens smuts och solskydd."},
-                    {"step": "Behandling", "product_type": "Exfolierande serum eller toner", "active_ingredient": "Salicylsyra 2 %", "frequency": "Varannan kväll", "why": "Rensar porer och minskar nya finnar."},
-                    {"step": "Fukt", "product_type": "Lätt fuktkräm", "active_ingredient": None, "frequency": "Varje kväll", "why": "Motverkar torrhet från syran."},
+                    {"step": "Rengöring", "product_type": "Samma skonsamma gelrengöring", "active_ingredient": None, "frequency": "Varje kväll", "duration": "30 sek", "why": "Tar bort dagens smuts och solskydd."},
+                    {"step": "Behandling", "product_type": "Exfolierande serum", "active_ingredient": "Salicylsyra 2 %", "frequency": "Varannan kväll", "duration": "1 min", "why": "Rensar porer och minskar nya finnar."},
+                    {"step": "Fuktkräm", "product_type": "Återfuktande kräm, icke-komedogen", "active_ingredient": "Ceramider", "frequency": "Varje kväll", "duration": "30 sek", "why": "Motverkar torrhet från syran."},
+                    {"step": "Ögonkräm", "product_type": "Mild ögonkräm", "active_ingredient": None, "frequency": "Varje kväll", "duration": "30 sek", "why": "Återfuktar den tunna huden runt ögonen."},
                 ],
-                "weekly": [],
+                "weekly": [
+                    {"step": "Exfoliering", "product_type": "Mild kemisk exfoliering", "active_ingredient": "AHA/BHA", "frequency": "1 gång per vecka", "duration": "5 min", "why": "Avlägsnar döda hudceller och förebygger igentäppta porer."},
+                    {"step": "Lermask", "product_type": "Rengörande lermask", "active_ingredient": "Kaolin", "frequency": "1 gång per vecka", "duration": "10 min", "why": "Drar ut överflödig talg."},
+                    {"step": "Återfuktande mask", "product_type": "Lugnande sheetmask", "active_ingredient": "Hyaluronsyra", "frequency": "1 gång per vecka", "duration": "15 min", "why": "Återställer fukt efter exfoliering."},
+                ],
                 "goals": ["Minska utbrott", "Balansera talgproduktion", "Stärka hudbarriären", "Jämnare hudstruktur"],
                 "key_ingredients": [
                     "Salicylsyra 2 % – rensar porer och förebygger nya finnar",

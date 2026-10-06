@@ -22,8 +22,8 @@ SCREENS = [
     ("04-grundprofil", "ProfileSetup", "Grundprofil"),
     ("05-intro", "AssessmentIntro", "Frågeformulär – introduktion"),
     ("06-hudtyp", "Assessment&q=0", "Hudtyp"),
-    ("07-hudproblem", "Assessment&q=2", "Hudproblem"),
-    ("08-foljdfragor", "Assessment&q=4", "Villkorliga frågor"),
+    ("07-hudproblem", "Assessment&q=1", "Hudproblem"),
+    ("08-foljdfragor", "Assessment&q=2", "Villkorliga frågor"),
     ("09-bilder", "ImageUpload", "Bilduppladdning"),
     ("10-granska-bilder", "ImageReview", "Granska bilder"),
     ("11-analys", "Analyzing", "AI-analys"),
@@ -32,6 +32,7 @@ SCREENS = [
     ("14-bekrafta", "ConfirmPlan", "Bekräfta plan"),
     ("15-sparad", "PlanSaved", "Plan sparad"),
     ("16-hem", "Tabs&tab=Home", "Hem"),
+    ("17-skanna", "Tabs&tab=Scan", "Skanna"),
 ]
 
 CANDIDATES = [

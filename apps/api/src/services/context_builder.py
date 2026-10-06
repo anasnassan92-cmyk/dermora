@@ -119,6 +119,6 @@ def red_flag_hints(answers: dict[str, Any]) -> list[str]:
         hints.append("Användaren rapporterar snabb förändring/svullnad/vätskande sår/feber de senaste två veckorna.")
     if isinstance(answers.get("acne_pain"), (int, float)) and answers["acne_pain"] >= 7:
         hints.append("Användaren rapporterar hög smärta (≥7/10) från djupa knölar.")
-    if "cystic" in (answers.get("acne_type") or []) and answers.get("acne_frequency") == "constant":
+    if "cystic" in (answers.get("acne_type") or []) and answers.get("acne_frequency") == "very_often":
         hints.append("Konstanta djupa, cystiska finnar – egenvård räcker ofta inte.")
     return hints

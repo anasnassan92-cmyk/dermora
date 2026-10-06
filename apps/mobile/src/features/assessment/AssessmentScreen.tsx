@@ -1,14 +1,14 @@
 /**
- * Questionnaire screen – owner: Adam. Onboarding step 3/3 (design screens 6–8).
+ * Questionnaire screen – owner: Adam. Design screens 06–08.
  * One question per step. Conditional follow-ups appear/disappear based on
  * earlier answers (utils/questionnaire.isVisible). Answers autosave on each step.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { Button, Screen, StepHeader, T } from '../../components/ui';
+import { Blob, FlowFooter, FlowHeader, Screen, T } from '../../components/ui';
 import type { AppScreenProps } from '../../navigation/types';
-import { colors, spacing } from '../../theme';
+import { colors } from '../../theme';
 import type { Answers, AnswerValue, Questionnaire } from '../../types/api';
 import { isAnswered, visibleQuestions } from '../../utils/questionnaire';
 import { QuestionRenderer } from './components/QuestionRenderer';
@@ -56,9 +56,8 @@ export function AssessmentScreen({ navigation, route }: AppScreenProps<'Assessme
     }, 400);
   };
 
-  const next = async () => {
+  const finish = async () => {
     if (!assessmentId) return;
-    if (!isLast) return setIndex((i) => i + 1);
     setSubmitting(true);
     setError(null);
     try {
@@ -72,38 +71,25 @@ export function AssessmentScreen({ navigation, route }: AppScreenProps<'Assessme
     }
   };
 
+  const next = () => (isLast ? finish() : setIndex((i) => i + 1));
+  const back = () => (index === 0 ? navigation.goBack() : setIndex((i) => i - 1));
+
   if (!questionnaire || !current) {
     return (
       <Screen scroll={false}>
-        <View style={styles.center}>
-          {error ? <T color={colors.danger} center>{error}</T> : <ActivityIndicator color={colors.accent} />}
-        </View>
+        <View style={styles.center}>{error ? <T color={colors.danger} center>{error}</T> : <ActivityIndicator color={colors.accent} />}</View>
       </Screen>
     );
   }
 
   return (
-    <Screen
-      footer={
-        <View style={styles.footerRow}>
-          <Button title="Tillbaka" variant="ghost" disabled={index === 0} onPress={() => setIndex((i) => i - 1)} style={styles.back} />
-          <Button title={isLast ? 'Fortsätt' : 'Fortsätt'} disabled={!canContinue} loading={submitting} onPress={next} style={styles.next} />
-        </View>
-      }
-    >
-      <StepHeader step={3} total={3} />
-      <T variant="label" muted mb="sm">
-        Fråga {index + 1} av {visible.length}
-      </T>
+    <Screen footer={<FlowFooter onBack={index > 0 ? back : undefined} onNext={next} disabled={!canContinue} loading={submitting} />}>
+      <Blob />
+      <FlowHeader step={3} onBack={back} onSkip={current.required === false ? next : undefined} />
       <QuestionRenderer question={current} value={answers[current.id]} onChange={setAnswer} />
       {error ? <T color={colors.danger}>{error}</T> : null}
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  footerRow: { flexDirection: 'row', gap: spacing.md },
-  back: { flex: 1 },
-  next: { flex: 2 },
-});
+const styles = StyleSheet.create({ center: { flex: 1, alignItems: 'center', justifyContent: 'center' } });

@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 SkinType = Literal["oily", "dry", "combination", "normal", "sensitive", "unknown"]
 AgeRange = Literal["under_18", "18_24", "25_34", "35_44", "45_54", "55_plus"]
 Gender = Literal["female", "male", "non_binary", "undisclosed"]
+SkinTone = Literal[1, 2, 3, 4, 5, 6]  # Fitzpatrick I–VI
 
 
 class ProfileOut(BaseModel):
@@ -15,6 +16,7 @@ class ProfileOut(BaseModel):
     age_range: AgeRange | None = None
     gender: Gender | None = None
     country: str | None = None
+    skin_tone: SkinTone | None = None
     skin_type: SkinType = "unknown"
     consent_images: bool = False
     consent_at: datetime | None = None
@@ -29,6 +31,7 @@ class ProfileUpdate(BaseModel):
     age_range: AgeRange | None = None
     gender: Gender | None = None
     country: str | None = Field(default=None, max_length=2, description="ISO 3166-1 alpha-2, t.ex. SE")
+    skin_tone: SkinTone | None = None
     skin_type: SkinType | None = None
     consent_images: bool | None = None
     locale: Literal["sv", "en"] | None = None

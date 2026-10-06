@@ -78,10 +78,10 @@ def test_full_mvp_journey(client):
     a = client.post("/assessments", json={}, headers=AUTH).json()
     answers = {
         "skin_type": "combination",
-        "sensitive": False,
-        "concerns": ["acne", "blackheads"],
+        "sensitive": "no",
+        "concerns": ["acne", "dark_spots"],
         "acne_area": ["forehead", "chin"],
-        "acne_frequency": "weekly",
+        "acne_frequency": "often",
         "acne_type": ["whiteheads", "papules"],
         "duration": "1_6m",
         "sudden_change": False,
@@ -145,8 +145,8 @@ def test_red_flags_force_seek_care(client):
     client.put("/profile", json={"consent_images": True}, headers=AUTH)
     a = client.post("/assessments", json={}, headers=AUTH).json()
     answers = {
-        "skin_type": "oily", "sensitive": True, "concerns": ["acne"], "acne_area": ["cheeks"],
-        "acne_frequency": "constant", "acne_type": ["cystic"], "acne_pain": 8, "duration": "gt_1y",
+        "skin_type": "oily", "sensitive": "often", "concerns": ["acne"], "acne_area": ["cheeks"],
+        "acne_frequency": "very_often", "acne_type": ["cystic"], "acne_pain": 8, "duration": "gt_1y",
         "sudden_change": True, "current_routine": ["nothing"], "goal": "calm_skin",
     }
     client.put(f"/assessments/{a['id']}/answers", json={"answers": answers}, headers=AUTH)

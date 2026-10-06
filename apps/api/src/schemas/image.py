@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-ImageArea = Literal["face", "forehead", "left_cheek", "right_cheek", "chin", "other"]
+ImageArea = Literal["face", "left", "right", "closeup", "forehead", "left_cheek", "right_cheek", "chin", "other"]
 
 
 class FaceCheck(BaseModel):

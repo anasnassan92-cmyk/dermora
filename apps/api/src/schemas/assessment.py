@@ -18,6 +18,7 @@ class QuestionOption(BaseModel):
     label: str
     description: str | None = None
     icon: str | None = None  # name of a brand-kit icon, used by the app
+    image: str | None = None  # name of a bundled thumbnail (apps/mobile/assets/design)
 
 
 class ShowIf(BaseModel):
@@ -40,6 +41,8 @@ class Question(BaseModel):
     max: int | None = None
     show_if: ShowIf | None = None
     layout: Literal["list", "grid", "cards"] | None = None
+    context: str | None = None  # small label above the title, e.g. 'Akne och finnar'
+    note: str | None = None  # 'Bra att veta!' panel text
 
 
 class Questionnaire(BaseModel):

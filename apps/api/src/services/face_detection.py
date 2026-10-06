@@ -27,6 +27,8 @@ def _load_gray(data: bytes):
     import numpy as np
     import cv2
 
+    cv2.setNumThreads(1)
+
     arr = np.frombuffer(data, dtype=np.uint8)
     img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
     if img is None:
@@ -48,6 +50,7 @@ def check_face_photo(data: bytes) -> FaceCheck:
     # OpenCV's internal thread pool can deadlock when called from the ASGI worker
     # thread pool on Windows; the images are small so single-threaded is fine.
     cv2.setNumThreads(1)
+    cv2.ocl.setUseOpenCL(False)
     img, gray = _load_gray(data)
     h, w = gray.shape
     blur = float(cv2.Laplacian(gray, cv2.CV_64F).var())

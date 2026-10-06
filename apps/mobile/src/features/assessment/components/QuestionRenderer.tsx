@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
-import { Chip, OptionCard, T, type IconName } from '../../../components/ui';
+import { Chip, InfoPanel, PhotoOptionCard, T } from '../../../components/ui';
+import { designImage } from '../../../constants/design';
 import { colors, radius, spacing, typography } from '../../../theme';
 import type { AnswerValue, Question } from '../../../types/api';
 import { QuestionOption } from './QuestionOption';
@@ -12,59 +13,31 @@ interface Props {
   onChange: (value: AnswerValue) => void;
 }
 
-/** Renders one question of any type. Pure UI – no API calls here.
- *  layout: 'cards' = rows with description (skin type), 'grid' = icon tiles (concerns), default = radio/checkbox list. */
+/** Renders one question (design screens 6–8). Pure UI – no API calls here. */
 export function QuestionRenderer({ question, value, onChange }: Props) {
   const arr = Array.isArray(value) ? (value as string[]) : [];
   const toggle = (v: string) => onChange(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
+  const isMulti = question.type === 'multi';
+  const selected = (v: string) => (isMulti ? arr.includes(v) : value === v);
+  const pick = (v: string) => (isMulti ? toggle(v) : onChange(v));
 
   return (
     <View style={styles.wrap}>
-      <T variant="h1" mb="xs" style={styles.title}>
-        {question.title}
-      </T>
-      <T variant="small" muted mb="lg">
-        {question.help ?? (question.type === 'multi' ? 'Välj ett eller flera alternativ.' : 'Välj det alternativ som bäst beskriver din upplevelse.')}
+      {question.context ? <T variant="label" muted mb="sm">{question.context}</T> : null}
+      <T variant="display" style={styles.title}>{question.title}</T>
+      <T variant="body" muted mb="xl">
+        {question.help ?? (isMulti ? 'Du kan välja flera alternativ.' : 'Välj det alternativ som bäst beskriver din upplevelse.')}
         {question.required === false ? ' (valfritt)' : ''}
       </T>
 
-      {question.layout === 'cards' &&
+      {question.layout === 'cards' && (question.type === 'single' || isMulti) &&
         question.options.map((o) => (
-          <OptionCard
-            key={o.value}
-            label={o.label}
-            description={o.description}
-            icon={(o.icon as IconName) ?? null}
-            selected={question.type === 'multi' ? arr.includes(o.value) : value === o.value}
-            multi={question.type === 'multi'}
-            onPress={() => (question.type === 'multi' ? toggle(o.value) : onChange(o.value))}
-          />
+          <PhotoOptionCard key={o.value} label={o.label} description={o.description} image={designImage(o.image)} selected={selected(o.value)} multi={isMulti} onPress={() => pick(o.value)} />
         ))}
 
-      {question.layout === 'grid' && (
-        <View style={styles.grid}>
-          {question.options.map((o) => (
-            <OptionCard
-              key={o.value}
-              variant="tile"
-              label={o.label}
-              icon={(o.icon as IconName) ?? 'plus'}
-              selected={question.type === 'multi' ? arr.includes(o.value) : value === o.value}
-              multi={question.type === 'multi'}
-              onPress={() => (question.type === 'multi' ? toggle(o.value) : onChange(o.value))}
-            />
-          ))}
-        </View>
-      )}
-
-      {!question.layout && question.type === 'single' &&
+      {question.layout !== 'cards' && (question.type === 'single' || isMulti) &&
         question.options.map((o) => (
-          <QuestionOption key={o.value} label={o.label} selected={value === o.value} onPress={() => onChange(o.value)} />
-        ))}
-
-      {!question.layout && question.type === 'multi' &&
-        question.options.map((o) => (
-          <QuestionOption key={o.value} multi label={o.label} selected={arr.includes(o.value)} onPress={() => toggle(o.value)} />
+          <QuestionOption key={o.value} multi={isMulti} label={o.label} selected={selected(o.value)} onPress={() => pick(o.value)} />
         ))}
 
       {question.type === 'boolean' && (
@@ -95,15 +68,16 @@ export function QuestionRenderer({ question, value, onChange }: Props) {
           accessibilityLabel={question.title}
         />
       )}
+
+      {question.note ? <InfoPanel text={question.note} /> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { paddingBottom: spacing.xl },
-  title: { fontSize: 22, lineHeight: 28 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  scale: { flexDirection: 'row', flexWrap: 'wrap' },
+  wrap: { paddingBottom: spacing.md },
+  title: { fontSize: 30, lineHeight: 36, marginBottom: spacing.sm },
+  scale: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: spacing.lg },
   textarea: {
     ...typography.body,
     minHeight: 120,
@@ -114,5 +88,6 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     backgroundColor: colors.surfaceRaised,
     color: colors.ink,
+    marginBottom: spacing.lg,
   },
 });

@@ -1,44 +1,47 @@
 /**
- * Image upload screen – owner: Ali. Design screen 9 ("Ladda upp initiala bilder").
- * Flow: pick/take → preview + quality check → upload → review grid (ImageReview) → analyze.
+ * Design screen 09 – "Ladda upp bilder på din hud": four slots (framifrån, vänster, höger, närbild).
+ * Owner: Ali. Each slot: pick/take → quality check → upload with its `area`.
  */
-import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
-import { Button, Card, Icon, IconBadge, Screen, StepHeader, T } from '../../components/ui';
+import { Blob, Button, FlowFooter, FlowHeader, Icon, InfoPanel, Screen, T } from '../../components/ui';
+import { DESIGN, IMAGE_SLOTS } from '../../constants/design';
 import type { AppScreenProps } from '../../navigation/types';
 import { profileService } from '../../services/profile/profileService';
 import { imageStorageService } from '../../services/storage/imageStorageService';
-import { colors, palette, radius, spacing } from '../../theme';
-import type { FaceCheck } from '../../types/api';
+import { colors, radius, spacing } from '../../theme';
+import type { FaceCheck, ImageArea, SkinImage } from '../../types/api';
 import { ImagePicker } from './components/ImagePicker';
 import { ImagePreview } from './components/ImagePreview';
 
-const TIPS = ['Bra belysning (naturligt ljus)', 'Tydlig och skarp bild', 'Visa hela ansiktet', 'Ingen makeup om möjligt'];
+const TIPS = ['Ta bilder i naturligt ljus', 'Ha ett rent ansikte utan smink', 'Ladda upp tydliga och skarpa bilder', 'Visa hela ansiktet och närbilder av problemområden'];
 
 export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUpload'>) {
   const { assessmentId } = route.params;
   const [consent, setConsent] = useState<boolean | null>(null);
-  const [picking, setPicking] = useState(false);
+  const [images, setImages] = useState<SkinImage[]>([]);
+  const [slot, setSlot] = useState<ImageArea | null>(null);
   const [pending, setPending] = useState<string | null>(null);
   const [check, setCheck] = useState<FaceCheck | null>(null);
   const [checking, setChecking] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [count, setCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    profileService.get().then((p) => setConsent(p.consent_images));
-    imageStorageService.list(assessmentId).then((l) => setCount(l.length)).catch(() => undefined);
-  }, [assessmentId]);
+  useFocusEffect(
+    useCallback(() => {
+      profileService.get().then((p) => setConsent(p.consent_images));
+      imageStorageService.list(assessmentId).then(setImages).catch(() => undefined);
+    }, [assessmentId]),
+  );
 
   const onPicked = async (uri: string) => {
-    setPicking(false);
     setPending(uri);
     setCheck(null);
     setChecking(true);
     try {
-      setCheck(await imageStorageService.check(uri));
+      setCheck(slot === 'closeup' ? null : await imageStorageService.check(uri));
     } catch {
       setCheck(null);
     } finally {
@@ -47,14 +50,16 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
   };
 
   const upload = async () => {
-    if (!pending) return;
+    if (!pending || !slot) return;
     setUploading(true);
     setError(null);
     try {
-      await imageStorageService.upload(pending, assessmentId, 'face');
+      const existing = images.find((i) => i.area === slot);
+      if (existing) await imageStorageService.remove(existing.id);
+      const img = await imageStorageService.upload(pending, assessmentId, slot);
+      setImages((l) => [img, ...l.filter((i) => i.area !== slot)]);
       setPending(null);
-      setCheck(null);
-      navigation.navigate('ImageReview', { assessmentId });
+      setSlot(null);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -62,36 +67,35 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
     }
   };
 
+  const hasFront = images.some((i) => i.area === 'face');
+
   if (consent === false) {
     return (
       <Screen>
-        <StepHeader step={2} total={3} />
-        <T variant="h1" mb="sm">Godkänn bildbehandling</T>
-        <T muted mb="xl">För att analysera din hud behöver vi ditt godkännande att lagra bilderna privat. Du kan återkalla det när som helst.</T>
+        <Blob />
+        <FlowHeader step={3} onBack={() => navigation.goBack()} />
+        <T variant="display" style={styles.title}>Godkänn bildbehandling</T>
+        <T variant="body" muted mb="xl">För att analysera din hud behöver vi ditt godkännande att lagra bilderna privat. Du kan återkalla det när som helst.</T>
         <Button title="Till profilinställningar" onPress={() => navigation.navigate('EditProfile')} />
         <Button title="Fortsätt utan bild" variant="ghost" style={styles.gap} onPress={() => navigation.replace('Analyzing', { assessmentId })} />
       </Screen>
     );
   }
 
-  if (pending) {
+  if (slot) {
+    const label = IMAGE_SLOTS.find((s) => s.area === slot)?.label ?? '';
     return (
       <Screen>
-        <StepHeader step={2} total={3} />
-        <T variant="h1" mb="lg">Förhandsgranska</T>
-        <ImagePreview uri={pending} check={check} checking={checking} onRetake={() => setPending(null)} onUse={upload} uploading={uploading} />
+        <Blob />
+        <FlowHeader step={3} onBack={() => { setSlot(null); setPending(null); }} />
+        <T variant="display" style={styles.title}>{label}</T>
+        <T variant="body" muted mb="lg">{slot === 'closeup' ? 'Ta en närbild på det område du vill ha hjälp med.' : 'Håll ansiktet i ovalen i jämnt dagsljus.'}</T>
+        {pending ? (
+          <ImagePreview uri={pending} check={check} checking={checking} onRetake={() => setPending(null)} onUse={upload} uploading={uploading} />
+        ) : (
+          <ImagePicker onPicked={onPicked} />
+        )}
         {error ? <T color={colors.danger} style={styles.gap}>{error}</T> : null}
-      </Screen>
-    );
-  }
-
-  if (picking) {
-    return (
-      <Screen>
-        <StepHeader step={2} total={3} />
-        <T variant="h1" mb="lg">Ta en bild</T>
-        <ImagePicker onPicked={onPicked} />
-        <Button title="Avbryt" variant="ghost" onPress={() => setPicking(false)} style={styles.gap} />
       </Screen>
     );
   }
@@ -99,52 +103,72 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
   return (
     <Screen
       footer={
-        <Button
-          title={count ? `Fortsätt (${count} bild${count > 1 ? 'er' : ''})` : 'Fortsätt utan bild'}
-          variant={count ? 'primary' : 'ghost'}
-          onPress={() => (count ? navigation.navigate('ImageReview', { assessmentId }) : navigation.replace('Analyzing', { assessmentId }))}
+        <FlowFooter
+          onBack={() => navigation.goBack()}
+          onNext={() => (images.length ? navigation.navigate('ImageReview', { assessmentId }) : navigation.replace('Analyzing', { assessmentId }))}
+          nextLabel={images.length ? 'Fortsätt' : 'Fortsätt utan bild'}
         />
       }
     >
-      <StepHeader step={2} total={3} />
-      <T variant="h1" mb="xs">Ladda upp initiala bilder</T>
-      <T variant="small" muted mb="xl">Tydliga bilder hjälper vår AI att förstå din hud bättre och ge mer noggrann vägledning.</T>
+      <Blob />
+      <FlowHeader step={3} onBack={() => navigation.goBack()} onSkip={() => navigation.replace('Analyzing', { assessmentId })} />
+      <T variant="display" style={styles.title}>Ladda upp bilder{'\n'}på din hud</T>
+      <T variant="body" muted mb="xl">Bilderna hjälper vår AI att analysera din hud och ge mer personliga rekommendationer.</T>
 
-      <Pressable onPress={() => setPicking(true)} style={styles.dropzone} accessibilityRole="button" accessibilityLabel="Ladda upp bilder eller ta en bild">
-        <IconBadge name="camera" size={56} />
-        <T variant="bodyMedium" center style={styles.dropTitle}>Tryck för att ladda upp bilder eller ta en bild</T>
-        <T variant="caption" muted center>Du kan ladda upp upp till 4 bilder</T>
-      </Pressable>
+      <View style={styles.examples}>
+        <T variant="bodyMedium" mb="sm">Exempel på bra bilder</T>
+        <View style={styles.slotRow}>
+          {IMAGE_SLOTS.map((s) => (
+            <View key={s.area} style={styles.slotCol}>
+              <Image source={DESIGN[s.example]} style={styles.exampleImg} />
+              <T variant="caption" center>{s.label}</T>
+            </View>
+          ))}
+        </View>
+      </View>
 
-      <Card>
-        <T variant="bodyMedium" mb="sm">Tips för bra bilder:</T>
+      <T variant="bodyMedium" mb="sm">Dina bilder</T>
+      <View style={styles.slotRow}>
+        {IMAGE_SLOTS.map((s) => {
+          const img = images.find((i) => i.area === s.area);
+          return (
+            <View key={s.area} style={styles.slotCol}>
+              <Pressable onPress={() => setSlot(s.area)} accessibilityRole="button" accessibilityLabel={`${s.label}: ${img ? 'byt bild' : 'lägg till bild'}`} style={[styles.slot, img && styles.slotFilled]}>
+                {img?.url ? <Image source={{ uri: img.url }} style={styles.slotImg} /> : <Icon name="camera" size={26} color={colors.inkMuted} />}
+                {img ? <View style={styles.check}><Icon name="check" size={12} color={colors.onPrimary} strokeWidth={3} /></View> : null}
+              </Pressable>
+              <T variant="caption" muted center>{s.label}</T>
+            </View>
+          );
+        })}
+      </View>
+      {!hasFront && images.length ? <T variant="caption" color={colors.attention} mb="md">Lägg gärna till en bild framifrån – det ger den bästa analysen.</T> : null}
+
+      <InfoPanel title="Tips för bästa resultat">
         {TIPS.map((t) => (
           <View key={t} style={styles.tip}>
-            <Icon name="check" size={16} color={colors.inkBrand} strokeWidth={2.5} />
-            <T variant="small">{t}</T>
+            <View style={styles.tipDot}><Icon name="check" size={10} color={colors.onPrimary} strokeWidth={3} /></View>
+            <T variant="small" muted style={styles.tipText}>{t}</T>
           </View>
         ))}
-      </Card>
-      <T variant="caption" muted center>
-        Bilden lagras krypterat och privat. GPS-data tas bort innan den sparas. Ingen ansiktsigenkänning används.
-      </T>
+      </InfoPanel>
+      <T variant="caption" muted center>Bilderna lagras krypterat och privat. GPS-data tas bort. Ingen ansiktsigenkänning används.</T>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  title: { fontSize: 30, lineHeight: 36, marginBottom: spacing.xs },
   gap: { marginTop: spacing.md },
-  dropzone: {
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: palette.tealLight,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surfaceMint,
-    alignItems: 'center',
-    padding: spacing.xl,
-    gap: spacing.sm,
-    marginBottom: spacing.xl,
-  },
-  dropTitle: { marginTop: spacing.sm, maxWidth: 220 },
-  tip: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 3 },
+  examples: { backgroundColor: colors.surfaceMint, borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.xl },
+  slotRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
+  slotCol: { flex: 1, alignItems: 'center', gap: 6 },
+  exampleImg: { width: '100%', aspectRatio: 0.82, borderRadius: radius.md, backgroundColor: colors.surfaceSunken },
+  slot: { width: '100%', aspectRatio: 0.95, borderRadius: radius.md, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderControl, backgroundColor: colors.surfaceRaised, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  slotFilled: { borderStyle: 'solid', borderColor: colors.accent },
+  slotImg: { width: '100%', height: '100%' },
+  check: { position: 'absolute', top: 4, right: 4, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
+  tip: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 2 },
+  tipDot: { width: 18, height: 18, borderRadius: 9, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
+  tipText: { flex: 1 },
 });
