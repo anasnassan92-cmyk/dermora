@@ -1,0 +1,79 @@
+"""Repository interfaces.
+
+Two implementations exist:
+  * memory.py   – in-process dicts. Used when SUPABASE_URL is empty and in tests.
+  * supabase.py – real Supabase tables (schema in supabase/schema.sql).
+
+Routes and services only talk to these interfaces, so the team can build and
+demo the whole flow before the database is connected (mock boundary rule).
+"""
+from __future__ import annotations
+
+from typing import Any, Protocol
+
+
+class ProfileRepo(Protocol):
+    def get(self, user_id: str) -> dict[str, Any] | None: ...
+    def upsert(self, user_id: str, data: dict[str, Any]) -> dict[str, Any]: ...
+
+
+class AssessmentRepo(Protocol):
+    def create(self, user_id: str, questionnaire_version: str) -> dict[str, Any]: ...
+    def get(self, user_id: str, assessment_id: str) -> dict[str, Any] | None: ...
+    def list(self, user_id: str) -> list[dict[str, Any]]: ...
+    def update(self, user_id: str, assessment_id: str, data: dict[str, Any]) -> dict[str, Any]: ...
+
+
+class ImageRepo(Protocol):
+    def create(self, user_id: str, data: dict[str, Any]) -> dict[str, Any]: ...
+    def get(self, user_id: str, image_id: str) -> dict[str, Any] | None: ...
+    def list_for_assessment(self, user_id: str, assessment_id: str) -> list[dict[str, Any]]: ...
+    def list(self, user_id: str) -> list[dict[str, Any]]: ...
+    def delete(self, user_id: str, image_id: str) -> None: ...
+
+
+class AIResultRepo(Protocol):
+    def create(self, user_id: str, data: dict[str, Any]) -> dict[str, Any]: ...
+    def latest_for_assessment(self, user_id: str, assessment_id: str) -> dict[str, Any] | None: ...
+
+
+class ChatRepo(Protocol):
+    def add(self, user_id: str, assessment_id: str, role: str, content: str) -> dict[str, Any]: ...
+    def list(self, user_id: str, assessment_id: str) -> list[dict[str, Any]]: ...
+
+
+class PlanRepo(Protocol):
+    def create(self, user_id: str, data: dict[str, Any]) -> dict[str, Any]: ...
+    def get(self, user_id: str, plan_id: str) -> dict[str, Any] | None: ...
+    def list(self, user_id: str) -> list[dict[str, Any]]: ...
+    def update(self, user_id: str, plan_id: str, data: dict[str, Any]) -> dict[str, Any]: ...
+    def archive_confirmed(self, user_id: str) -> None: ...
+
+
+class ImageStorage(Protocol):
+    def put(self, path: str, data: bytes, content_type: str) -> None: ...
+    def get(self, path: str) -> bytes: ...
+    def delete(self, path: str) -> None: ...
+    def signed_url(self, path: str, expires_in: int = 600) -> str | None: ...
+
+
+class Repos:
+    """Bundle handed to routes via dependency injection."""
+
+    def __init__(
+        self,
+        profiles: ProfileRepo,
+        assessments: AssessmentRepo,
+        images: ImageRepo,
+        ai_results: AIResultRepo,
+        chats: ChatRepo,
+        plans: PlanRepo,
+        storage: ImageStorage,
+    ) -> None:
+        self.profiles = profiles
+        self.assessments = assessments
+        self.images = images
+        self.ai_results = ai_results
+        self.chats = chats
+        self.plans = plans
+        self.storage = storage
