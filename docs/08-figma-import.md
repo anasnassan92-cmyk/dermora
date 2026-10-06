@@ -40,6 +40,8 @@ Det ger en klickbar prototyp till redovisningen även om man inte kör appen liv
 
 ## Öppen för redigering (hela gruppen)
 
+Filen finns redan: **https://www.figma.com/design/3Mytv71asDlX8rEz1JbCGk/Dermora---App---Web--Grupp-6-** (Anyone with the link → can edit). Innehåller landningssidan (1440 + 390), presentationen (1440) och appens Välkommen/Logga in/Skapa konto (390). Resten av appens skärmar importeras med Capture-tillägget enligt steg 2.
+
 1. Skapa Figma-filerna i ett **Team** (Figma → Teams → *Dermora – Grupp 6*) och bjud in alla sex som *Editor*; eller sätt filens delning till *Anyone with the link → can edit*.
 2. Appen körs live på <https://lightslategray-wallaby-444786.hostingersite.com/app/> – ingen lokal server behövs. Installera Chrome-tillägget **html.to.design – Capture**, gå igenom flödet i appen (skapa konto → kod → grundprofil → frågor → bilder → analys → chat → plan → hem) och klicka *Capture* på varje skärm; importera sedan i Figma-pluginet. Inloggade skärmar fungerar eftersom tillägget läser det som visas i webbläsaren.
 3. Landningssidan importeras direkt med URL: `https://lightslategray-wallaby-444786.hostingersite.com/` (1440 och 390 px).

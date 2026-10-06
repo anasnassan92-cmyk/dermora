@@ -108,6 +108,11 @@ Detaljer: [docs/09-setup-and-requirements.md](docs/09-setup-and-requirements.md)
 | [docs/09-setup-and-requirements.md](docs/09-setup-and-requirements.md) | Konton, nycklar, kostnader, checklista |
 | [docs/10-presentation-notes.md](docs/10-presentation-notes.md) | Talmanus och demo-flöde för redovisningen |
 
+## Design i Figma (öppen för redigering)
+
+Landningssidan, presentationen och appens skärmar finns som redigerbara Figma-lager (importerade från den live-körda koden med html.to.design):
+**https://www.figma.com/design/3Mytv71asDlX8rEz1JbCGk/Dermora---App---Web--Grupp-6-** – alla med länken kan redigera. Fler skärmar importeras enligt [docs/08-figma-import.md](docs/08-figma-import.md).
+
 ## Webbappen på landningssidan
 
 Appen exporteras även som webbapp (`npx expo export --platform web` → `apps/web/app/`). Landningssidans knappar **Logga in** / **Skapa konto** och **Starta din hudanalys** öppnar `app/?start=register` så att vem som helst kan göra hela flödet i webbläsaren. `apps/api/.venv/Scripts/python scripts/package-web.py` exporterar appen och bygger `dist/dermora-web.zip` för Hostinger (ladda upp till `public_html` och extrahera).
