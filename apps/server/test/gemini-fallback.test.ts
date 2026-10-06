@@ -8,7 +8,9 @@ process.env.DERMORA_NO_LISTEN = '1';
 process.env.GEMINI_MODEL = 'main-model';
 process.env.GEMINI_FALLBACK_MODELS = 'gone-model, backup-model';
 
-const { withGemini } = await import('../src/services/ai.js');
+const { withGemini, resetGeminiCooldown } = await import('../src/services/ai.js');
+import { beforeEach } from 'node:test';
+beforeEach(() => resetGeminiCooldown());
 
 const fail = (status: number) => Object.assign(new Error(`{"error":{"code":${status}}}`), { status });
 
@@ -61,4 +63,14 @@ test('the whole budget is respected', async () => {
     withGemini((_m, signal) => new Promise((_, reject) => signal.addEventListener('abort', () => reject(signal.reason))), { perCallMs: 2_000, budgetMs: 4_000 }),
   );
   assert.ok(Date.now() - t0 < 4_500);
+});
+
+test('an overloaded model is skipped on the next request', async () => {
+  const calls: string[] = [];
+  const run = () => withGemini(async (m) => { calls.push(m); if (m === 'main-model') throw fail(503); return 'ok'; });
+  await run();
+  calls.length = 0;
+  const { model } = await run();
+  assert.equal(model, 'gone-model');
+  assert.deepEqual(calls, ['gone-model']);
 });
