@@ -52,7 +52,8 @@ export function ProfileScreen({ navigation }: Props) {
           {profile?.birth_year ? <Chip label={`Född ${profile.birth_year}`} /> : null}
           <Chip label={profile?.consent_images ? 'Bildbehandling: godkänd' : 'Bildbehandling: ej godkänd'} tone={profile?.consent_images ? 'success' : 'attention'} />
         </View>
-        <Button title="Redigera profil" variant="secondary" onPress={() => navigation.navigate('EditProfile')} style={styles.edit} />
+        <Button title="Grundprofil (ålder, kön, hudton)" variant="secondary" onPress={() => navigation.navigate('ProfileSetup')} style={styles.edit} />
+        <Button title="Redigera profil" variant="ghost" onPress={() => navigation.navigate('EditProfile')} style={styles.edit} />
       </Card>
 
       <Card tone="mint">

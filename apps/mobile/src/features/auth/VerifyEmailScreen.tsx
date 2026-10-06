@@ -16,6 +16,11 @@ export function VerifyEmailScreen({ route }: AuthScreenProps<'VerifyEmail'>) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(30);
+  const [devCode, setDevCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    authService.devCode().then(setDevCode);
+  }, [countdown]);
   const input = useRef<TextInput>(null);
 
   useEffect(() => {
@@ -76,6 +81,11 @@ export function VerifyEmailScreen({ route }: AuthScreenProps<'VerifyEmail'>) {
         {countdown > 0 ? <T variant="bodyMedium" muted>  (00:{String(countdown).padStart(2, '0')})</T> : null}
       </View>
       {isMock ? <T variant="caption" muted center style={styles.mock}>Demo-läge: vilka sex siffror som helst fungerar.</T> : null}
+      {!isMock && devCode ? (
+        <T variant="small" center style={styles.mock} color={colors.inkBrand}>
+          Demo: e-post är inte aktiverad ännu. Din kod är {devCode}
+        </T>
+      ) : null}
       {error ? <T variant="small" color={colors.danger} center mb="md">{error}</T> : null}
 
       <Button title="Fortsätt  →" onPress={submit} disabled={code.length < 6} loading={loading} style={styles.cta} />

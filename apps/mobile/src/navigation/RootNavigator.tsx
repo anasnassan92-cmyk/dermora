@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { Icon } from '../components/ui';
 import { useAuth } from '../hooks/useAuth';
+import { profileService } from '../services/profile/profileService';
 import { colors, fonts } from '../theme';
 import { WelcomeScreen } from '../features/auth/WelcomeScreen';
 import { LoginScreen } from '../features/auth/LoginScreen';
@@ -77,7 +78,18 @@ function startRoute(): keyof AuthStackParamList {
 
 export function RootNavigator() {
   const { session, loading } = useAuth();
-  if (loading) return null; // splash is still visible
+  // Onboarding gate: a verified user without a basic profile starts on "Grundprofil" (design screen 04).
+  const [needsProfile, setNeedsProfile] = useState<boolean | null>(null);
+  const verified = !!session?.emailVerified;
+  useEffect(() => {
+    if (!verified) return setNeedsProfile(null);
+    profileService
+      .get()
+      .then((p) => setNeedsProfile(!p.age_range))
+      .catch(() => setNeedsProfile(false));
+  }, [verified, session?.userId]);
+
+  if (loading || (verified && needsProfile === null)) return null; // splash is still visible
 
   return (
     <NavigationContainer theme={navTheme}>
@@ -93,7 +105,7 @@ export function RootNavigator() {
           <AuthStack.Screen name="VerifyEmail" component={VerifyEmailScreen} initialParams={{ email: session.email }} />
         </AuthStack.Navigator>
       ) : (
-        <AppStack.Navigator screenOptions={stackOptions}>
+        <AppStack.Navigator initialRouteName={needsProfile ? 'ProfileSetup' : 'Tabs'} screenOptions={stackOptions}>
           <AppStack.Screen name="Tabs">{() => <MainTabs />}</AppStack.Screen>
           <AppStack.Screen name="EditProfile" component={EditProfileScreen} options={{ ...headerOptions, headerShown: true, title: 'Profil' }} />
           <AppStack.Screen name="ProfileSetup" component={ProfileSetupScreen} />

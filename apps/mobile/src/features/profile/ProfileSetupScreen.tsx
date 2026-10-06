@@ -58,7 +58,7 @@ export function ProfileSetupScreen({ navigation }: AppScreenProps<'ProfileSetup'
   return (
     <Screen footer={<FlowFooter onNext={next} loading={saving} />}>
       <Blob />
-      <FlowHeader step={3} onBack={() => navigation.goBack()} onSkip={() => navigation.navigate('AssessmentIntro')} skipLabel="Skippa" />
+      <FlowHeader step={3} onBack={() => (navigation.canGoBack() ? navigation.goBack() : navigation.replace('Tabs'))} onSkip={() => navigation.navigate('AssessmentIntro')} skipLabel="Skippa" />
       <T variant="display" style={styles.title}>Berätta lite om dig</T>
       <T variant="body" muted mb="xl">Detta hjälper oss att ge mer personliga rekommendationer.</T>
 

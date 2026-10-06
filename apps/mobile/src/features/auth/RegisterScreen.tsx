@@ -41,7 +41,7 @@ export function RegisterScreen({ navigation }: AuthScreenProps<'Register'>) {
     if (!terms) return setError('Du måste godkänna villkoren.');
     setLoading(true);
     try {
-      const { needsVerification } = await signUp(email.trim(), password, `${first.trim()} ${last.trim()}`.trim());
+      const { needsVerification } = await signUp({ firstName: first.trim(), lastName: last.trim(), email: email.trim(), password });
       if (needsVerification) navigation.navigate('VerifyEmail', { email: email.trim() });
     } catch (e) {
       setError((e as Error).message);

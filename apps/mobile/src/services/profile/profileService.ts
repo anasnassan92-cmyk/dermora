@@ -4,12 +4,12 @@ import { api } from '../api/client';
 
 let mockProfile: Profile = {
   id: 'mock',
-  display_name: 'Sara',
-  birth_year: 2001,
-  age_range: '18_24',
-  gender: 'female',
+  display_name: null,
+  birth_year: null,
+  age_range: null,
+  gender: null,
   country: 'SE',
-  skin_tone: 4,
+  skin_tone: null,
   skin_type: 'unknown',
   consent_images: false,
   consent_at: null,
