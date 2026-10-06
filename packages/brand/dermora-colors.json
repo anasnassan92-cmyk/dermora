@@ -1,0 +1,352 @@
+{
+  "name": "Dermora",
+  "core": [
+    {
+      "token": "teal",
+      "name_sv": "Primär teal",
+      "name_en": "Primary Teal",
+      "hex": "#0C9387",
+      "rgb": [
+        12,
+        147,
+        135
+      ],
+      "cmyk_fogra39": [
+        80,
+        9,
+        48,
+        16
+      ],
+      "hsl": [
+        175,
+        85,
+        31
+      ],
+      "usage": "Varumärkets huvudfärg: symbolen, ikoner, grafik, stora rubrikord och varumärkesytor som förpackning och app-ikon."
+    },
+    {
+      "token": "mint",
+      "name_sv": "Ljus mint",
+      "name_en": "Mint Tint",
+      "hex": "#DFF2F0",
+      "rgb": [
+        223,
+        242,
+        240
+      ],
+      "cmyk_fogra39": [
+        13,
+        4,
+        8,
+        0
+      ],
+      "hsl": [
+        174,
+        42,
+        91
+      ],
+      "usage": "Mjuka ytor: ikonbrickor, kort, sektioner och markeringar."
+    },
+    {
+      "token": "skin",
+      "name_sv": "Hudton",
+      "name_en": "Skin Tone",
+      "hex": "#F8FCFB",
+      "rgb": [
+        248,
+        252,
+        251
+      ],
+      "cmyk_fogra39": [
+        3,
+        1,
+        2,
+        0
+      ],
+      "hsl": [
+        165,
+        40,
+        98
+      ],
+      "usage": "Grundbakgrund för webb, app och trycksaker."
+    },
+    {
+      "token": "charcoal",
+      "name_sv": "Antracit",
+      "name_en": "Charcoal",
+      "hex": "#1F1F1F",
+      "rgb": [
+        31,
+        31,
+        31
+      ],
+      "cmyk_fogra39": [
+        84,
+        79,
+        58,
+        97
+      ],
+      "hsl": [
+        0,
+        0,
+        12
+      ],
+      "usage": "All text, ordbilden i logotypen och mörka ytor."
+    },
+    {
+      "token": "gray",
+      "name_sv": "Ljusgrå",
+      "name_en": "Light Gray",
+      "hex": "#E9ECEF",
+      "rgb": [
+        233,
+        236,
+        239
+      ],
+      "cmyk_fogra39": [
+        10,
+        7,
+        6,
+        0
+      ],
+      "hsl": [
+        210,
+        16,
+        93
+      ],
+      "usage": "Neutrala UI-ytor: avdelare, tabellhuvuden och inaktiva fält."
+    }
+  ],
+  "extended": [
+    {
+      "token": "deep-teal",
+      "name_sv": "Djup teal",
+      "name_en": "Deep Teal",
+      "hex": "#04776B",
+      "rgb": [
+        4,
+        119,
+        107
+      ],
+      "cmyk_fogra39": [
+        87,
+        22,
+        56,
+        28
+      ],
+      "usage": "Symbolens bas (D:et). Teal text, länkar och primära knappar – minst 4,5:1 mot alla ljusa ytor."
+    },
+    {
+      "token": "teal-mid",
+      "name_sv": "Mellanteal",
+      "name_en": "Mid Teal",
+      "hex": "#088579",
+      "rgb": [
+        8,
+        133,
+        121
+      ],
+      "cmyk_fogra39": [
+        83,
+        15,
+        51,
+        22
+      ],
+      "usage": "Symbolens kupol. Diagram."
+    },
+    {
+      "token": "teal-soft",
+      "name_sv": "Dov teal",
+      "name_en": "Soft Teal",
+      "hex": "#3DA99F",
+      "rgb": [
+        61,
+        169,
+        159
+      ],
+      "cmyk_fogra39": [
+        71,
+        3,
+        41,
+        9
+      ],
+      "usage": "Mönster på teal botten och symbolens kupol på mörk botten."
+    },
+    {
+      "token": "teal-light",
+      "name_sv": "Ljus teal",
+      "name_en": "Light Teal",
+      "hex": "#6DBEB7",
+      "rgb": [
+        109,
+        190,
+        183
+      ],
+      "cmyk_fogra39": [
+        58,
+        4,
+        33,
+        2
+      ],
+      "usage": "Linjemönster, dekor och symbolens övre lager på mörk botten. Aldrig text på ljusa ytor."
+    },
+    {
+      "token": "mint-deep",
+      "name_sv": "Djup mint",
+      "name_en": "Deep Mint",
+      "hex": "#B5DFDB",
+      "rgb": [
+        181,
+        223,
+        219
+      ],
+      "cmyk_fogra39": [
+        33,
+        2,
+        18,
+        0
+      ],
+      "usage": "Droppar, bubblor, mönster och diagram på ljusa ytor."
+    }
+  ],
+  "semantic": [
+    {
+      "token": "surface",
+      "light": "#F8FCFB",
+      "dark": "#121716",
+      "usage": "Sidans bakgrund (hudton i ljust tema)."
+    },
+    {
+      "token": "surface-raised",
+      "light": "#FFFFFF",
+      "dark": "#1B2120",
+      "usage": "Kort, fält, menyer och dialoger ovanpå `surface`."
+    },
+    {
+      "token": "surface-sunken",
+      "light": "#E9ECEF",
+      "dark": "#0D1110",
+      "usage": "Infällda ytor: sektionsband, tabellhuvuden, inaktiva fält."
+    },
+    {
+      "token": "surface-mint",
+      "light": "#DFF2F0",
+      "dark": "#10302C",
+      "usage": "Ikonbrickor, markerade sektioner och tips-kort."
+    },
+    {
+      "token": "surface-brand",
+      "light": "#0C9387",
+      "dark": "#0C9387",
+      "usage": "Varumärkesytor: CTA-band, kampanjer, splash. Vit text (`on-brand`) ger 3,8:1 – bara stor text (24 px+ eller 19 px fet), logotyp och ikoner."
+    },
+    {
+      "token": "surface-brand-strong",
+      "light": "#04776B",
+      "dark": "#04776B",
+      "usage": "Varumärkesytor med liten text: sidfot, banderoller, etiketter. `on-brand` ger 5,5:1."
+    },
+    {
+      "token": "line",
+      "light": "#DDE3E2",
+      "dark": "#2A3331",
+      "usage": "Dekorativa hårlinjer och avdelare (bär ingen information)."
+    },
+    {
+      "token": "border-control",
+      "light": "#788684",
+      "dark": "#728380",
+      "usage": "Kanter på inmatningsfält och kryssrutor – minst 3:1 mot alla ytor."
+    },
+    {
+      "token": "ink",
+      "light": "#1F1F1F",
+      "dark": "#F1F5F4",
+      "usage": "Rubriker och brödtext på `surface`, `surface-raised`, `surface-sunken` och `surface-mint`."
+    },
+    {
+      "token": "ink-muted",
+      "light": "#5A6462",
+      "dark": "#A7B3B0",
+      "usage": "Sekundär text och metadata på samma ytor som `ink`."
+    },
+    {
+      "token": "ink-brand",
+      "light": "#04776B",
+      "dark": "#5ECDBF",
+      "usage": "Teal rubriker och länkar på alla ljusa ytor (minst 4,5:1)."
+    },
+    {
+      "token": "ink-accent",
+      "light": "#0C9387",
+      "dark": "#6DBEB7",
+      "usage": "Accentord i stora rubriker (24 px+), t.ex. ”förstådd”. Aldrig brödtext – 3,7:1 mot `surface`."
+    },
+    {
+      "token": "primary",
+      "light": "#04776B",
+      "dark": "#5ECDBF",
+      "usage": "Primära knappar, aktiva flikar, valda lägen."
+    },
+    {
+      "token": "primary-hover",
+      "light": "#035F56",
+      "dark": "#8ADDD3",
+      "usage": "Hover och tryckt läge för `primary`."
+    },
+    {
+      "token": "on-primary",
+      "light": "#FFFFFF",
+      "dark": "#0B1F1C",
+      "usage": "Text och ikoner på en `primary`-fyllning."
+    },
+    {
+      "token": "on-brand",
+      "light": "#FFFFFF",
+      "dark": "#FFFFFF",
+      "usage": "Text och logotyp på `surface-brand` och `surface-brand-strong`."
+    },
+    {
+      "token": "accent",
+      "light": "#0C9387",
+      "dark": "#0C9387",
+      "usage": "Ikoner, illustrationer, mönster och diagram. Som text bara i stor storlek."
+    },
+    {
+      "token": "attention",
+      "light": "#9A4716",
+      "dark": "#F0A877",
+      "usage": "”Dags nu”-läge i rutiner och påminnelser – alltid med ikon eller ord."
+    },
+    {
+      "token": "attention-soft",
+      "light": "#F8E4D5",
+      "dark": "#4A2A17",
+      "usage": "Bakgrund bakom `attention`-text."
+    },
+    {
+      "token": "danger",
+      "light": "#A3362B",
+      "dark": "#F2A196",
+      "usage": "Felmeddelanden och destruktiva åtgärder – alltid med ikon och text."
+    },
+    {
+      "token": "danger-soft",
+      "light": "#F7DEDA",
+      "dark": "#4A1F1A",
+      "usage": "Bakgrund bakom `danger`-text."
+    },
+    {
+      "token": "success",
+      "light": "#04776B",
+      "dark": "#5ECDBF",
+      "usage": "Klart/lyckat – samma teal som varumärket, alltid med bock-ikon."
+    },
+    {
+      "token": "rating",
+      "light": "#C98A1E",
+      "dark": "#E8B65A",
+      "usage": "Betygsstjärnor (dekor, ej text)."
+    }
+  ]
+}
