@@ -12,6 +12,22 @@ import { PreviewApp, getPreviewParams } from './src/dev/PreviewApp';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
+/** Web only: paints the page body with the Dermora brand background (behind the phone column). */
+function WebBackdrop() {
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const body = document.body;
+    const prev = body.style.background;
+    // ../assets/… resolves from /app/ to the landing page's assets on the same host
+    body.style.background = 'linear-gradient(160deg, #0C9387 0%, #088579 55%, #04776B 100%) fixed';
+    body.style.backgroundImage = 'url(../assets/patterns/bubbles-teal.svg), linear-gradient(160deg, #0C9387 0%, #088579 55%, #04776B 100%)';
+    body.style.backgroundSize = '280px, cover';
+    body.style.backgroundAttachment = 'fixed, fixed';
+    return () => { body.style.background = prev; };
+  }, []);
+  return null;
+}
+
 export default function App() {
   const [fontsLoaded] = useFonts({
     'Montserrat-Regular': require('./assets/fonts/Montserrat-Regular.ttf'),
@@ -53,11 +69,13 @@ export default function App() {
     </SafeAreaProvider>
   );
 
-  // Web: keep the phone layout readable on desktop – a centred column, full width on phones.
+  // Web: keep the phone layout readable on desktop – a centred column on the brand background
+  // (teal + bubbles pattern from the landing page), full width on phones.
   if (Platform.OS === 'web') {
     return (
-      <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#E8E4DA' }}>
-        <View style={{ flex: 1, width: '100%', maxWidth: 480, backgroundColor: '#FAF7F0', overflow: 'hidden' }}>{app}</View>
+      <View style={{ flex: 1, alignItems: 'center', backgroundColor: 'transparent' }}>
+        <WebBackdrop />
+        <View style={{ flex: 1, width: '100%', maxWidth: 480, backgroundColor: '#FAF7F0', overflow: 'hidden', boxShadow: '0 0 60px rgba(0,0,0,0.25)' }}>{app}</View>
       </View>
     );
   }
