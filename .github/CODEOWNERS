@@ -1,0 +1,37 @@
+# Ownership areas from docs/06-team-and-workflow.md.
+# Replace the handles with the real GitHub usernames.
+apps/mobile/src/features/ai-guidance/      @youssef
+apps/mobile/src/services/ai/               @youssef
+apps/api/src/services/ai_service.py        @youssef
+apps/api/src/services/provider.py          @youssef
+apps/api/src/services/prompts.py           @youssef
+apps/api/src/services/context_builder.py   @youssef
+
+apps/mobile/src/features/auth/             @anas
+apps/mobile/src/features/profile/          @anas
+apps/mobile/src/services/auth/             @anas
+apps/api/src/api/routes/profile.py         @anas
+apps/api/src/core/security.py              @anas
+
+apps/mobile/src/features/assessment/       @adam
+apps/api/src/data/                         @adam
+apps/api/src/api/routes/assessment.py      @adam
+
+apps/mobile/src/features/images/           @ali
+apps/mobile/src/services/storage/          @ali
+apps/api/src/api/routes/images.py          @ali
+apps/api/src/services/face_detection.py    @ali
+
+apps/api/src/main.py                       @assad
+apps/api/src/core/                         @assad
+apps/api/src/repositories/                 @assad
+apps/api/src/schemas/                      @assad
+supabase/                                  @assad
+
+apps/mobile/src/features/treatment-plan/   @even
+apps/mobile/src/components/ui/             @even
+apps/mobile/src/theme/                     @even
+apps/api/src/api/routes/plans.py           @even
+
+apps/web/                                  @youssef @even
+docs/                                      @youssef

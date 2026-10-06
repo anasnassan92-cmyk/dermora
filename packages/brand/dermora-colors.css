@@ -1,0 +1,64 @@
+:root {
+  /* Dermora – kärnpalett */
+  --dm-teal: #0C9387; /* Primär teal */
+  --dm-mint: #DFF2F0; /* Ljus mint */
+  --dm-skin: #F8FCFB; /* Hudton */
+  --dm-charcoal: #1F1F1F; /* Antracit */
+  --dm-gray: #E9ECEF; /* Ljusgrå */
+  --dm-deep-teal: #04776B; /* Djup teal */
+  --dm-teal-mid: #088579; /* Mellanteal */
+  --dm-teal-soft: #3DA99F; /* Dov teal */
+  --dm-teal-light: #6DBEB7; /* Ljus teal */
+  --dm-mint-deep: #B5DFDB; /* Djup mint */
+
+  /* Semantiska tokens – ljust tema */
+  --dm-surface: var(--dm-skin);
+  --dm-surface-raised: #FFFFFF;
+  --dm-surface-sunken: var(--dm-gray);
+  --dm-surface-mint: var(--dm-mint);
+  --dm-surface-brand: var(--dm-teal);
+  --dm-surface-brand-strong: var(--dm-deep-teal);
+  --dm-line: #DDE3E2;
+  --dm-border-control: #788684;
+  --dm-ink: var(--dm-charcoal);
+  --dm-ink-muted: #5A6462;
+  --dm-ink-brand: var(--dm-deep-teal);
+  --dm-ink-accent: var(--dm-teal);
+  --dm-primary: var(--dm-deep-teal);
+  --dm-primary-hover: #035F56;
+  --dm-on-primary: #FFFFFF;
+  --dm-on-brand: #FFFFFF;
+  --dm-accent: var(--dm-teal);
+  --dm-attention: #9A4716;
+  --dm-attention-soft: #F8E4D5;
+  --dm-danger: #A3362B;
+  --dm-danger-soft: #F7DEDA;
+  --dm-success: var(--dm-deep-teal);
+  --dm-rating: #C98A1E;
+}
+
+[data-theme="dark"] {
+  --dm-surface: #121716;
+  --dm-surface-raised: #1B2120;
+  --dm-surface-sunken: #0D1110;
+  --dm-surface-mint: #10302C;
+  --dm-surface-brand: var(--dm-teal);
+  --dm-surface-brand-strong: var(--dm-deep-teal);
+  --dm-line: #2A3331;
+  --dm-border-control: #728380;
+  --dm-ink: #F1F5F4;
+  --dm-ink-muted: #A7B3B0;
+  --dm-ink-brand: #5ECDBF;
+  --dm-ink-accent: #6DBEB7;
+  --dm-primary: #5ECDBF;
+  --dm-primary-hover: #8ADDD3;
+  --dm-on-primary: #0B1F1C;
+  --dm-on-brand: #FFFFFF;
+  --dm-accent: var(--dm-teal);
+  --dm-attention: #F0A877;
+  --dm-attention-soft: #4A2A17;
+  --dm-danger: #F2A196;
+  --dm-danger-soft: #4A1F1A;
+  --dm-success: #5ECDBF;
+  --dm-rating: #E8B65A;
+}
