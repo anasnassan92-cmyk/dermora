@@ -194,11 +194,21 @@ function errorStatus(e: unknown): number | undefined {
  * Overload/timeout (429/500/503/504/abort) or unknown model (404) → next model;
  * anything else (bad key, bad request) → throw at once.
  */
+const COOL_DOWN_MS = 5 * 60_000;
+const coolingUntil = new Map<string, number>();
+/** Test helper: forget which models were cooling down. */
+export function resetGeminiCooldown() {
+  coolingUntil.clear();
+}
+
 export async function withGemini<T>(
   call: (model: string, signal: AbortSignal) => Promise<T>,
   opts: { budgetMs?: number; perCallMs?: number } = {},
 ): Promise<{ value: T; model: string }> {
-  const models = [...new Set([config.gemini.model, ...config.gemini.fallbackModels])];
+  const all = [...new Set([config.gemini.model, ...config.gemini.fallbackModels])];
+  // Models that just failed with overload/timeout wait at the back of the queue for a while.
+  const now = Date.now();
+  const models = [...all.filter((m) => !((coolingUntil.get(m) ?? 0) > now)), ...all.filter((m) => (coolingUntil.get(m) ?? 0) > now)];
   const deadline = Date.now() + (opts.budgetMs ?? 45_000);
   let lastError: unknown = new Error('Gemini: ingen modell svarade i tid.');
   for (const model of models) {
@@ -211,6 +221,7 @@ export async function withGemini<T>(
       const status = errorStatus(e);
       console.warn(`[ai] ${model} failed (${status ?? (e as Error)?.name ?? 'error'})`);
       if (status !== undefined && ![404, 429, 500, 503, 504].includes(status)) throw e;
+      coolingUntil.set(model, Date.now() + (status === 404 ? 60 * 60_000 : COOL_DOWN_MS));
     }
   }
   throw lastError;
