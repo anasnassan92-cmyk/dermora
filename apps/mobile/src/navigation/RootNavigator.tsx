@@ -1,9 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
+import { Icon } from '../components/ui';
 import { useAuth } from '../hooks/useAuth';
 import { colors, fonts } from '../theme';
 import { WelcomeScreen } from '../features/auth/WelcomeScreen';
@@ -12,12 +12,18 @@ import { RegisterScreen } from '../features/auth/RegisterScreen';
 import { VerifyEmailScreen } from '../features/auth/VerifyEmailScreen';
 import { ProfileScreen } from '../features/profile/ProfileScreen';
 import { EditProfileScreen } from '../features/profile/EditProfileScreen';
+import { ProfileSetupScreen } from '../features/profile/ProfileSetupScreen';
+import { AssessmentIntroScreen } from '../features/assessment/AssessmentIntroScreen';
 import { AssessmentScreen } from '../features/assessment/AssessmentScreen';
 import { ImageUploadScreen } from '../features/images/ImageUploadScreen';
+import { ImageReviewScreen } from '../features/images/ImageReviewScreen';
 import { AnalyzingScreen } from '../features/ai-guidance/AnalyzingScreen';
 import { ResultScreen } from '../features/ai-guidance/ResultScreen';
 import { AIChatScreen } from '../features/ai-guidance/AIChatScreen';
+import { ChatTabScreen } from '../features/ai-guidance/ChatTabScreen';
 import { TreatmentPlanScreen } from '../features/treatment-plan/TreatmentPlanScreen';
+import { ConfirmPlanScreen } from '../features/treatment-plan/ConfirmPlanScreen';
+import { PlanSavedScreen } from '../features/treatment-plan/PlanSavedScreen';
 import { SavedPlanScreen } from '../features/treatment-plan/SavedPlanScreen';
 import { HomeScreen } from '../features/treatment-plan/HomeScreen';
 import type { AppStackParamList, AuthStackParamList, TabParamList } from './types';
@@ -33,19 +39,12 @@ const theme = {
 
 const headerOptions = {
   headerShadowVisible: false,
-  headerTintColor: colors.inkBrand,
+  headerTintColor: colors.ink,
   headerTitleStyle: { fontFamily: fonts.semiBold, color: colors.ink },
   headerStyle: { backgroundColor: colors.surface },
   headerBackTitle: 'Tillbaka',
+  title: '',
 } as const;
-
-function TabIcon({ label, focused }: { label: string; focused: boolean }) {
-  return (
-    <View style={[styles.tabIcon, focused && styles.tabIconOn]}>
-      <Text style={[styles.tabGlyph, focused && styles.tabGlyphOn]}>{label}</Text>
-    </View>
-  );
-}
 
 function MainTabs() {
   return (
@@ -58,9 +57,10 @@ function MainTabs() {
         tabBarStyle: { backgroundColor: colors.surfaceRaised, borderTopColor: colors.line, height: 64, paddingTop: 6 },
       }}
     >
-      <Tabs.Screen name="Home" component={HomeScreen} options={{ title: 'Hem', tabBarIcon: ({ focused }) => <TabIcon label="⌂" focused={focused} /> }} />
-      <Tabs.Screen name="Plan" component={SavedPlanScreen} options={{ title: 'Plan', tabBarIcon: ({ focused }) => <TabIcon label="✓" focused={focused} /> }} />
-      <Tabs.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profil', tabBarIcon: ({ focused }) => <TabIcon label="●" focused={focused} /> }} />
+      <Tabs.Screen name="Home" component={HomeScreen} options={{ title: 'Hem', tabBarIcon: ({ color }) => <Icon name="home" size={22} color={color} /> }} />
+      <Tabs.Screen name="Plan" component={SavedPlanScreen} options={{ title: 'Min plan', tabBarIcon: ({ color }) => <Icon name="checklist" size={22} color={color} /> }} />
+      <Tabs.Screen name="Chat" component={ChatTabScreen} options={{ title: 'Chat', tabBarIcon: ({ color }) => <Icon name="chat" size={22} color={color} /> }} />
+      <Tabs.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profil', tabBarIcon: ({ color }) => <Icon name="user" size={22} color={color} /> }} />
     </Tabs.Navigator>
   );
 }
@@ -74,9 +74,9 @@ export function RootNavigator() {
       {!session ? (
         <AuthStack.Navigator screenOptions={headerOptions}>
           <AuthStack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
-          <AuthStack.Screen name="Login" component={LoginScreen} options={{ title: '' }} />
-          <AuthStack.Screen name="Register" component={RegisterScreen} options={{ title: '' }} />
-          <AuthStack.Screen name="VerifyEmail" component={VerifyEmailScreen} options={{ title: '', headerShown: false }} />
+          <AuthStack.Screen name="Login" component={LoginScreen} />
+          <AuthStack.Screen name="Register" component={RegisterScreen} />
+          <AuthStack.Screen name="VerifyEmail" component={VerifyEmailScreen} options={{ headerShown: false }} />
         </AuthStack.Navigator>
       ) : !session.emailVerified ? (
         <AuthStack.Navigator screenOptions={headerOptions}>
@@ -86,21 +86,19 @@ export function RootNavigator() {
         <AppStack.Navigator screenOptions={headerOptions}>
           <AppStack.Screen name="Tabs" component={MainTabs} options={{ headerShown: false }} />
           <AppStack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: 'Profil' }} />
-          <AppStack.Screen name="Assessment" component={AssessmentScreen} options={{ title: 'Din hud' }} />
-          <AppStack.Screen name="ImageUpload" component={ImageUploadScreen} options={{ title: 'Bild' }} />
+          <AppStack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
+          <AppStack.Screen name="AssessmentIntro" component={AssessmentIntroScreen} />
+          <AppStack.Screen name="Assessment" component={AssessmentScreen} />
+          <AppStack.Screen name="ImageUpload" component={ImageUploadScreen} />
+          <AppStack.Screen name="ImageReview" component={ImageReviewScreen} />
           <AppStack.Screen name="Analyzing" component={AnalyzingScreen} options={{ headerShown: false, gestureEnabled: false }} />
           <AppStack.Screen name="Result" component={ResultScreen} options={{ title: 'Bedömning', headerBackVisible: false }} />
-          <AppStack.Screen name="AIChat" component={AIChatScreen} options={{ title: 'Fråga Dermora' }} />
-          <AppStack.Screen name="TreatmentPlan" component={TreatmentPlanScreen} options={{ title: 'Din plan' }} />
+          <AppStack.Screen name="AIChat" component={AIChatScreen} options={{ headerShown: false }} />
+          <AppStack.Screen name="TreatmentPlan" component={TreatmentPlanScreen} options={{ headerBackVisible: false }} />
+          <AppStack.Screen name="ConfirmPlan" component={ConfirmPlanScreen} />
+          <AppStack.Screen name="PlanSaved" component={PlanSavedScreen} options={{ headerShown: false, gestureEnabled: false }} />
         </AppStack.Navigator>
       )}
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  tabIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  tabIconOn: { backgroundColor: colors.surfaceMint },
-  tabGlyph: { fontSize: 16, color: colors.inkMuted },
-  tabGlyphOn: { color: colors.inkBrand },
-});

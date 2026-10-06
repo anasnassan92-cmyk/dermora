@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
-import { Chip, T } from '../../../components/ui';
+import { Chip, OptionCard, T, type IconName } from '../../../components/ui';
 import { colors, radius, spacing, typography } from '../../../theme';
 import type { AnswerValue, Question } from '../../../types/api';
 import { QuestionOption } from './QuestionOption';
@@ -12,35 +12,60 @@ interface Props {
   onChange: (value: AnswerValue) => void;
 }
 
-/** Renders one question of any type. Pure UI – no API calls here. */
+/** Renders one question of any type. Pure UI – no API calls here.
+ *  layout: 'cards' = rows with description (skin type), 'grid' = icon tiles (concerns), default = radio/checkbox list. */
 export function QuestionRenderer({ question, value, onChange }: Props) {
+  const arr = Array.isArray(value) ? (value as string[]) : [];
+  const toggle = (v: string) => onChange(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
+
   return (
     <View style={styles.wrap}>
-      <T variant="h2" mb="xs">
+      <T variant="h1" mb="xs" style={styles.title}>
         {question.title}
-        {!question.required ? <T variant="small" muted> (valfritt)</T> : null}
       </T>
-      {question.help ? <T variant="small" muted mb="lg">{question.help}</T> : <View style={styles.gap} />}
+      <T variant="small" muted mb="lg">
+        {question.help ?? (question.type === 'multi' ? 'Välj ett eller flera alternativ.' : 'Välj det alternativ som bäst beskriver din upplevelse.')}
+        {!question.required ? ' (valfritt)' : ''}
+      </T>
 
-      {question.type === 'single' &&
+      {question.layout === 'cards' &&
+        question.options.map((o) => (
+          <OptionCard
+            key={o.value}
+            label={o.label}
+            description={o.description}
+            icon={(o.icon as IconName) ?? null}
+            selected={question.type === 'multi' ? arr.includes(o.value) : value === o.value}
+            multi={question.type === 'multi'}
+            onPress={() => (question.type === 'multi' ? toggle(o.value) : onChange(o.value))}
+          />
+        ))}
+
+      {question.layout === 'grid' && (
+        <View style={styles.grid}>
+          {question.options.map((o) => (
+            <OptionCard
+              key={o.value}
+              variant="tile"
+              label={o.label}
+              icon={(o.icon as IconName) ?? 'plus'}
+              selected={question.type === 'multi' ? arr.includes(o.value) : value === o.value}
+              multi={question.type === 'multi'}
+              onPress={() => (question.type === 'multi' ? toggle(o.value) : onChange(o.value))}
+            />
+          ))}
+        </View>
+      )}
+
+      {!question.layout && question.type === 'single' &&
         question.options.map((o) => (
           <QuestionOption key={o.value} label={o.label} selected={value === o.value} onPress={() => onChange(o.value)} />
         ))}
 
-      {question.type === 'multi' &&
-        question.options.map((o) => {
-          const arr = Array.isArray(value) ? (value as string[]) : [];
-          const on = arr.includes(o.value);
-          return (
-            <QuestionOption
-              key={o.value}
-              multi
-              label={o.label}
-              selected={on}
-              onPress={() => onChange(on ? arr.filter((v) => v !== o.value) : [...arr, o.value])}
-            />
-          );
-        })}
+      {!question.layout && question.type === 'multi' &&
+        question.options.map((o) => (
+          <QuestionOption key={o.value} multi label={o.label} selected={arr.includes(o.value)} onPress={() => toggle(o.value)} />
+        ))}
 
       {question.type === 'boolean' && (
         <>
@@ -76,7 +101,8 @@ export function QuestionRenderer({ question, value, onChange }: Props) {
 
 const styles = StyleSheet.create({
   wrap: { paddingBottom: spacing.xl },
-  gap: { height: spacing.md },
+  title: { fontSize: 22, lineHeight: 28 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   scale: { flexDirection: 'row', flexWrap: 'wrap' },
   textarea: {
     ...typography.body,

@@ -44,5 +44,6 @@ def health():
         "env": settings.app_env,
         "database": "supabase" if settings.supabase_enabled else "memory",
         "ai_provider": settings.ai_provider,
+        "face_detector": settings.face_detector,
         "dev_auth": settings.dev_auth,
     }

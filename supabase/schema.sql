@@ -45,6 +45,9 @@ create table if not exists public.profiles (
   id             uuid primary key references auth.users (id) on delete cascade,
   display_name   text,
   birth_year     int check (birth_year is null or birth_year between 1900 and 2100),
+  age_range      text check (age_range is null or age_range in ('under_18','18_24','25_34','35_44','45_54','55_plus')),
+  gender         text check (gender is null or gender in ('female','male','non_binary','undisclosed')),
+  country        char(2) default 'SE',
   skin_type      skin_type not null default 'unknown',
   consent_images boolean not null default false,  -- GDPR: explicit consent to process skin images
   consent_at     timestamptz,

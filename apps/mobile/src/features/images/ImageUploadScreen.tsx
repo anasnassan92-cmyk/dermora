@@ -1,35 +1,39 @@
 /**
- * Image upload screen – owner: Ali.
- * Flow: pick/take → preview + quality check → upload → (optionally more) → analyze.
+ * Image upload screen – owner: Ali. Design screen 9 ("Ladda upp initiala bilder").
+ * Flow: pick/take → preview + quality check → upload → review grid (ImageReview) → analyze.
  */
 import React, { useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Button, Card, Screen, T } from '../../components/ui';
+import { Button, Card, Icon, IconBadge, Screen, StepHeader, T } from '../../components/ui';
 import type { AppScreenProps } from '../../navigation/types';
 import { profileService } from '../../services/profile/profileService';
 import { imageStorageService } from '../../services/storage/imageStorageService';
-import { colors, radius, spacing } from '../../theme';
-import type { FaceCheck, SkinImage } from '../../types/api';
+import { colors, palette, radius, spacing } from '../../theme';
+import type { FaceCheck } from '../../types/api';
 import { ImagePicker } from './components/ImagePicker';
 import { ImagePreview } from './components/ImagePreview';
+
+const TIPS = ['Bra belysning (naturligt ljus)', 'Tydlig och skarp bild', 'Visa hela ansiktet', 'Ingen makeup om möjligt'];
 
 export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUpload'>) {
   const { assessmentId } = route.params;
   const [consent, setConsent] = useState<boolean | null>(null);
+  const [picking, setPicking] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
   const [check, setCheck] = useState<FaceCheck | null>(null);
   const [checking, setChecking] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploaded, setUploaded] = useState<SkinImage[]>([]);
+  const [count, setCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     profileService.get().then((p) => setConsent(p.consent_images));
-    imageStorageService.list(assessmentId).then(setUploaded).catch(() => undefined);
+    imageStorageService.list(assessmentId).then((l) => setCount(l.length)).catch(() => undefined);
   }, [assessmentId]);
 
   const onPicked = async (uri: string) => {
+    setPicking(false);
     setPending(uri);
     setCheck(null);
     setChecking(true);
@@ -47,10 +51,10 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
     setUploading(true);
     setError(null);
     try {
-      const img = await imageStorageService.upload(pending, assessmentId, 'face');
-      setUploaded((list) => [img, ...list]);
+      await imageStorageService.upload(pending, assessmentId, 'face');
       setPending(null);
       setCheck(null);
+      navigation.navigate('ImageReview', { assessmentId });
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -61,6 +65,7 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
   if (consent === false) {
     return (
       <Screen>
+        <StepHeader step={2} total={3} />
         <T variant="h1" mb="sm">Godkänn bildbehandling</T>
         <T muted mb="xl">För att analysera din hud behöver vi ditt godkännande att lagra bilderna privat. Du kan återkalla det när som helst.</T>
         <Button title="Till profilinställningar" onPress={() => navigation.navigate('EditProfile')} />
@@ -69,55 +74,77 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
     );
   }
 
+  if (pending) {
+    return (
+      <Screen>
+        <StepHeader step={2} total={3} />
+        <T variant="h1" mb="lg">Förhandsgranska</T>
+        <ImagePreview uri={pending} check={check} checking={checking} onRetake={() => setPending(null)} onUse={upload} uploading={uploading} />
+        {error ? <T color={colors.danger} style={styles.gap}>{error}</T> : null}
+      </Screen>
+    );
+  }
+
+  if (picking) {
+    return (
+      <Screen>
+        <StepHeader step={2} total={3} />
+        <T variant="h1" mb="lg">Ta en bild</T>
+        <ImagePicker onPicked={onPicked} />
+        <Button title="Avbryt" variant="ghost" onPress={() => setPicking(false)} style={styles.gap} />
+      </Screen>
+    );
+  }
+
   return (
     <Screen
       footer={
         <Button
-          title={uploaded.length ? 'Analysera min hud' : 'Fortsätt utan bild'}
-          variant={uploaded.length ? 'primary' : 'ghost'}
-          onPress={() => navigation.replace('Analyzing', { assessmentId })}
+          title={count ? `Fortsätt (${count} bild${count > 1 ? 'er' : ''})` : 'Fortsätt utan bild'}
+          variant={count ? 'primary' : 'ghost'}
+          onPress={() => (count ? navigation.navigate('ImageReview', { assessmentId }) : navigation.replace('Analyzing', { assessmentId }))}
         />
       }
     >
-      <T variant="h1" mb="sm">Ta en bild på din hud</T>
-      <T muted mb="xl">En bild rakt framifrån räcker. Du kan lägga till fler områden om du vill.</T>
+      <StepHeader step={2} total={3} />
+      <T variant="h1" mb="xs">Ladda upp initiala bilder</T>
+      <T variant="small" muted mb="xl">Tydliga bilder hjälper vår AI att förstå din hud bättre och ge mer noggrann vägledning.</T>
 
-      {pending ? (
-        <ImagePreview uri={pending} check={check} checking={checking} onRetake={() => setPending(null)} onUse={upload} uploading={uploading} />
-      ) : (
-        <ImagePicker onPicked={onPicked} />
-      )}
-      {error ? <T color={colors.danger} style={styles.gap}>{error}</T> : null}
+      <Pressable onPress={() => setPicking(true)} style={styles.dropzone} accessibilityRole="button" accessibilityLabel="Ladda upp bilder eller ta en bild">
+        <IconBadge name="camera" size={56} />
+        <T variant="bodyMedium" center style={styles.dropTitle}>Tryck för att ladda upp bilder eller ta en bild</T>
+        <T variant="caption" muted center>Du kan ladda upp upp till 4 bilder</T>
+      </Pressable>
 
-      {uploaded.length ? (
-        <View style={styles.uploaded}>
-          <T variant="label" muted mb="sm">Uppladdade bilder ({uploaded.length})</T>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {uploaded.map((img) => (
-              <View key={img.id} style={styles.thumbWrap}>
-                {img.url ? <Image source={{ uri: img.url }} style={styles.thumb} /> : <View style={styles.thumb} />}
-                <T variant="caption" muted onPress={() => imageStorageService.remove(img.id).then(() => setUploaded((l) => l.filter((x) => x.id !== img.id)))}>
-                  Ta bort
-                </T>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-      ) : null}
-
-      <Card tone="mint" style={styles.privacy}>
-        <T variant="small" muted>
-          Bilden lagras krypterat och privat. GPS-data och annan metadata tas bort innan den sparas. Ingen ansiktsigenkänning används.
-        </T>
+      <Card>
+        <T variant="bodyMedium" mb="sm">Tips för bra bilder:</T>
+        {TIPS.map((t) => (
+          <View key={t} style={styles.tip}>
+            <Icon name="check" size={16} color={colors.inkBrand} strokeWidth={2.5} />
+            <T variant="small">{t}</T>
+          </View>
+        ))}
       </Card>
+      <T variant="caption" muted center>
+        Bilden lagras krypterat och privat. GPS-data tas bort innan den sparas. Ingen ansiktsigenkänning används.
+      </T>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   gap: { marginTop: spacing.md },
-  uploaded: { marginTop: spacing.xl },
-  thumbWrap: { marginRight: spacing.md, alignItems: 'center', gap: spacing.xs },
-  thumb: { width: 84, height: 112, borderRadius: radius.sm, backgroundColor: colors.surfaceSunken },
-  privacy: { marginTop: spacing.xl },
+  dropzone: {
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: palette.tealLight,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surfaceMint,
+    alignItems: 'center',
+    padding: spacing.xl,
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+  dropTitle: { marginTop: spacing.sm, maxWidth: 220 },
+  tip: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 3 },
 });

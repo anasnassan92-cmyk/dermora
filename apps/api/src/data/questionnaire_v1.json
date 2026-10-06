@@ -8,12 +8,33 @@
       "title": "Hur skulle du beskriva din hud?",
       "help": "Välj det som stämmer bäst de flesta dagar.",
       "options": [
-        { "value": "oily", "label": "Fet – blir glansig under dagen" },
-        { "value": "dry", "label": "Torr – stram eller fjällig" },
-        { "value": "combination", "label": "Blandhud – fet i T-zonen, torr på kinderna" },
-        { "value": "normal", "label": "Normal – varken fet eller torr" },
-        { "value": "unknown", "label": "Vet inte" }
-      ]
+        {
+          "value": "oily",
+          "label": "Fet",
+          "description": "Blir lätt glansig, större porer"
+        },
+        {
+          "value": "dry",
+          "label": "Torr",
+          "description": "Kan kännas stram eller fnasig"
+        },
+        {
+          "value": "combination",
+          "label": "Kombinerad",
+          "description": "Både feta och torra områden"
+        },
+        {
+          "value": "normal",
+          "label": "Normal",
+          "description": "Balanserad, varken för torr eller fet"
+        },
+        {
+          "value": "unknown",
+          "label": "Vet inte",
+          "description": "Vi hjälper dig att bedöma"
+        }
+      ],
+      "layout": "cards"
     },
     {
       "id": "sensitive",
@@ -23,59 +44,144 @@
     {
       "id": "concerns",
       "type": "multi",
-      "title": "Vilka besvär vill du ha hjälp med?",
-      "help": "Välj alla som stämmer.",
+      "title": "Vilka är dina största hudproblem?",
+      "help": "Välj ett eller flera alternativ.",
       "options": [
-        { "value": "acne", "label": "Finnar / akne" },
-        { "value": "blackheads", "label": "Pormaskar" },
-        { "value": "redness", "label": "Rodnad / irritation" },
-        { "value": "dark_spots", "label": "Mörka fläckar / ärr efter finnar" },
-        { "value": "dryness", "label": "Torrhet / fjällning" },
-        { "value": "texture", "label": "Ojämn hudstruktur" },
-        { "value": "other", "label": "Annat" }
-      ]
+        {
+          "value": "acne",
+          "label": "Akne",
+          "icon": "face-scan"
+        },
+        {
+          "value": "blackheads",
+          "label": "Pormaskar",
+          "icon": "droplets"
+        },
+        {
+          "value": "redness",
+          "label": "Rodnad",
+          "icon": "drop"
+        },
+        {
+          "value": "dark_spots",
+          "label": "Pigmentfläckar",
+          "icon": "sun"
+        },
+        {
+          "value": "dryness",
+          "label": "Torrhet",
+          "icon": "skin-layers"
+        },
+        {
+          "value": "texture",
+          "label": "Ojämn hudstruktur",
+          "icon": "molecule"
+        },
+        {
+          "value": "other",
+          "label": "Annat",
+          "icon": "plus"
+        }
+      ],
+      "layout": "grid"
     },
     {
       "id": "acne_area",
       "type": "multi",
       "title": "Var får du oftast finnar?",
-      "show_if": { "question_id": "concerns", "includes": "acne" },
+      "show_if": {
+        "question_id": "concerns",
+        "includes": "acne"
+      },
       "options": [
-        { "value": "forehead", "label": "Panna" },
-        { "value": "nose", "label": "Näsa" },
-        { "value": "cheeks", "label": "Kinder" },
-        { "value": "chin", "label": "Haka / käklinje" },
-        { "value": "back", "label": "Rygg / bröst" }
+        {
+          "value": "forehead",
+          "label": "Panna"
+        },
+        {
+          "value": "nose",
+          "label": "Näsa"
+        },
+        {
+          "value": "cheeks",
+          "label": "Kinder"
+        },
+        {
+          "value": "chin",
+          "label": "Haka / käklinje"
+        },
+        {
+          "value": "back",
+          "label": "Rygg / bröst"
+        }
       ]
     },
     {
       "id": "acne_frequency",
       "type": "single",
-      "title": "Hur ofta får du nya finnar?",
-      "show_if": { "question_id": "concerns", "includes": "acne" },
+      "title": "Hur ofta får du utbrott?",
+      "show_if": {
+        "question_id": "concerns",
+        "includes": "acne"
+      },
       "options": [
-        { "value": "rarely", "label": "Någon gång i månaden" },
-        { "value": "weekly", "label": "Varje vecka" },
-        { "value": "constant", "label": "Nästan hela tiden" }
+        {
+          "value": "rarely",
+          "label": "Nästan aldrig"
+        },
+        {
+          "value": "monthly",
+          "label": "Sällan (1–2 gånger per månad)"
+        },
+        {
+          "value": "weekly",
+          "label": "Ibland (några gånger per månad)"
+        },
+        {
+          "value": "often",
+          "label": "Ofta (varje vecka)"
+        },
+        {
+          "value": "constant",
+          "label": "Mycket ofta (flera gånger per vecka)"
+        }
       ]
     },
     {
       "id": "acne_type",
       "type": "multi",
       "title": "Hur ser finnarna oftast ut?",
-      "show_if": { "question_id": "concerns", "includes": "acne" },
+      "show_if": {
+        "question_id": "concerns",
+        "includes": "acne"
+      },
       "options": [
-        { "value": "whiteheads", "label": "Små vita" },
-        { "value": "papules", "label": "Röda, ömma" },
-        { "value": "cystic", "label": "Djupa, hårda knölar" },
-        { "value": "mixed", "label": "Blandat" }
+        {
+          "value": "whiteheads",
+          "label": "Små vita"
+        },
+        {
+          "value": "papules",
+          "label": "Röda, ömma"
+        },
+        {
+          "value": "cystic",
+          "label": "Djupa, hårda knölar"
+        },
+        {
+          "value": "mixed",
+          "label": "Blandat"
+        }
       ]
     },
     {
       "id": "acne_pain",
       "type": "scale",
       "title": "Hur ömma eller smärtsamma är de? (0 = inte alls, 10 = mycket)",
-      "show_if": { "question_id": "acne_type", "includes": "cystic" },
+      "show_if": {
+        "question_id": "acne_type",
+        "includes": "cystic"
+      },
       "min": 0,
       "max": 10
     },
@@ -84,10 +190,22 @@
       "type": "single",
       "title": "Hur länge har du haft besvären?",
       "options": [
-        { "value": "lt_1m", "label": "Mindre än en månad" },
-        { "value": "1_6m", "label": "1–6 månader" },
-        { "value": "6_12m", "label": "6–12 månader" },
-        { "value": "gt_1y", "label": "Mer än ett år" }
+        {
+          "value": "lt_1m",
+          "label": "Mindre än en månad"
+        },
+        {
+          "value": "1_6m",
+          "label": "1–6 månader"
+        },
+        {
+          "value": "6_12m",
+          "label": "6–12 månader"
+        },
+        {
+          "value": "gt_1y",
+          "label": "Mer än ett år"
+        }
       ]
     },
     {
@@ -101,26 +219,50 @@
       "type": "multi",
       "title": "Vad använder du i dag?",
       "options": [
-        { "value": "cleanser", "label": "Rengöring" },
-        { "value": "moisturizer", "label": "Fuktkräm" },
-        { "value": "spf", "label": "Solskydd (SPF)" },
-        { "value": "actives", "label": "Aktiva ingredienser (syror, retinol, bensoylperoxid)" },
-        { "value": "prescription", "label": "Receptbelagd behandling" },
-        { "value": "nothing", "label": "Inget särskilt" }
+        {
+          "value": "cleanser",
+          "label": "Rengöring"
+        },
+        {
+          "value": "moisturizer",
+          "label": "Fuktkräm"
+        },
+        {
+          "value": "spf",
+          "label": "Solskydd (SPF)"
+        },
+        {
+          "value": "actives",
+          "label": "Aktiva ingredienser (syror, retinol, bensoylperoxid)"
+        },
+        {
+          "value": "prescription",
+          "label": "Receptbelagd behandling"
+        },
+        {
+          "value": "nothing",
+          "label": "Inget särskilt"
+        }
       ]
     },
     {
       "id": "actives_which",
       "type": "text",
       "title": "Vilka aktiva ingredienser eller produkter använder du?",
-      "show_if": { "question_id": "current_routine", "includes": "actives" },
+      "show_if": {
+        "question_id": "current_routine",
+        "includes": "actives"
+      },
       "required": false
     },
     {
       "id": "prescription_which",
       "type": "text",
       "title": "Vilken receptbelagd behandling använder du?",
-      "show_if": { "question_id": "current_routine", "includes": "prescription" },
+      "show_if": {
+        "question_id": "current_routine",
+        "includes": "prescription"
+      },
       "required": false
     },
     {
@@ -136,12 +278,30 @@
       "title": "Stämmer något av detta?",
       "required": false,
       "options": [
-        { "value": "stress", "label": "Mycket stress just nu" },
-        { "value": "poor_sleep", "label": "Sover dåligt" },
-        { "value": "shaving", "label": "Rakar ansiktet regelbundet" },
-        { "value": "makeup_daily", "label": "Använder smink dagligen" },
-        { "value": "sport_sweat", "label": "Tränar/svettas mycket" },
-        { "value": "hormonal", "label": "Besvären följer menscykeln" }
+        {
+          "value": "stress",
+          "label": "Mycket stress just nu"
+        },
+        {
+          "value": "poor_sleep",
+          "label": "Sover dåligt"
+        },
+        {
+          "value": "shaving",
+          "label": "Rakar ansiktet regelbundet"
+        },
+        {
+          "value": "makeup_daily",
+          "label": "Använder smink dagligen"
+        },
+        {
+          "value": "sport_sweat",
+          "label": "Tränar/svettas mycket"
+        },
+        {
+          "value": "hormonal",
+          "label": "Besvären följer menscykeln"
+        }
       ]
     },
     {
@@ -149,10 +309,22 @@
       "type": "single",
       "title": "Vad är viktigast för dig just nu?",
       "options": [
-        { "value": "fewer_breakouts", "label": "Färre finnar" },
-        { "value": "calm_skin", "label": "Lugnare, mindre irriterad hud" },
-        { "value": "even_tone", "label": "Jämnare hudton" },
-        { "value": "simple_routine", "label": "En enkel rutin jag orkar följa" }
+        {
+          "value": "fewer_breakouts",
+          "label": "Färre finnar"
+        },
+        {
+          "value": "calm_skin",
+          "label": "Lugnare, mindre irriterad hud"
+        },
+        {
+          "value": "even_tone",
+          "label": "Jämnare hudton"
+        },
+        {
+          "value": "simple_routine",
+          "label": "En enkel rutin jag orkar följa"
+        }
       ]
     }
   ]

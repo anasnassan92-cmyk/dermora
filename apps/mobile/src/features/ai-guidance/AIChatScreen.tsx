@@ -1,11 +1,11 @@
 /**
- * AI chat – owner: Youssef. Conversation is per assessment; the backend keeps the
- * context (profile + answers + images + previous guidance), the app only sends text.
+ * AI chat – owner: Youssef. Design screen 12 ("AI-vägledning").
+ * Conversation is per assessment; the backend keeps the context.
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { Disclaimer, Screen, T } from '../../components/ui';
+import { Disclaimer, Icon, Screen, T } from '../../components/ui';
 import type { AppScreenProps } from '../../navigation/types';
 import { aiService } from '../../services/ai/aiService';
 import { colors, radius, spacing, typography } from '../../theme';
@@ -14,7 +14,7 @@ import { AIMessage } from './components/AIMessage';
 
 const SUGGESTIONS = ['Varför föreslår du salicylsyra?', 'Hur länge innan jag ser resultat?', 'När bör jag kontakta en läkare?'];
 
-export function AIChatScreen({ route }: AppScreenProps<'AIChat'>) {
+export function AIChatScreen({ navigation, route }: AppScreenProps<'AIChat'>) {
   const { assessmentId } = route.params;
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
@@ -22,7 +22,13 @@ export function AIChatScreen({ route }: AppScreenProps<'AIChat'>) {
   const listRef = useRef<FlatList<ChatMessage>>(null);
 
   useEffect(() => {
-    aiService.history(assessmentId).then(setMessages);
+    aiService.history(assessmentId).then((h) =>
+      setMessages(
+        h.length
+          ? h
+          : [{ id: 'intro', role: 'assistant', content: 'Hej! Jag är Dermora AI. Jag har nu analyserat dina svar och bilder.\n\nVad skulle du vilja veta om din hud?' }],
+      ),
+    );
   }, [assessmentId]);
 
   const send = async (text: string) => {
@@ -30,10 +36,10 @@ export function AIChatScreen({ route }: AppScreenProps<'AIChat'>) {
     if (!content || sending) return;
     setDraft('');
     setSending(true);
-    setMessages((m) => [...m, { id: `local-${Date.now()}`, role: 'user', content }]);
+    setMessages((m) => [...m, { id: `local-${Date.now()}`, role: 'user', content, created_at: new Date().toISOString() }]);
     try {
       const reply = await aiService.send(assessmentId, content);
-      setMessages((m) => [...m, reply]);
+      setMessages((m) => [...m, { ...reply, created_at: reply.created_at ?? new Date().toISOString() }]);
     } catch (e) {
       setMessages((m) => [...m, { id: `err-${Date.now()}`, role: 'assistant', content: `Något gick fel: ${(e as Error).message}` }]);
     } finally {
@@ -61,7 +67,7 @@ export function AIChatScreen({ route }: AppScreenProps<'AIChat'>) {
             <TextInput
               value={draft}
               onChangeText={setDraft}
-              placeholder="Fråga om din hud eller din plan …"
+              placeholder="Skriv ett meddelande..."
               placeholderTextColor={colors.inkMuted}
               style={styles.input}
               multiline
@@ -69,12 +75,26 @@ export function AIChatScreen({ route }: AppScreenProps<'AIChat'>) {
               accessibilityLabel="Meddelande"
             />
             <Pressable onPress={() => send(draft)} disabled={!draft.trim() || sending} style={[styles.send, (!draft.trim() || sending) && styles.sendOff]} accessibilityRole="button" accessibilityLabel="Skicka">
-              <Text style={styles.sendText}>{sending ? '…' : '↑'}</Text>
+              <Icon name="arrow-right" size={20} color={colors.onPrimary} strokeWidth={2.2} />
             </Pressable>
           </View>
         </View>
       }
     >
+      <View style={styles.header}>
+        <Pressable onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Tillbaka" style={styles.back}>
+          <Icon name="chevron-left" size={22} />
+        </Pressable>
+        <Image source={require('../../../assets/logo/symbol.png')} style={styles.logo} resizeMode="contain" />
+        <View style={styles.headerText}>
+          <T variant="bodyMedium">Dermora AI</T>
+          <View style={styles.online}>
+            <View style={styles.onlineDot} />
+            <T variant="caption" muted>Online</T>
+          </View>
+        </View>
+        <Icon name="info" size={20} color={colors.inkMuted} />
+      </View>
       <FlatList
         ref={listRef}
         data={messages}
@@ -82,14 +102,19 @@ export function AIChatScreen({ route }: AppScreenProps<'AIChat'>) {
         renderItem={({ item }) => <AIMessage message={item} />}
         contentContainerStyle={styles.list}
         onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
-        ListHeaderComponent={<Disclaimer />}
-        ListEmptyComponent={<T muted center>Ställ en fråga om din bedömning.</T>}
+        ListFooterComponent={<Disclaimer />}
       />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.line, backgroundColor: colors.surfaceRaised },
+  back: { padding: 4 },
+  logo: { width: 32, height: 28 },
+  headerText: { flex: 1 },
+  online: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  onlineDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.success },
   list: { padding: spacing.xl, paddingBottom: spacing.xxl },
   suggestions: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: spacing.sm },
   suggestion: { backgroundColor: colors.surfaceMint, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, marginRight: spacing.sm, marginBottom: spacing.sm },
@@ -109,5 +134,4 @@ const styles = StyleSheet.create({
   },
   send: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   sendOff: { opacity: 0.4 },
-  sendText: { color: colors.onPrimary, fontSize: 20, fontFamily: 'Montserrat-SemiBold' },
 });

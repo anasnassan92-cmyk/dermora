@@ -22,11 +22,17 @@ class Settings(BaseSettings):
     supabase_jwt_secret: str = ""
     supabase_bucket: str = "skin-images"
 
-    # AI
-    ai_provider: Literal["mock", "anthropic"] = "mock"
+    # AI provider for analysis + chat
+    ai_provider: Literal["mock", "gemini", "anthropic"] = "mock"
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
     anthropic_api_key: str = ""
     ai_model: str = "claude-opus-5-5"
     ai_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"
+
+    # Face detection (photo quality) – opencv runs locally, google calls Cloud Vision
+    face_detector: Literal["opencv", "google"] = "opencv"
+    google_vision_api_key: str = ""
 
     # Image rules
     max_image_bytes: int = 8 * 1024 * 1024
@@ -50,4 +56,6 @@ def get_settings() -> Settings:
     settings = Settings()
     if settings.is_production and settings.dev_auth:
         raise RuntimeError("DEV_AUTH must be false in production")
+    if settings.face_detector == "google" and not settings.google_vision_api_key:
+        raise RuntimeError("FACE_DETECTOR=google kräver GOOGLE_VISION_API_KEY")
     return settings

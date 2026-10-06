@@ -42,6 +42,7 @@ export function SavedPlanScreen({ navigation }: Props) {
   return (
     <Screen>
       <T variant="label" muted mb="xs">Din aktiva plan · bekräftad {confirmed}</T>
+      <T variant="h1" mb="lg">{plan.title}</T>
       <TreatmentPlanCard plan={plan.plan} />
       {plan.assessment_id ? (
         <Card>

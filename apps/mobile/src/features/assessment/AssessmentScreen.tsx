@@ -1,12 +1,12 @@
 /**
- * Questionnaire screen – owner: Adam.
+ * Questionnaire screen – owner: Adam. Onboarding step 3/3 (design screens 6–8).
  * One question per step. Conditional follow-ups appear/disappear based on
  * earlier answers (utils/questionnaire.isVisible). Answers autosave on each step.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { Button, ProgressBar, Screen, T } from '../../components/ui';
+import { Button, Screen, StepHeader, T } from '../../components/ui';
 import type { AppScreenProps } from '../../navigation/types';
 import { colors, spacing } from '../../theme';
 import type { Answers, AnswerValue, Questionnaire } from '../../types/api';
@@ -87,16 +87,14 @@ export function AssessmentScreen({ navigation, route }: AppScreenProps<'Assessme
       footer={
         <View style={styles.footerRow}>
           <Button title="Tillbaka" variant="ghost" disabled={index === 0} onPress={() => setIndex((i) => i - 1)} style={styles.back} />
-          <Button title={isLast ? 'Klar – gå till bilder' : 'Fortsätt'} disabled={!canContinue} loading={submitting} onPress={next} style={styles.next} />
+          <Button title={isLast ? 'Fortsätt' : 'Fortsätt'} disabled={!canContinue} loading={submitting} onPress={next} style={styles.next} />
         </View>
       }
     >
-      <View style={styles.header}>
-        <T variant="label" muted>
-          Fråga {index + 1} av {visible.length}
-        </T>
-        <ProgressBar value={(index + 1) / visible.length} />
-      </View>
+      <StepHeader step={3} total={3} />
+      <T variant="label" muted mb="sm">
+        Fråga {index + 1} av {visible.length}
+      </T>
       <QuestionRenderer question={current} value={answers[current.id]} onChange={setAnswer} />
       {error ? <T color={colors.danger}>{error}</T> : null}
     </Screen>
@@ -105,7 +103,6 @@ export function AssessmentScreen({ navigation, route }: AppScreenProps<'Assessme
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  header: { gap: spacing.sm, marginBottom: spacing.xl },
   footerRow: { flexDirection: 'row', gap: spacing.md },
   back: { flex: 1 },
   next: { flex: 2 },
