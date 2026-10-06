@@ -20,7 +20,7 @@ function WebBackdrop() {
     const prev = body.style.background;
     // ../assets/… resolves from /app/ to the landing page's assets on the same host
     body.style.background = 'linear-gradient(160deg, #0C9387 0%, #088579 55%, #04776B 100%) fixed';
-    body.style.backgroundImage = 'url(../assets/patterns/bubbles-teal.svg), linear-gradient(160deg, #0C9387 0%, #088579 55%, #04776B 100%)';
+    body.style.backgroundImage = 'url(../assets/patterns/bubbles-teal-soft.svg), linear-gradient(160deg, #0C9387 0%, #088579 55%, #04776B 100%)';
     body.style.backgroundSize = '280px, cover';
     body.style.backgroundAttachment = 'fixed, fixed';
     return () => { body.style.background = prev; };
