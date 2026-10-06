@@ -6,8 +6,8 @@ JWT. These routes read and update the profile row that the DB trigger created.
 """
 from fastapi import APIRouter, Depends
 
-from ..deps import CurrentUser, Repos, get_current_user, get_repos
 from ...schemas.profile import ProfileOut, ProfileUpdate
+from ..deps import CurrentUser, Repos, get_current_user, get_repos
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 

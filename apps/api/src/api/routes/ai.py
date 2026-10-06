@@ -1,9 +1,9 @@
 """AI routes – owner: Youssef."""
 from fastapi import APIRouter, Depends
 
-from ..deps import CurrentUser, Repos, get_current_user, get_provider, get_repos
 from ...schemas.ai import AnalyzeOut, ChatMessageIn, ChatMessageOut
 from ...services.ai_service import analyze_assessment, chat_reply
+from ..deps import CurrentUser, Repos, get_current_user, get_provider, get_repos
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 

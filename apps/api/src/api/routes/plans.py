@@ -8,9 +8,9 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ..deps import CurrentUser, Repos, get_current_user, get_repos
 from ...schemas.ai import SkinGuidance
 from ...schemas.plan import PlanCreate, PlanOut
+from ..deps import CurrentUser, Repos, get_current_user, get_repos
 
 router = APIRouter(prefix="/plans", tags=["plans"])
 
