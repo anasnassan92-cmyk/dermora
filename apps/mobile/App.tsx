@@ -44,7 +44,7 @@ export default function App() {
     );
   }
 
-  return (
+  const app = (
     <SafeAreaProvider>
       <AuthProvider>
         <StatusBar style="dark" />
@@ -52,4 +52,14 @@ export default function App() {
       </AuthProvider>
     </SafeAreaProvider>
   );
+
+  // Web: keep the phone layout readable on desktop – a centred column, full width on phones.
+  if (Platform.OS === 'web') {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#E8E4DA' }}>
+        <View style={{ flex: 1, width: '100%', maxWidth: 480, backgroundColor: '#FAF7F0', overflow: 'hidden' }}>{app}</View>
+      </View>
+    );
+  }
+  return app;
 }
