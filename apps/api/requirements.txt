@@ -4,6 +4,7 @@ pydantic>=2.8
 pydantic-settings>=2.4
 python-multipart>=0.0.9
 anthropic>=1.0
+google-genai>=1.0
 supabase>=2.10
 PyJWT>=2.9
 opencv-python-headless>=4.10,<5  # 5.x removed Haar cascades (CascadeClassifier)

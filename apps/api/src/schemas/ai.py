@@ -28,9 +28,16 @@ class RoutineStep(BaseModel):
 class TreatmentPlanProposal(BaseModel):
     title: str
     summary: str = Field(description="2–3 meningar på svenska")
+    goals: list[str] = Field(
+        default_factory=list, description="Huvudmål, 2–4 korta punkter, t.ex. 'Minska utbrott'"
+    )
     morning: list[RoutineStep]
     evening: list[RoutineStep]
     weekly: list[RoutineStep] = Field(default_factory=list)
+    key_ingredients: list[str] = Field(
+        default_factory=list, description="Nyckelingredienser med kort varför, t.ex. 'Salicylsyra 2 % – rensar porer'"
+    )
+    tips: list[str] = Field(default_factory=list, description="Ytterligare tips: livsstil och beteende, 2–5 punkter")
     avoid: list[str] = Field(default_factory=list, description="Saker att undvika")
     expectations: str = Field(description="Vad användaren kan förvänta sig och när")
     follow_up_days: int = Field(ge=7, le=90)

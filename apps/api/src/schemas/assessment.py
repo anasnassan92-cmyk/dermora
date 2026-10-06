@@ -16,6 +16,8 @@ QuestionType = Literal["single", "multi", "scale", "text", "boolean"]
 class QuestionOption(BaseModel):
     value: str
     label: str
+    description: str | None = None
+    icon: str | None = None  # name of a brand-kit icon, used by the app
 
 
 class ShowIf(BaseModel):
@@ -37,6 +39,7 @@ class Question(BaseModel):
     min: int | None = None
     max: int | None = None
     show_if: ShowIf | None = None
+    layout: Literal["list", "grid", "cards"] | None = None
 
 
 class Questionnaire(BaseModel):

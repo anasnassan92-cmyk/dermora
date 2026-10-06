@@ -8,21 +8,27 @@ export type AuthStackParamList = {
   VerifyEmail: { email: string };
 };
 
-/** Screens after login. One stack for the MVP journey + tabs for Home/Plan/Profile. */
+/** Screens after login. One stack for the MVP journey + tabs for Home/Plan/Chat/Profile. */
 export type AppStackParamList = {
   Tabs: undefined;
   EditProfile: undefined;
-  Assessment: { assessmentId?: string };
+  ProfileSetup: undefined; // onboarding 1/3
+  AssessmentIntro: { assessmentId?: string } | undefined; // onboarding 2/3
+  Assessment: { assessmentId?: string }; // onboarding 3/3 + follow-ups
   ImageUpload: { assessmentId: string };
+  ImageReview: { assessmentId: string };
   Analyzing: { assessmentId: string };
   Result: { assessmentId: string };
   AIChat: { assessmentId: string };
   TreatmentPlan: { assessmentId: string; planId?: string };
+  ConfirmPlan: { planId: string; assessmentId: string };
+  PlanSaved: { planId: string };
 };
 
 export type TabParamList = {
   Home: undefined;
   Plan: undefined;
+  Chat: undefined;
   Profile: undefined;
 };
 

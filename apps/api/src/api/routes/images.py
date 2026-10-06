@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, Upl
 from ..deps import CurrentUser, Repos, get_current_user, get_repos
 from ...core.config import Settings, get_settings
 from ...schemas.image import FaceCheck, ImageArea, ImageOut
-from ...services.face_detection import check_face_photo, image_dimensions, strip_metadata_and_normalize
+from ...services.face_detection import image_dimensions, run_face_check, strip_metadata_and_normalize
 
 router = APIRouter(prefix="/images", tags=["images"])
 
@@ -50,7 +50,9 @@ async def upload_image(
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Bilden har för låg upplösning")
 
     try:
-        face_check = check_face_photo(data) if area == "face" else None
+        face_check = (
+            run_face_check(data, settings.face_detector, settings.google_vision_api_key) if area == "face" else None
+        )
     except Exception:
         face_check = None
 
@@ -96,12 +98,16 @@ def get_file(image_id: str, user: CurrentUser = Depends(get_current_user), repos
 
 
 @router.post("/check", response_model=FaceCheck)
-async def check_only(file: UploadFile = File(...), user: CurrentUser = Depends(get_current_user)):
+async def check_only(
+    file: UploadFile = File(...),
+    user: CurrentUser = Depends(get_current_user),
+    settings: Settings = Depends(get_settings),
+):
     """Dry run: quality check without storing anything (used by the camera guide)."""
     raw = await file.read()
     try:
         data, _ = strip_metadata_and_normalize(raw)
-        return check_face_photo(data)
+        return run_face_check(data, settings.face_detector, settings.google_vision_api_key)
     except Exception:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Kunde inte läsa bilden")
 

@@ -2,9 +2,12 @@
 
 `MockProvider`      – deterministic answers, no network. Used in dev/tests and
                       by teammates who are not working on the AI feature.
-`AnthropicProvider` – Claude with vision + structured outputs. The response is
-                      validated against the SkinGuidance Pydantic schema by the
-                      SDK, so the rest of the system never sees malformed JSON.
+`GeminiProvider`    – Google Gemini (team default, free tier). JSON output is
+                      constrained with response_schema=SkinGuidance.
+`AnthropicProvider` – Claude with vision + structured outputs. Kept as an
+                      alternative; switch with AI_PROVIDER=anthropic.
+All providers return a validated SkinGuidance, so the rest of the system never
+sees malformed JSON.
 
 Owner: Youssef.
 """
@@ -79,6 +82,19 @@ class MockProvider:
                     {"step": "Fukt", "product_type": "Lätt fuktkräm", "active_ingredient": None, "frequency": "Varje kväll", "why": "Motverkar torrhet från syran."},
                 ],
                 "weekly": [],
+                "goals": ["Minska utbrott", "Balansera talgproduktion", "Stärka hudbarriären", "Jämnare hudstruktur"],
+                "key_ingredients": [
+                    "Salicylsyra 2 % – rensar porer och förebygger nya finnar",
+                    "Niacinamid – lugnar rodnad och balanserar talg",
+                    "Ceramider – stärker hudbarriären",
+                    "SPF 30+ – förebygger mörka fläckar efter finnar",
+                ],
+                "tips": [
+                    "Byt örngott varje vecka",
+                    "Rör inte ansiktet under dagen",
+                    "Rengör mobilskärmen regelbundet",
+                    "Prioritera sömn – stress och sömnbrist förvärrar ofta akne",
+                ],
                 "avoid": ["Skrubbar med korn", "Att klämma finnar", "Att prova flera nya aktiva produkter samtidigt"],
                 "expectations": "Lite torrhet första veckan är normalt. Färre nya finnar brukar synas efter 4–6 veckor.",
                 "follow_up_days": 14,
@@ -191,7 +207,83 @@ class AnthropicProvider:
         return "".join(b.text for b in final.content if b.type == "text").strip()
 
 
+# ----------------------------------------------------------------------------
+# Google Gemini (default for the team – free tier via Google AI Studio)
+# ----------------------------------------------------------------------------
+class GeminiProvider:
+    name = "gemini"
+
+    def __init__(self, settings: Settings):
+        from google import genai  # lazy import: not needed when AI_PROVIDER=mock
+        from google.genai import types
+
+        self._types = types
+        self.client = genai.Client(api_key=settings.gemini_api_key)
+        self.model = settings.gemini_model
+
+    def analyze(self, context, images, red_flag_hints):
+        t = self._types
+        hints = "\n".join(f"- {h}" for h in red_flag_hints) or "- inga"
+        user_text = (
+            f"{context}\n\n## Regelbaserade varningssignaler (måste vägas in)\n{hints}\n\n"
+            "Analysera bilderna och svaren. Svara enligt schemat, på svenska."
+        )
+        contents = [t.Part.from_bytes(data=img.data, mime_type=img.media_type) for img in images]
+        contents.append(user_text)
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=contents,
+            config=t.GenerateContentConfig(
+                system_instruction=GUIDANCE_SYSTEM_PROMPT,
+                response_mime_type="application/json",
+                response_schema=SkinGuidance,
+                temperature=0.3,
+            ),
+        )
+        guidance = response.parsed
+        if guidance is None:  # safety block or empty answer – validate the raw text if any
+            if not response.text:
+                raise RuntimeError("AI-tjänsten gav inget svar (möjligen blockerat av säkerhetsfilter).")
+            guidance = SkinGuidance.model_validate_json(response.text)
+        if not isinstance(guidance, SkinGuidance):
+            guidance = SkinGuidance.model_validate(guidance)
+        if red_flag_hints and not guidance.seek_care:
+            guidance.seek_care = True
+            guidance.red_flags = list(dict.fromkeys([*guidance.red_flags, *red_flag_hints]))
+        usage = response.usage_metadata
+        return AIResult(
+            guidance=guidance,
+            model=self.model,
+            input_tokens=getattr(usage, "prompt_token_count", None),
+            output_tokens=getattr(usage, "candidates_token_count", None),
+        )
+
+    def chat(self, context, guidance, history, user_message):
+        t = self._types
+        system = (
+            f"{CHAT_SYSTEM_PROMPT}\n\n## Kontext om användaren\n{context}\n\n"
+            f"## Din tidigare bedömning (JSON)\n{guidance.model_dump_json()}"
+        )
+        past = [
+            t.Content(role="user" if m["role"] == "user" else "model", parts=[t.Part.from_text(text=m["content"])])
+            for m in history
+            if m["role"] in ("user", "assistant") and m["content"]
+        ]
+        chat = self.client.chats.create(
+            model=self.model,
+            history=past,
+            config=t.GenerateContentConfig(system_instruction=system, temperature=0.5, max_output_tokens=800),
+        )
+        response = chat.send_message(user_message)
+        text = (response.text or "").strip()
+        return text or "Jag kan tyvärr inte svara på det. Kontakta vården om du är orolig."
+
+
 def make_provider(settings: Settings) -> AIProvider:
+    if settings.ai_provider == "gemini":
+        if not settings.gemini_api_key:
+            raise RuntimeError("AI_PROVIDER=gemini kräver GEMINI_API_KEY")
+        return GeminiProvider(settings)
     if settings.ai_provider == "anthropic":
         if not settings.anthropic_api_key:
             raise RuntimeError("AI_PROVIDER=anthropic kräver ANTHROPIC_API_KEY")

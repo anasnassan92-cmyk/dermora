@@ -92,6 +92,101 @@ def check_face_photo(data: bytes) -> FaceCheck:
     )
 
 
+LIKELY = {"LIKELY", "VERY_LIKELY"}
+
+
+def check_face_photo_google(data: bytes, api_key: str, timeout: float = 15.0) -> FaceCheck:
+    """Same verdict, computed by the Google Cloud Vision API (FACE_DETECTION).
+
+    We only use the quality signals Vision gives us: number of faces, bounding
+    box size, blur/under-exposure likelihood and head angle. We never request
+    or store landmarks, and Vision's face detection is not identity recognition.
+    """
+    import base64
+
+    import httpx
+
+    body = {
+        "requests": [
+            {
+                "image": {"content": base64.b64encode(data).decode("ascii")},
+                "features": [{"type": "FACE_DETECTION", "maxResults": 5}],
+            }
+        ]
+    }
+    res = httpx.post(
+        "https://vision.googleapis.com/v1/images:annotate",
+        params={"key": api_key},
+        json=body,
+        timeout=timeout,
+    )
+    res.raise_for_status()
+    payload = res.json()["responses"][0]
+    if "error" in payload:
+        raise RuntimeError(payload["error"].get("message", "Vision API error"))
+    faces = payload.get("faceAnnotations", [])
+    width, height = image_dimensions(data)
+    return face_check_from_vision(faces, width, height)
+
+
+def face_check_from_vision(faces: list[dict], width: int, height: int) -> FaceCheck:
+    """Pure function (testable without network) turning Vision annotations into our verdict."""
+    n = len(faces)
+    reasons: list[str] = []
+    coverage = 0.0
+    blurred = False
+    dark = False
+    turned = False
+    if n:
+        f = max(faces, key=lambda a: _box_area(a.get("boundingPoly", {})))
+        coverage = _box_area(f.get("boundingPoly", {})) / float(width * height or 1)
+        blurred = f.get("blurredLikelihood") in LIKELY
+        dark = f.get("underExposedLikelihood") in LIKELY
+        turned = abs(float(f.get("panAngle", 0))) > 25 or abs(float(f.get("tiltAngle", 0))) > 25
+    if n == 0:
+        reasons.append("Vi hittade inget ansikte. Håll kameran rakt framför ansiktet i bra ljus.")
+    elif n > 1:
+        reasons.append("Flera ansikten i bild – ta bilden ensam.")
+    if blurred:
+        reasons.append("Bilden är suddig. Håll kameran stilla och fokusera på ansiktet.")
+    if dark:
+        reasons.append("Bilden är för mörk. Ställ dig vänd mot ett fönster eller tänd mer ljus.")
+    if turned:
+        reasons.append("Titta rakt in i kameran så att hela ansiktet syns.")
+    if n == 1 and coverage < COVERAGE_MIN:
+        reasons.append("Ansiktet är för litet i bild. Gå närmare kameran.")
+    return FaceCheck(
+        face_found=n >= 1,
+        faces=n,
+        blur_score=0.0 if blurred else 100.0,  # Vision gives likelihoods, not a numeric score
+        brightness=60.0 if dark else 140.0,
+        face_coverage=round(coverage, 3),
+        ok=n == 1 and not reasons,
+        reasons=reasons,
+    )
+
+
+def _box_area(poly: dict) -> float:
+    verts = poly.get("vertices") or []
+    if len(verts) < 3:
+        return 0.0
+    xs = [v.get("x", 0) for v in verts]
+    ys = [v.get("y", 0) for v in verts]
+    return float(max(xs) - min(xs)) * float(max(ys) - min(ys))
+
+
+def run_face_check(data: bytes, detector: str, google_api_key: str = "") -> FaceCheck:
+    """Dispatcher used by the routes. Falls back to OpenCV if Google is unavailable."""
+    if detector == "google" and google_api_key:
+        try:
+            return check_face_photo_google(data, google_api_key)
+        except Exception as exc:  # network / quota – degrade, don't block the user
+            fc = check_face_photo(data)
+            fc.reasons.append(f"(Google Vision ej tillgänglig: {exc}; lokal kontroll användes)")
+            return fc
+    return check_face_photo(data)
+
+
 def image_dimensions(data: bytes) -> tuple[int, int]:
     from PIL import Image
 

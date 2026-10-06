@@ -1,19 +1,18 @@
 /**
  * Home tab – shared UI (Even). Entry point into the MVP journey and a summary
- * of the active plan.
+ * of the active plan. Uses the brand-kit "UI mood" cards.
  */
 import React, { useCallback, useState } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, type CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { Button, Card, T } from '../../components/ui';
-import { Screen } from '../../components/ui';
+import { Button, Card, Icon, IconBadge, ListRow, Screen, T } from '../../components/ui';
 import type { AppStackParamList, TabParamList } from '../../navigation/types';
 import { assessmentService } from '../assessment/services/assessmentService';
 import { profileService } from '../../services/profile/profileService';
-import { colors, spacing } from '../../theme';
+import { colors, radius, spacing } from '../../theme';
 import type { Assessment, Profile, TreatmentPlan } from '../../types/api';
 import { planService } from './services/planService';
 
@@ -34,61 +33,82 @@ export function HomeScreen({ navigation }: Props) {
 
   const firstName = profile?.display_name?.split(' ')[0];
   const draft = latest && latest.status === 'draft' ? latest : null;
+  const start = () => {
+    if (draft) return navigation.navigate('Assessment', { assessmentId: draft.id });
+    if (!profile?.age_range) return navigation.navigate('ProfileSetup');
+    navigation.navigate('AssessmentIntro');
+  };
 
   return (
     <Screen>
       <View style={styles.top}>
         <Image source={require('../../../assets/logo/symbol.png')} style={styles.symbol} resizeMode="contain" />
-        <T variant="small" muted>Hej{firstName ? ` ${firstName}` : ''} 👋</T>
+        <T variant="h3" style={styles.brand}>Dermora</T>
+        <Icon name="bell" size={22} color={colors.inkMuted} />
       </View>
-      <T variant="h1" mb="lg">{plan ? 'Din plan är igång' : 'Låt oss förstå din hud'}</T>
+      <T variant="small" muted>God morgon{firstName ? `, ${firstName}` : ''}</T>
+      <T variant="h1" mb="lg">
+        {plan ? (
+          <>
+            Din hudresa ser <T variant="h1" color={colors.accent}>bättre ut i dag.</T>
+          </>
+        ) : (
+          'Låt oss förstå din hud'
+        )}
+      </T>
 
       {plan ? (
-        <Card tone="mint">
+        <Card>
           <T variant="label" muted mb="xs">Aktiv plan</T>
           <T variant="h3" mb="xs">{plan.title}</T>
           <T variant="small" muted mb="md">{plan.summary}</T>
+          <View style={styles.goals}>
+            {plan.plan.goals.slice(0, 3).map((g) => (
+              <View key={g} style={styles.goal}>
+                <View style={styles.goalDot}><Icon name="check" size={10} color={colors.onPrimary} strokeWidth={3} /></View>
+                <T variant="caption">{g}</T>
+              </View>
+            ))}
+          </View>
           <Button title="Visa planen" variant="secondary" onPress={() => navigation.navigate('Plan')} />
         </Card>
       ) : (
-        <Card tone="mint">
-          <T variant="h3" mb="xs">Få din första personliga plan</T>
-          <T variant="small" muted mb="md">Svara på några frågor, ta en bild och få vägledning och en plan som du själv bekräftar. Tar ungefär fem minuter.</T>
-          <Button title={draft ? 'Fortsätt bedömningen' : 'Starta bedömning'} onPress={() => navigation.navigate('Assessment', draft ? { assessmentId: draft.id } : {})} />
-        </Card>
+        <Pressable onPress={start} style={styles.heroCard} accessibilityRole="button">
+          <IconBadge name="sparkles" size={44} tone="white" />
+          <View style={styles.heroText}>
+            <T variant="bodyMedium" color={colors.onBrand}>{draft ? 'Fortsätt bedömningen' : 'Personlig för din hud'}</T>
+            <T variant="caption" color="rgba(255,255,255,0.85)">Svara på frågor, ta en bild och få din plan. Cirka fem minuter.</T>
+          </View>
+          <Icon name="chevron-right" size={22} color={colors.onBrand} />
+        </Pressable>
       )}
 
+      <View style={styles.rows}>
+        <ListRow icon="face-scan" title="AI-hudanalys" subtitle={plan ? 'Gör en ny bedömning' : 'Starta din första bedömning'} onPress={start} />
+        <ListRow icon="checklist" title="Min behandlingsplan" subtitle={plan ? 'Bekräftad plan' : 'Ingen plan ännu'} onPress={() => navigation.navigate('Plan')} />
+        <ListRow icon="chat" title="Prata med Dermora AI" subtitle="Ställ frågor om din hud" onPress={() => navigation.navigate('Chat')} />
+        <ListRow icon="chart-bars" title="Följ utveckling" subtitle="Kommer i nästa release" trailing="none" />
+      </View>
+
       {!profile?.consent_images ? (
-        <Card>
-          <T variant="h3" mb="xs">Godkänn bildbehandling</T>
-          <T variant="small" muted mb="md">För att analysera din hud behöver vi ditt godkännande att lagra bilder privat.</T>
+        <Card tone="mint">
+          <T variant="bodyMedium" mb="xs">Godkänn bildbehandling</T>
+          <T variant="caption" muted mb="md">För att analysera din hud behöver vi ditt godkännande att lagra bilder privat.</T>
           <Button title="Till profilen" variant="ghost" onPress={() => navigation.navigate('EditProfile')} />
         </Card>
       ) : null}
-
-      <Card>
-        <T variant="h3" mb="sm">Så fungerar Dermora</T>
-        <Step n={1} text="Berätta om din hud" />
-        <Step n={2} text="Ta en bild – privat och krypterad" />
-        <Step n={3} text="Få vägledning och ställ frågor" />
-        <Step n={4} text="Bekräfta din plan och följ den" />
-      </Card>
     </Screen>
   );
 }
 
-function Step({ n, text }: { n: number; text: string }) {
-  return (
-    <View style={styles.step}>
-      <View style={styles.stepNum}><T variant="caption" color={colors.onPrimary}>{n}</T></View>
-      <T variant="small">{text}</T>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  top: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.md },
-  symbol: { width: 36, height: 31 },
-  step: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xs },
-  stepNum: { width: 22, height: 22, borderRadius: 11, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
+  top: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.lg },
+  symbol: { width: 32, height: 28 },
+  brand: { flex: 1, marginBottom: 0 },
+  heroCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surfaceBrand, borderRadius: radius.lg, padding: spacing.lg, marginBottom: spacing.lg },
+  heroText: { flex: 1, gap: 2 },
+  goals: { marginBottom: spacing.md, gap: 4 },
+  goal: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  goalDot: { width: 16, height: 16, borderRadius: 8, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  rows: { marginBottom: spacing.sm },
 });

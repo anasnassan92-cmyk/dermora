@@ -6,17 +6,23 @@
 // ---- profile ----
 export type SkinType = 'oily' | 'dry' | 'combination' | 'normal' | 'sensitive' | 'unknown';
 
+export type AgeRange = 'under_18' | '18_24' | '25_34' | '35_44' | '45_54' | '55_plus';
+export type Gender = 'female' | 'male' | 'non_binary' | 'undisclosed';
+
 export interface Profile {
   id: string;
   display_name: string | null;
   birth_year: number | null;
+  age_range: AgeRange | null;
+  gender: Gender | null;
+  country: string | null;
   skin_type: SkinType;
   consent_images: boolean;
   consent_at: string | null;
   locale: string;
 }
 
-export type ProfileUpdate = Partial<Pick<Profile, 'display_name' | 'birth_year' | 'skin_type' | 'consent_images' | 'locale'>>;
+export type ProfileUpdate = Partial<Pick<Profile, 'display_name' | 'birth_year' | 'age_range' | 'gender' | 'country' | 'skin_type' | 'consent_images' | 'locale'>>;
 
 // ---- questionnaire ----
 export type QuestionType = 'single' | 'multi' | 'scale' | 'text' | 'boolean';
@@ -24,6 +30,8 @@ export type QuestionType = 'single' | 'multi' | 'scale' | 'text' | 'boolean';
 export interface QuestionOption {
   value: string;
   label: string;
+  description?: string | null;
+  icon?: string | null;
 }
 
 export interface ShowIf {
@@ -43,6 +51,7 @@ export interface Question {
   min?: number | null;
   max?: number | null;
   show_if?: ShowIf | null;
+  layout?: 'list' | 'grid' | 'cards' | null;
 }
 
 export interface Questionnaire {
@@ -117,9 +126,12 @@ export interface RoutineStep {
 export interface TreatmentPlanProposal {
   title: string;
   summary: string;
+  goals: string[];
   morning: RoutineStep[];
   evening: RoutineStep[];
   weekly: RoutineStep[];
+  key_ingredients: string[];
+  tips: string[];
   avoid: string[];
   expectations: string;
   follow_up_days: number;
