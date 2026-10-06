@@ -15,6 +15,10 @@ export function AnalyzingScreen({ navigation, route }: AppScreenProps<'Analyzing
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.location && new URLSearchParams(window.location.search).has('preview')) {
+      setDone(2); // DEV preview: freeze on step 3 for screenshots
+      return;
+    }
     const t = setInterval(() => setDone((s) => Math.min(s + 1, STEPS.length - 1)), 1200);
     aiService
       .analyze(assessmentId)

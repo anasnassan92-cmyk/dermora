@@ -9,7 +9,7 @@
 | Fråga som besvaras | "Finns det ett ansikte i bild, och är bilden användbar?" | "Vem är det här?" |
 | Data som skapas | Ett kvalitetsverdikt (ja/nej, skärpa, ljus) | Biometrisk mall som kan matchas mot register |
 | GDPR | Vanlig personuppgift (bilden) | Känslig biometrisk uppgift, särskilda krav |
-| Dermora | **Ja**, på servern med OpenCV | **Nej, aldrig** |
+| Dermora | **Ja**, på servern: Google Cloud Vision (FACE_DETECTION) med OpenCV som fallback | **Nej, aldrig** |
 
 Vi använder ordet *hudanalys* utåt. Säg aldrig "ansiktsigenkänning" i appen, på webben eller i presentationen.
 
@@ -20,11 +20,12 @@ Bild från appen
    │
    ▼  strip_metadata_and_normalize()   EXIF/GPS bort · rotera rätt · max 1600 px · JPEG
    │
-   ▼  check_face_photo()               OpenCV Haar-kaskad (frontalface_default)
-   │     blur_score  = varians av Laplacian  (< 60 → suddig)
-   │     brightness  = medelluminans        (< 60 mörk, > 215 överexponerad)
-   │     faces       = antal ansikten       (måste vara exakt 1)
-   │     coverage    = ansiktsruta / bild   (< 4 % → för långt bort)
+   ▼  run_face_check()                  FACE_DETECTOR=google → Cloud Vision, annars OpenCV
+   │     Google Vision: antal ansikten, boundingPoly (storlek), blurredLikelihood,
+   │                    underExposedLikelihood, pan/tilt-vinkel → samma FaceCheck-verdikt.
+   │                    Vi begär inga landmarks. Faller tillbaka på OpenCV vid nätverksfel/kvot.
+   │     OpenCV:        Haar-kaskad; blur = varians av Laplacian (< 60), ljus 60–215,
+   │                    exakt 1 ansikte, ansiktsruta ≥ 4 % av bilden
    │     → FaceCheck { ok, reasons[] på svenska }
    │
    ▼  storage.put(<user_id>/<image_id>.jpg)   privat bucket
@@ -33,8 +34,9 @@ Bild från appen
          context_builder: profil + svar (bara synliga frågor) + bildmetadata → text
          red_flag_hints:  regelbaserade varningar från svaren (kod, inte AI)
          provider.analyze(context, bilder, hints)
-            Claude: system-prompt (cachad) + bilder (base64) + kontext
-            output_format = SkinGuidance  →  SDK validerar JSON mot Pydantic
+            Gemini (standard): system_instruction + bilder (Part.from_bytes) + kontext
+              response_mime_type=application/json, response_schema=SkinGuidance → response.parsed
+            Claude (alternativ, AI_PROVIDER=anthropic): messages.parse(output_format=SkinGuidance)
          kod: om hints finns och AI sa seek_care=false → tvinga true
          spara ai_assessments, seed:a chatten med guidance-texten
 ```
@@ -49,7 +51,9 @@ Valfritt stretch-mål för Release 2: en liten klassificerare för akne-svårigh
 
 ## Structured outputs
 
-`apps/api/src/schemas/ai.py` definierar `SkinGuidance`. Anropet använder `client.messages.parse(..., output_format=SkinGuidance)` så att svaret alltid är giltig JSON enligt schemat. Appen parsar aldrig fritext.
+`apps/api/src/schemas/ai.py` definierar `SkinGuidance`. Gemini anropas med `response_schema=SkinGuidance` (och Claude med `output_format=SkinGuidance`) så att svaret alltid är giltig JSON enligt schemat. Appen parsar aldrig fritext.
+
+Planen innehåller nu även `goals[]` (Huvudmål), `key_ingredients[]` och `tips[]` – raderna som visas på skärm 13–14 i designen.
 
 Fält som alltid finns: `observations[]` (område, fynd, svårighetsgrad, säkerhet), `guidance` (du-form, svenska), `plan` (morgon/kväll/vecka/undvik/förväntningar/uppföljning), `red_flags[]`, `seek_care`, `disclaimer`.
 
@@ -69,9 +73,11 @@ Fält som alltid finns: `observations[]` (område, fynd, svårighetsgrad, säker
 
 ## Modell och kostnad
 
-Standard: `claude-opus-5-5`, effort `medium` för analys, `low` för chat. Byt med `AI_MODEL` / `AI_EFFORT` i `.env`. Systemprompten är prompt-cachad (`cache_control`), så upprepade anrop blir billigare.
+**Standard: Google Gemini** (`GEMINI_MODEL=gemini-2.5-flash`). Nyckeln skapas gratis på https://aistudio.google.com/apikey. Gratisnivån räcker för utveckling och demo (begränsat antal anrop per minut/dag – se aktuella gränser i AI Studio). Obs: på gratisnivån kan Google använda data för förbättring – använd inte riktiga användares bilder där; för skarp drift, aktivera fakturering.
 
-Uppskattning per analys: ~1 bild + ~1 500 tokens kontext in, ~1 200 tokens ut. Räkna med några ören till någon krona per analys beroende på modell. För kursen räcker Anthropics gratiskrediter / ett litet kort.
+Alternativ: Anthropic Claude (`AI_PROVIDER=anthropic`) – ingen gratisnivå, men prompt-cachad systemprompt och server-side refusal-fallback finns implementerat.
+
+Uppskattning per analys: 1–3 bilder + ~1 500 tokens kontext in, ~1 200 tokens ut.
 
 ## Testning och utvärdering (Youssefs backlog)
 
@@ -84,7 +90,12 @@ Uppskattning per analys: ~1 bild + ~1 500 tokens kontext in, ~1 200 tokens ut. R
 
 ```
 AI_PROVIDER=mock        # deterministiskt svar, inget nätverk (standard)
+AI_PROVIDER=gemini      # kräver GEMINI_API_KEY (gratis)
 AI_PROVIDER=anthropic   # kräver ANTHROPIC_API_KEY
+FACE_DETECTOR=opencv    # lokal kontroll (standard)
+FACE_DETECTOR=google    # kräver GOOGLE_VISION_API_KEY (Cloud Vision API aktiverat)
 ```
+
+Att chatten "inte fungerar" i demo-läge betyder bara att `AI_PROVIDER=mock` svarar med fasta texter. Sätt Gemini-nyckeln så svarar riktig AI.
 
 `MockProvider` och appens `mockData.ts` berättar samma historia (blandhud, mild akne, salicylsyra varannan kväll) så demo:n är konsekvent oavsett läge.

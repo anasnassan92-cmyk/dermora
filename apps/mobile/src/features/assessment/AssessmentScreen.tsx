@@ -18,7 +18,7 @@ export function AssessmentScreen({ navigation, route }: AppScreenProps<'Assessme
   const [questionnaire, setQuestionnaire] = useState<Questionnaire | null>(null);
   const [assessmentId, setAssessmentId] = useState<string | null>(route.params?.assessmentId ?? null);
   const [answers, setAnswers] = useState<Answers>({});
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(route.params?.startIndex ?? 0);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -44,7 +44,7 @@ export function AssessmentScreen({ navigation, route }: AppScreenProps<'Assessme
   const visible = useMemo(() => (questionnaire ? visibleQuestions(questionnaire, answers) : []), [questionnaire, answers]);
   const current = visible[Math.min(index, Math.max(visible.length - 1, 0))];
   const isLast = index >= visible.length - 1;
-  const canContinue = current ? !current.required || isAnswered(current, answers) : false;
+  const canContinue = current ? current.required === false || isAnswered(current, answers) : false;
 
   const setAnswer = (value: AnswerValue) => {
     if (!current) return;

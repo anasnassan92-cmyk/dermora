@@ -25,7 +25,7 @@ export function isAnswered(question: Question, answers: Answers): boolean {
 }
 
 export function missingRequired(q: Questionnaire, answers: Answers): Question[] {
-  return visibleQuestions(q, answers).filter((question) => question.required && !isAnswered(question, answers));
+  return visibleQuestions(q, answers).filter((question) => question.required !== false && !isAnswered(question, answers));
 }
 
 export function progress(q: Questionnaire, answers: Answers): number {

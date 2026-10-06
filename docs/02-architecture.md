@@ -27,7 +27,7 @@
                          │          │         │
                          ▼          ▼         ▼
             ┌──────────────────────────┐   ┌──────────────────────┐
-            │  SUPABASE (EU)           │   │  CLAUDE API          │
+            │  SUPABASE (EU)           │   │  GEMINI API          │
             │  Postgres + RLS          │   │  bild + text in,     │
             │  Auth                    │   │  SkinGuidance (JSON) │
             │  Storage: skin-images    │   │  ut                  │
@@ -102,10 +102,10 @@ apps/api/src/
 ├── schemas/              Pydantic-kontrakt: profile, assessment, image, ai (SkinGuidance), plan
 ├── services/
 │   ├── context_builder   svar → text, validering, regelbaserade varningssignaler         (Youssef)
-│   ├── provider          MockProvider / AnthropicProvider (structured outputs)           (Youssef)
+│   ├── provider          MockProvider / GeminiProvider / AnthropicProvider              (Youssef)
 │   ├── prompts           system-prompter med säkerhetsregler                             (Youssef)
 │   ├── ai_service        orkestrerar analys och chat                                     (Youssef)
-│   └── face_detection    OpenCV Haar: ansikte hittat? skärpa? ljus?                      (Ali)
+│   └── face_detection    Google Cloud Vision (+ OpenCV fallback): ansikte? skärpa? ljus?  (Ali)
 ├── repositories/         Protocol-interface + memory.py + supabase.py                    (Assad)
 └── data/questionnaire_v1.json  frågor + show_if-regler                                   (Adam)
 ```
@@ -116,7 +116,7 @@ apps/api/src/
 |---|---|---|---|
 | 1 | FastAPI som mellanlager | Appen pratar direkt med Supabase + AI | Nycklar på servern, kvalitetskontroll, regelbaserad säkerhet, testbarhet |
 | 2 | Supabase för Postgres/Auth/Storage | Egen Postgres + JWT + S3 | Gratis nivå, e-postverifiering och RLS ut ur lådan, SQL som läraren kan läsa |
-| 3 | Claude (multimodal) med structured outputs | Träna egen CNN | Ingen datainsamling behövs i MVP; teamets AI-arbete blir prompter, schema, kontext, tester |
-| 4 | Ansiktsdetektering på servern (OpenCV) | ML Kit på enheten | Fungerar i Expo Go utan native build; inga biometriska data lämnar servern |
+| 3 | Google Gemini (multimodal) med JSON-schema, Claude som alternativ | Träna egen CNN | Gratisnivå för studenter; ingen datainsamling behövs i MVP; teamets AI-arbete blir prompter, schema, kontext, tester |
+| 4 | Ansiktsdetektering på servern: Google Cloud Vision med OpenCV-fallback | ML Kit på enheten | Fungerar i Expo Go utan native build; bättre träffsäkerhet än Haar; inga landmarks begärs eller lagras |
 | 5 | Mock-läge i både app och backend | Vänta på riktig integration | Alla sex kan demo:a sprint 1 utan konton/nycklar |
 | 6 | Bilder lagras under `<user_id>/` i privat bucket | Publik bucket med obskyra namn | Storage-RLS kan då bindas till `auth.uid()` |

@@ -14,7 +14,7 @@ export type AppStackParamList = {
   EditProfile: undefined;
   ProfileSetup: undefined; // onboarding 1/3
   AssessmentIntro: { assessmentId?: string } | undefined; // onboarding 2/3
-  Assessment: { assessmentId?: string }; // onboarding 3/3 + follow-ups
+  Assessment: { assessmentId?: string; startIndex?: number }; // onboarding 3/3 + follow-ups
   ImageUpload: { assessmentId: string };
   ImageReview: { assessmentId: string };
   Analyzing: { assessmentId: string };
