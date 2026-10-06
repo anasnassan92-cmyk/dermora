@@ -19,8 +19,8 @@
     });
   }
 
-  // Beta sign-up form (prototype: validates and shows a message, no network call yet).
-  // When the backend is ready, POST to `${API_URL}/beta-signups` here.
+  // Beta sign-up form → saved by the Dermora server (POST api/beta). On static hosting
+  // without the server (GitHub Pages) the request fails and we still thank the visitor.
   var form = document.querySelector('[data-beta-form]');
   var status = document.querySelector('[data-beta-status]');
   if (form && status) {
@@ -31,8 +31,13 @@
         status.textContent = 'Kontrollera e-postadressen.';
         return;
       }
-      status.textContent = 'Tack! Vi hör av oss när betan öppnar.';
-      form.reset();
+      status.textContent = 'Skickar …';
+      fetch('api/beta', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) })
+        .catch(function () { return null; })
+        .then(function () {
+          status.textContent = 'Tack! Vi hör av oss när betan öppnar.';
+          form.reset();
+        });
     });
   }
 

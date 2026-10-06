@@ -1,0 +1,175 @@
+{
+  "version": "1.0.0",
+  "title": "Några frågor om din hud",
+  "questions": [
+    {
+      "id": "skin_type",
+      "type": "single",
+      "title": "Vilken är din hudtyp?",
+      "help": "Din hudtyp hjälper oss att ge mer träffsäkra rekommendationer och anpassa frågorna framöver.",
+      "layout": "cards",
+      "note": "Du kan alltid uppdatera din hudtyp senare i din profil.",
+      "options": [
+        { "value": "oily", "label": "Fet hud", "description": "Ser ofta glansig ut, särskilt i T-zonen, och har lätt för att få porer och orenheter.", "image": "skin-oily" },
+        { "value": "dry", "label": "Torr hud", "description": "Kan kännas stram, fjällig och ibland irriterad. Har ofta mindre synliga porer.", "image": "skin-dry" },
+        { "value": "combination", "label": "Kombinationshud", "description": "Fetare i T-zonen (panna, näsa, haka) men torrare på kinder och andra områden.", "image": "skin-combination" },
+        { "value": "sensitive", "label": "Känslig hud", "description": "Reagerar lätt på produkter, kan kännas röd, stram eller irriterad.", "image": "skin-sensitive" }
+      ]
+    },
+    {
+      "id": "concerns",
+      "type": "multi",
+      "title": "Vilka hudproblem upplever du?",
+      "help": "Du kan välja flera alternativ. Detta hjälper oss att ge mer relevanta rekommendationer.",
+      "layout": "cards",
+      "options": [
+        { "value": "acne", "label": "Akne och finnar", "description": "Pormaskar, inflammerade finnar eller återkommande utbrott.", "image": "concern-acne" },
+        { "value": "dark_spots", "label": "Pigmentfläckar", "description": "Mörka fläckar, ojämn hudton eller solskador.", "image": "concern-pigment" },
+        { "value": "redness", "label": "Rodnad och irritation", "description": "Känslig hud, lättirriterad eller återkommande rodnad.", "image": "concern-redness" },
+        { "value": "texture", "label": "Ojämn hudtextur", "description": "Förstorade porer, knottrig hud eller ojämn yta.", "image": "concern-texture" },
+        { "value": "fine_lines", "label": "Fina linjer och rynkor", "description": "Tidiga ålderstecken, fina linjer eller förlorad elasticitet.", "image": "concern-lines" },
+        { "value": "dull", "label": "Glåmig hud", "description": "Trött och livlös hud, saknar lyster och utstrålning.", "image": "concern-dull" }
+      ]
+    },
+    {
+      "id": "acne_frequency",
+      "type": "single",
+      "context": "Akne och finnar",
+      "title": "Hur ofta får du akne eller finnar?",
+      "help": "Det hjälper oss att ge mer precisa rekommendationer för din hud.",
+      "layout": "cards",
+      "note": "Frekvensen kan påverkas av hormoner, stress, kost och produkter du använder.",
+      "show_if": { "question_id": "concerns", "includes": "acne" },
+      "options": [
+        { "value": "rarely", "label": "Aldrig eller mycket sällan", "description": "Jag får nästan aldrig finnar.", "image": "acne-rarely" },
+        { "value": "sometimes", "label": "Ibland", "description": "Några finnar då och då, t.ex. vid stress eller mens.", "image": "acne-sometimes" },
+        { "value": "often", "label": "Ofta", "description": "Jag får regelbundet finnar, flera gånger i månaden.", "image": "acne-often" },
+        { "value": "very_often", "label": "Mycket ofta", "description": "Jag har ofta finnar och återkommande utbrott.", "image": "acne-very-often" }
+      ]
+    },
+    {
+      "id": "acne_area",
+      "type": "multi",
+      "context": "Akne och finnar",
+      "title": "Var får du oftast finnar?",
+      "show_if": { "question_id": "concerns", "includes": "acne" },
+      "options": [
+        { "value": "forehead", "label": "Panna" },
+        { "value": "nose", "label": "Näsa" },
+        { "value": "cheeks", "label": "Kinder" },
+        { "value": "chin", "label": "Haka / käklinje" },
+        { "value": "back", "label": "Rygg / bröst" }
+      ]
+    },
+    {
+      "id": "acne_type",
+      "type": "multi",
+      "context": "Akne och finnar",
+      "title": "Hur ser finnarna oftast ut?",
+      "show_if": { "question_id": "concerns", "includes": "acne" },
+      "options": [
+        { "value": "whiteheads", "label": "Små vita" },
+        { "value": "papules", "label": "Röda, ömma" },
+        { "value": "cystic", "label": "Djupa, hårda knölar" },
+        { "value": "mixed", "label": "Blandat" }
+      ]
+    },
+    {
+      "id": "acne_pain",
+      "type": "scale",
+      "context": "Akne och finnar",
+      "title": "Hur ömma eller smärtsamma är de? (0 = inte alls, 10 = mycket)",
+      "show_if": { "question_id": "acne_type", "includes": "cystic" },
+      "min": 0,
+      "max": 10
+    },
+    {
+      "id": "sensitive",
+      "type": "single",
+      "title": "Har du känslig hud?",
+      "help": "Känslig hud kan lätt bli röd, irriterad eller reagera på produkter.",
+      "note": "Det hjälper oss att ge dig mer anpassade råd och rekommendationer.",
+      "options": [
+        { "value": "often", "label": "Ja, ofta" },
+        { "value": "sometimes", "label": "Ja, ibland" },
+        { "value": "no", "label": "Nej, inte vad jag vet" }
+      ]
+    },
+    {
+      "id": "duration",
+      "type": "single",
+      "title": "Hur länge har du haft besvären?",
+      "options": [
+        { "value": "lt_1m", "label": "Mindre än en månad" },
+        { "value": "1_6m", "label": "1–6 månader" },
+        { "value": "6_12m", "label": "6–12 månader" },
+        { "value": "gt_1y", "label": "Mer än ett år" }
+      ]
+    },
+    {
+      "id": "sudden_change",
+      "type": "boolean",
+      "title": "Har huden förändrats snabbt de senaste två veckorna (ny utbredd rodnad, svullnad, vätskande sår eller feber)?",
+      "help": "Detta hjälper oss att veta när du bör söka vård i stället för egenvård."
+    },
+    {
+      "id": "current_routine",
+      "type": "multi",
+      "title": "Vad använder du i dag?",
+      "options": [
+        { "value": "cleanser", "label": "Rengöring" },
+        { "value": "moisturizer", "label": "Fuktkräm" },
+        { "value": "spf", "label": "Solskydd (SPF)" },
+        { "value": "actives", "label": "Aktiva ingredienser (syror, retinol, bensoylperoxid)" },
+        { "value": "prescription", "label": "Receptbelagd behandling" },
+        { "value": "nothing", "label": "Inget särskilt" }
+      ]
+    },
+    {
+      "id": "actives_which",
+      "type": "text",
+      "title": "Vilka aktiva ingredienser eller produkter använder du?",
+      "show_if": { "question_id": "current_routine", "includes": "actives" },
+      "required": false
+    },
+    {
+      "id": "prescription_which",
+      "type": "text",
+      "title": "Vilken receptbelagd behandling använder du?",
+      "show_if": { "question_id": "current_routine", "includes": "prescription" },
+      "required": false
+    },
+    {
+      "id": "tried_before",
+      "type": "text",
+      "title": "Vad har du provat tidigare, och hur fungerade det?",
+      "help": "Fri text. T.ex. 'Salicylsyra från apoteket, hjälpte lite men torkade ut'.",
+      "required": false
+    },
+    {
+      "id": "lifestyle",
+      "type": "multi",
+      "title": "Stämmer något av detta?",
+      "required": false,
+      "options": [
+        { "value": "stress", "label": "Mycket stress just nu" },
+        { "value": "poor_sleep", "label": "Sover dåligt" },
+        { "value": "shaving", "label": "Rakar ansiktet regelbundet" },
+        { "value": "makeup_daily", "label": "Använder smink dagligen" },
+        { "value": "sport_sweat", "label": "Tränar/svettas mycket" },
+        { "value": "hormonal", "label": "Besvären följer menscykeln" }
+      ]
+    },
+    {
+      "id": "goal",
+      "type": "single",
+      "title": "Vad är viktigast för dig just nu?",
+      "options": [
+        { "value": "fewer_breakouts", "label": "Färre finnar" },
+        { "value": "calm_skin", "label": "Lugnare, mindre irriterad hud" },
+        { "value": "even_tone", "label": "Jämnare hudton" },
+        { "value": "simple_routine", "label": "En enkel rutin jag orkar följa" }
+      ]
+    }
+  ]
+}

@@ -8,7 +8,7 @@ interface AuthContextValue {
   loading: boolean;
   isMock: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, displayName: string) => Promise<{ needsVerification: boolean }>;
+  signUp: (input: { firstName: string; lastName: string; email: string; password: string }) => Promise<{ needsVerification: boolean }>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
   markVerified: () => Promise<void>;
@@ -40,8 +40,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signIn: async (email, password) => {
         setSession(await authService.signIn(email, password));
       },
-      signUp: async (email, password, displayName) => {
-        const r = await authService.signUp(email, password, displayName);
+      signUp: async (input) => {
+        const r = await authService.signUp(input);
         await refresh();
         return r;
       },

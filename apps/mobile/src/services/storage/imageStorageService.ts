@@ -6,7 +6,9 @@
  */
 import * as ImageManipulator from 'expo-image-manipulator';
 
-import { USE_MOCK_API } from '../../constants';
+import { Platform } from 'react-native';
+
+import { API_URL, USE_MOCK_API } from '../../constants';
 import type { FaceCheck, ImageArea, SkinImage } from '../../types/api';
 import { api } from '../api/client';
 import { mockImage } from '../mock/mockData';
@@ -27,12 +29,27 @@ export async function prepareForUpload(uri: string): Promise<{ uri: string; widt
   return { uri: result.uri, width: result.width, height: result.height };
 }
 
-function toFormData(uri: string, extra: Record<string, string>): FormData {
+async function toFormData(uri: string, extra: Record<string, string>): Promise<FormData> {
   const form = new FormData();
-  // React Native's fetch understands this file-like object.
-  form.append('file', { uri, name: 'skin.jpg', type: 'image/jpeg' } as unknown as Blob);
+  if (Platform.OS === 'web') {
+    // In the browser the picked/processed image is a blob:/data: URL – send the real bytes.
+    const blob = await (await fetch(uri)).blob();
+    form.append('file', blob, 'skin.jpg');
+  } else {
+    // React Native's fetch understands this file-like object.
+    form.append('file', { uri, name: 'skin.jpg', type: 'image/jpeg' } as unknown as Blob);
+  }
   Object.entries(extra).forEach(([k, v]) => form.append(k, v));
   return form;
+}
+
+/** Server returns "/api/images/..": make it absolute when the API lives on another host (native dev). */
+function absolute(img: SkinImage): SkinImage {
+  if (img.url && img.url.startsWith('/') && /^https?:\/\//.test(API_URL)) {
+    const origin = API_URL.replace(/^(https?:\/\/[^/]+).*$/, '$1');
+    return { ...img, url: origin + img.url };
+  }
+  return img;
 }
 
 export const imageStorageService = {
@@ -45,7 +62,7 @@ export const imageStorageService = {
     }
     const extra: Record<string, string> = { area };
     if (assessmentId) extra.assessment_id = assessmentId;
-    return api.upload<SkinImage>('/images', toFormData(prepared.uri, extra));
+    return absolute(await api.upload<SkinImage>('/images', await toFormData(prepared.uri, extra)));
   },
 
   /** Quality check without storing – lets the camera screen ask for a retake. */
@@ -54,12 +71,12 @@ export const imageStorageService = {
     if (USE_MOCK_API) {
       return { face_found: true, faces: 1, blur_score: 150, brightness: 130, face_coverage: 0.2, ok: true, reasons: [] };
     }
-    return api.upload<FaceCheck>('/images/check', toFormData(prepared.uri, {}));
+    return api.upload<FaceCheck>('/images/check', await toFormData(prepared.uri, {}));
   },
 
   async list(assessmentId?: string): Promise<SkinImage[]> {
     if (USE_MOCK_API) return assessmentId ? mockImages.filter((i) => i.assessment_id === assessmentId) : mockImages;
-    return api.get<SkinImage[]>(assessmentId ? `/images?assessment_id=${assessmentId}` : '/images');
+    return (await api.get<SkinImage[]>(assessmentId ? `/images?assessment_id=${assessmentId}` : '/images')).map(absolute);
   },
 
   async remove(id: string): Promise<void> {

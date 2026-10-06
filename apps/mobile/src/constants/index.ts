@@ -1,13 +1,12 @@
 /**
  * Runtime configuration. Values prefixed EXPO_PUBLIC_ are inlined by Expo at build time.
- * Leave them empty to run the app fully on mock data (no backend, no Supabase).
+ * Leave EXPO_PUBLIC_API_URL empty to run the app fully on mock data (no backend).
  */
+/** Base URL of the Dermora server API, e.g. "/api" (same site) or "http://192.168.1.20:4000/api". */
 export const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? '').replace(/\/$/, '');
-export const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
-export const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 export const USE_MOCK_API = API_URL.length === 0;
-export const USE_MOCK_AUTH = SUPABASE_URL.length === 0 || SUPABASE_ANON_KEY.length === 0;
+export const USE_MOCK_AUTH = USE_MOCK_API;
 
 export const APP_NAME = 'Dermora';
 export const TAGLINE = 'Din hud, förstådd.';

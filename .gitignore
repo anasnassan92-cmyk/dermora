@@ -28,3 +28,7 @@ Thumbs.db
 
 # --- local tooling ---
 .claude/
+
+# --- server local data ---
+apps/server/.data/
+apps/server/dist/

@@ -75,8 +75,14 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
         <Blob />
         <FlowHeader step={3} onBack={() => navigation.goBack()} />
         <T variant="display" style={styles.title}>Godkänn bildbehandling</T>
-        <T variant="body" muted mb="xl">För att analysera din hud behöver vi ditt godkännande att lagra bilderna privat. Du kan återkalla det när som helst.</T>
-        <Button title="Till profilinställningar" onPress={() => navigation.navigate('EditProfile')} />
+        <T variant="body" muted mb="xl">För att analysera din hud behöver vi ditt godkännande att lagra bilderna privat. Bilderna används bara för din egen vägledning, GPS-data tas bort och du kan radera dem när som helst.</T>
+        <Button
+          title="Jag godkänner  →"
+          onPress={async () => {
+            await profileService.update({ consent_images: true });
+            setConsent(true);
+          }}
+        />
         <Button title="Fortsätt utan bild" variant="ghost" style={styles.gap} onPress={() => navigation.replace('Analyzing', { assessmentId })} />
       </Screen>
     );
