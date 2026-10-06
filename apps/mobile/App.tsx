@@ -4,7 +4,7 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import { AuthProvider } from './src/hooks/useAuth';
 import { RootNavigator } from './src/navigation/RootNavigator';
@@ -33,7 +33,12 @@ export default function App() {
       <SafeAreaProvider>
         <AuthProvider>
           <StatusBar style="dark" />
-          <PreviewApp {...preview} />
+          {/* fixed 390px phone frame so headless screenshots are deterministic regardless of window size */}
+          <View style={{ flex: 1, alignItems: 'center', backgroundColor: '#E8E4DA' }}>
+            <View style={{ width: 390, flex: 1, overflow: 'hidden', backgroundColor: '#FAF7F0' }}>
+              <PreviewApp {...preview} />
+            </View>
+          </View>
         </AuthProvider>
       </SafeAreaProvider>
     );

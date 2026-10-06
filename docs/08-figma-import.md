@@ -20,7 +20,7 @@ Två vägar:
 **A. Expo Web → html.to.design (snabbast).**
 1. `cd apps/mobile && npx expo start --web` → öppna `http://localhost:8081`.
 2. Sätt webbläsarens visningsyta till 390 × 844 (enhetsläge i DevTools).
-3. Navigera till varje skärm (Welcome, Login, Register, VerifyEmail, Hem, Frågeformulär, Bild, Analyserar, Bedömning, Chat, Plan, Profil) och importera varje vy med html.to.design → page `App – Screens`.
+3. Öppna varje skärm direkt med förhandsvisningsläget, t.ex. `http://localhost:8081/?preview=Register`, `?preview=Assessment&q=1`, `?preview=AIChat`, `?preview=Tabs&tab=Home` (lista i `scripts/screenshots.py`), och importera varje vy med html.to.design → page `App – Screens`.
 
 **B. Rita om i Figma med tokens (när ni vill designa vidare).**
 Skapa Figma-variabler från `packages/brand/dermora-colors.json` (färger) och typografin i `apps/mobile/src/theme/typography.ts`. Radier: 10 / 16 / 24 / 32 / 999. Ikoner: importera `apps/web/assets/icons/*.svg` (24 px, 1,75 px linje, `currentColor`).
