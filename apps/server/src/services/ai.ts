@@ -362,10 +362,12 @@ export function parseChatOutput(raw: string): { text: string; suggestions: strin
     const arr = JSON.parse(tail.replace(/^```(?:json)?|```$/g, '').trim());
     if (Array.isArray(arr)) suggestions = arr.map(String).map((s) => s.trim()).filter(Boolean).slice(0, 3);
   } catch {
+    // Not valid JSON (truncated or free text): split on quotes/lines and keep short questions.
     suggestions = tail
-      .split('\n')
-      .map((l) => l.replace(/^[-•*\d.)\s"]+|["\s]+$/g, '').trim())
-      .filter(Boolean)
+      .replace(/^[\[\s]+|[\]\s]+$/g, '')
+      .split(/"\s*,\s*"|\n/)
+      .map((l) => l.replace(/^[-•*\d.)\s"\[]+|["\s\],]+$/g, '').trim())
+      .filter((l) => l.length > 3 && l.length < 90)
       .slice(0, 3);
   }
   return { text: raw.slice(0, idx).trim(), suggestions };
@@ -474,7 +476,7 @@ export async function* chatReplyStream(ctx: ChatContext): AsyncGenerator<{ delta
       yield { delta: full.slice(sent, safeEnd) };
       sent = safeEnd;
     }
-    if (mark >= 0 && sent >= mark) break; // the rest is the suggestion list
+    // keep reading after the marker (no more deltas) so the suggestion list arrives complete
   }
   const parsed = parseChatOutput(full.trim());
   if (parsed.text.length > sent) yield { delta: parsed.text.slice(sent) };
