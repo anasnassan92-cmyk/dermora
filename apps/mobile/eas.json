@@ -13,8 +13,7 @@
       "env": {
         "EXPO_PUBLIC_API_URL": "https://lightslategray-wallaby-444786.hostingersite.com/api",
         "ORG_GRADLE_PROJECT_reactNativeArchitectures": "arm64-v8a"
-      },
-      "_comment": "arm64-only test APK (~half the size); the production AAB stays universal"
+      }
     },
     "production": {
       "channel": "production",
