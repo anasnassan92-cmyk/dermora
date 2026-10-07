@@ -1,5 +1,8 @@
 # 09 · Vad som behövs för att köra Dermora på riktigt
 
+> **Obs (2026-10):** detta dokument skrevs för den första prototypen (FastAPI + Supabase, nu i `legacy/`). Produktionen kör `apps/server` (Node.js/Express + MySQL på Hostinger). Principerna gäller, men filvägar, endpoints och tabeller finns i `apps/server/src/`.
+
+
 ## Konton och nycklar
 
 | Tjänst | Vem skapar | Gratis? | Vad vi behöver | Var det läggs |

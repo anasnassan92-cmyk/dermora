@@ -7,11 +7,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/logo/symbol.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F8FCFB"
-    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "se.dermora.app",
@@ -52,7 +47,21 @@
       ],
       "expo-secure-store",
       "expo-font",
-      "expo-splash-screen"
-    ]
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/logo/symbol.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#F8FCFB"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e38951d6-8b2b-4cc2-9bc7-437773612c5c"
+      }
+    },
+    "owner": "anassaid9292"
   }
 }

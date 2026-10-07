@@ -4,135 +4,136 @@
 
 # Dermora
 
-**Personlig hudvägledning med AI.** En mobilapp där användaren beskriver sin hud, svarar på frågor med villkorade följdfrågor, laddar upp bilder, får strukturerad AI-vägledning, diskuterar den i en chat och bekräftar en behandlingsplan som sparas.
+**Personlig hudvägledning med AI.** En app där användaren beskriver sin hud, svarar på frågor med villkorade följdfrågor, laddar upp bilder, får strukturerad AI-vägledning, diskuterar den i en chat och bekräftar en behandlingsplan som sparas.
 
 > Release 1 / MVP. Studentprojekt – **Grupp 6**: Youssef, Even, Anas, Adam, Ali, Assad.
 > Dermora ger vägledning, inte medicinsk diagnos.
 
+## Live
+
 | | |
 |---|---|
-| Landningssida (kund) | `apps/web/index.html` → publiceras till GitHub Pages |
-| Projektpresentation (lärare) | `apps/web/presentation.html` – team, arkitektur, roadmap, arbetssätt |
-| Mobilapp | `apps/mobile` – React Native + Expo + TypeScript |
-| Backend | `apps/api` – FastAPI (Python) |
-| Databas / auth / bildlagring | `supabase/schema.sql` – PostgreSQL + RLS + privat bucket |
-| Dokumentation | `docs/` – se index nedan |
+| Landningssida (kund) | https://lightslategray-wallaby-444786.hostingersite.com/ |
+| Appen i webbläsaren | https://lightslategray-wallaby-444786.hostingersite.com/app/ |
+| Adminpanel | https://lightslategray-wallaby-444786.hostingersite.com/admin/login |
+| Projektpresentation (lärare) | https://lightslategray-wallaby-444786.hostingersite.com/presentation.html |
+| Figma (redigerbar design) | https://www.figma.com/design/3Mytv71asDlX8rEz1JbCGk/Dermora---App---Web--Grupp-6- |
+| GitHub Pages (statisk kopia, mock-läge) | https://anasnassan92-cmyk.github.io/dermora/ |
+| Android-APK | byggs med EAS, se [Bygga APK](#bygga-apk-android) |
+
+## Delar av systemet
+
+| | |
+|---|---|
+| Landningssida | `apps/web/index.html` (+ `presentation.html`) – HTML/CSS, brand kit v1.1 |
+| Mobilapp | `apps/mobile` – React Native + Expo SDK 57 + TypeScript; körs även som webbapp |
+| Backend + adminpanel | `apps/server` – Node.js 24 + Express 5 + TypeScript. Egen auth (e-postkoder, JWT), Gemini-chatbot, bildhantering, GDPR-radering, adminpanel på `/admin` |
+| Databas | MySQL på Hostinger (`DB_*`), SQLite lokalt och i tester – samma migrationer |
+| AI | Google Gemini (strukturerad JSON-analys + chat) med modell-fallback; mock-läge utan nyckel |
+| Legacy | `legacy/` – den första FastAPI + Supabase-prototypen (körs inte längre) |
 
 ## Användarresan (MVP)
 
 ```
 Welcome → Skapa konto / Logga in → Verifiera e-post → Grundprofil
-→ Frågeformulär (villkorade följdfrågor) → Ladda upp bild (ansiktsguide + kvalitetskontroll)
-→ AI får frågesvar + bildkontext → Användaren diskuterar med AI
-→ AI föreslår strukturerad plan → Användaren bekräftar → Planen sparas och kan visas
+→ Frågeformulär (villkorade följdfrågor) → Ladda upp bilder (kvalitetskontroll)
+→ AI-analys (Gemini, strukturerad) → Chat om analysen
+→ AI föreslår plan → Användaren bekräftar → Planen sparas → Hem
 ```
 
-## Arkitektur i korthet
+## Arkitektur
 
 ```
-┌──────────────┐   HTTPS/JSON   ┌───────────────┐        ┌──────────────────────┐
-│  Mobilapp    │ ─────────────▶ │  FastAPI      │ ─────▶ │ Supabase             │
-│  Expo / RN   │ ◀───────────── │  apps/api     │        │  Postgres + RLS       │
-└──────────────┘                │  validerar,   │        │  Auth (JWT)           │
-        │ Supabase Auth (JWT)   │  bygger       │        │  Storage: skin-images │
-        └──────────────────────▶│  kontext,     │        └──────────────────────┘
-                                │  face-check   │ ─────▶ ┌──────────────────────┐
-                                │               │        │ Gemini (multimodal)  │
-                                └───────────────┘        │ strukturerad output  │
-                                                         └──────────────────────┘
+┌──────────────┐  HTTPS /api   ┌──────────────────────┐        ┌──────────────┐
+│ App          │ ────────────▶ │ apps/server          │ ─────▶ │ MySQL        │
+│ Expo / RN    │ ◀──────────── │ Express + TypeScript │        │ (Hostinger)  │
+│ (webb, APK)  │               │ auth · bilder · AI   │        └──────────────┘
+└──────────────┘               │ adminpanel /admin    │ ─────▶ ┌──────────────┐
+┌──────────────┐  samma host   │ serverar public/     │        │ Gemini API   │
+│ Landningssida│ ◀──────────── │ (landning + webapp)  │        └──────────────┘
+└──────────────┘               └──────────────────────┘
 ```
 
-Appen pratar bara med backend (plus Supabase Auth för inloggning). Backend är den enda som pratar med databasen, bildlagringen och AI-tjänsten.
+Allt körs som **en** Hostinger "Node.js Web App": servern serverar landningssidan, webbappen (`/app`), API:et (`/api`) och adminpanelen (`/admin`). Bilder och SQLite-fallback ligger i `$HOME/dermora-data` utanför app-mappen så att de överlever omdeploy.
 
-## Kom igång på 10 minuter
+## Kom igång lokalt
 
-Allt kan köras **utan** Supabase och utan AI-nyckel (mock-läge) – det är så vi demar sprint 1.
-
-**Repo:** https://github.com/anasnassan92-cmyk/dermora
-
-### 1. Backend
+Allt går att köra **utan** databas och utan AI-nyckel (SQLite + mock-AI).
 
 ```bash
-cd apps/api
-python -m venv .venv
-.venv\Scripts\activate          # Windows   (mac/linux: source .venv/bin/activate)
-pip install -r requirements-dev.txt
-copy .env.example .env          # mac/linux: cp
-uvicorn src.main:app --reload --port 8000
+# 1. Server (API + admin)  →  http://localhost:4000
+cd apps/server && npm install && npm run dev        # eller: npx tsx src/index.ts
+# tester: npm test
+
+# 2. App i webbläsaren  →  http://localhost:8081
+cd apps/mobile && npm install
+echo EXPO_PUBLIC_API_URL=http://localhost:4000/api > .env
+npx expo start --web
+
+# 3. Landningssida  →  http://localhost:8085
+cd apps/web && python -m http.server 8085
 ```
 
-Öppna http://localhost:8000/docs. Testa: `pytest`.
+Utan `.env` körs appen helt på mock-data. Förhandsläge för en enskild skärm: `http://localhost:8081/?preview=AIChat` (lista i `scripts/screenshots.py`).
 
-### 2. Mobilapp
+### Miljövariabler (server)
+
+Se `apps/server/.env.example`. Viktigast: `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD` (MySQL), `GEMINI_API_KEY`, `ADMIN_EMAILS` (vilka konton som får logga in i adminpanelen), `SMTP_*` (e-postkoder; utan dem visas koden på skärmen i demo-läge), `GOOGLE_VISION_API_KEY`, `GOOGLE_CLIENT_ID`.
+
+## Deploy till Hostinger
+
+```bash
+legacy/api/.venv/Scripts/python scripts/package-server.py     # exporterar webbappen + bygger dist/dermora-deploy.zip
+```
+
+hPanel → Web App → Deployments → *Settings and redeploy* → *Upload new files* → välj ZIP → *Save and redeploy*. Miljövariabler sätts under *Environment variables* (sedan *Apply changes* + redeploy). Root directory: `dermora-deploy`, Node 24, build `npm run build`, entry `dist/index.js`.
+
+## Bygga APK (Android)
 
 ```bash
 cd apps/mobile
-npm install
-copy .env.example .env          # sätt EXPO_PUBLIC_API_URL=http://<din-dators-ip>:8000 för att köra mot backend
-npx expo start
+npx eas build -p android --profile preview      # APK via EAS (molnet), ~15 min
+npx eas build -p android --profile production   # AAB för Google Play
 ```
 
-Skanna QR-koden med Expo Go. Utan `.env` körs appen helt på mock-data. Typkontroll: `npm run typecheck`.
+Profilerna i `apps/mobile/eas.json` sätter `EXPO_PUBLIC_API_URL` till den live-körda servern. Inloggad Expo-konto krävs (`npx eas login`).
 
-### 3. Landningssidan
+## Adminpanel
 
-```bash
-cd apps/web
-python -m http.server 8085
-```
-
-Öppna http://localhost:8085 (kundsidan) och http://localhost:8085/presentation.html (presentationen).
-
-### 4. Riktig databas + AI (när ni är redo)
-
-1. Skapa ett Supabase-projekt (EU-region). Kör `supabase/schema.sql` och `supabase/seed.sql` i SQL-editorn.
-2. Fyll i `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET` i `apps/api/.env`.
-3. Fyll i `EXPO_PUBLIC_SUPABASE_URL` och `EXPO_PUBLIC_SUPABASE_ANON_KEY` i `apps/mobile/.env`.
-4. Skapa en gratis Gemini-nyckel på https://aistudio.google.com/apikey och sätt `AI_PROVIDER=gemini` + `GEMINI_API_KEY` i `apps/api/.env`.
-5. (Valfritt) Aktivera Cloud Vision API i ett Google Cloud-projekt, skapa en API-nyckel och sätt `FACE_DETECTOR=google` + `GOOGLE_VISION_API_KEY`. Utan detta används OpenCV lokalt.
-
-Detaljer: [docs/09-setup-and-requirements.md](docs/09-setup-and-requirements.md).
+`/admin/login` – logga in med ett vanligt Dermora-konto vars e-post finns i `ADMIN_EMAILS`. Sidor: Översikt, Användare (profil, bilder, AI-resultat, chat, planer, GDPR-radering), Chattar, Vårdsignaler, Beta (CSV), Frågeformulär, System.
 
 ## Dokumentation
 
 | Fil | Innehåll |
 |---|---|
 | [docs/01-vision.md](docs/01-vision.md) | Problem, mål, målgrupp, vad som ingår i Release 1 |
-| [docs/02-architecture.md](docs/02-architecture.md) | Systemarkitektur, dataflöden, mappstruktur |
-| [docs/03-database.md](docs/03-database.md) | ER-diagram, tabeller, RLS, lagring, GDPR |
-| [docs/04-api-contract.md](docs/04-api-contract.md) | Alla endpoints med exempel |
-| [docs/05-ai-and-face-detection.md](docs/05-ai-and-face-detection.md) | Gemini-provider, Google Vision-ansiktskontroll, säkerhetsregler |
+| [docs/02-architecture.md](docs/02-architecture.md) | Systemarkitektur, dataflöden, mappstruktur (skriven för prototypen – se noten överst) |
+| [docs/03-database.md](docs/03-database.md) | Datamodell och GDPR (prototypen; aktuellt schema i `apps/server/src/db/schema.ts`) |
+| [docs/04-api-contract.md](docs/04-api-contract.md) | Endpoints (prototypen; aktuella routes i `apps/server/src/routes`) |
+| [docs/05-ai-and-face-detection.md](docs/05-ai-and-face-detection.md) | AI-provider, ansiktskontroll, säkerhetsregler |
 | [docs/06-team-and-workflow.md](docs/06-team-and-workflow.md) | Sex ansvarsområden, Git-regler, Scrum |
 | [docs/07-sprint-plan.md](docs/07-sprint-plan.md) | Sprint 0–3 med mål per person |
-| [docs/08-figma-import.md](docs/08-figma-import.md) | Så får ni in designen i Figma |
+| [docs/08-figma-import.md](docs/08-figma-import.md) | Designen i Figma |
 | [docs/09-setup-and-requirements.md](docs/09-setup-and-requirements.md) | Konton, nycklar, kostnader, checklista |
 | [docs/10-presentation-notes.md](docs/10-presentation-notes.md) | Talmanus och demo-flöde för redovisningen |
 
-## Design i Figma (öppen för redigering)
-
-Landningssidan, presentationen och appens skärmar finns som redigerbara Figma-lager (importerade från den live-körda koden med html.to.design):
-**https://www.figma.com/design/3Mytv71asDlX8rEz1JbCGk/Dermora---App---Web--Grupp-6-** – alla med länken kan redigera. Fler skärmar importeras enligt [docs/08-figma-import.md](docs/08-figma-import.md).
-
-## Webbappen på landningssidan
-
-Appen exporteras även som webbapp (`npx expo export --platform web` → `apps/web/app/`). Landningssidans knappar **Logga in** / **Skapa konto** och **Starta din hudanalys** öppnar `app/?start=register` så att vem som helst kan göra hela flödet i webbläsaren. `apps/api/.venv/Scripts/python scripts/package-web.py` exporterar appen och bygger `dist/dermora-web.zip` för Hostinger (ladda upp till `public_html` och extrahera).
-
 ## Skärmdumpar
 
-`apps/api/.venv/Scripts/python scripts/screenshots.py` tar 17 skärmdumpar från den körande webbversionen av appen (`?preview=<Screen>`, se `apps/mobile/src/dev/PreviewApp.tsx`) till `apps/web/assets/screens/`. Landningssidans sektion **Appen** visar dem.
+`legacy/api/.venv/Scripts/python scripts/screenshots.py` tar 17 skärmdumpar från den körande webbversionen (`?preview=<Screen>`) till `apps/web/assets/screens/`. Landningssidans sektion **Appen** visar dem.
 
 ## Repo-struktur
 
 ```
 dermora/
 ├── apps/
-│   ├── web/            # statisk landningssida + presentation (HTML/CSS/JS, brand kit)
-│   ├── mobile/         # Expo-app: src/{components,features,navigation,services,hooks,types,utils,constants,theme}
-│   └── api/            # FastAPI: src/{api/routes,core,schemas,services,repositories,data}, tests/
-├── supabase/           # schema.sql (tabeller, RLS, storage), seed.sql
-├── packages/brand/     # färg-tokens, Montserrat-css, tailwind-config från brand kit v1.1
+│   ├── web/            # landningssida + presentation (HTML/CSS/JS), exporterad webbapp i app/
+│   ├── mobile/         # Expo-app: src/{components,features,navigation,services,hooks,types,constants,theme}
+│   └── server/         # Node/Express: src/{routes,auth,db,services,admin,data}, test/
+├── legacy/             # FastAPI + Supabase-prototypen (historik)
+├── packages/brand/     # färg-tokens, Montserrat-css från brand kit v1.1
+├── scripts/            # package-server.py (Hostinger-ZIP), screenshots.py, gen-icons.py
 ├── docs/
-└── .github/            # CI, Pages-deploy, PR-mall, CODEOWNERS
+└── .github/            # CI (server-tester, typecheck, webb), Pages-deploy
 ```
 
 ## Git-regler

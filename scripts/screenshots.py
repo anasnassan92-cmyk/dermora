@@ -1,7 +1,7 @@
 """Capture the 15 design screens from the running Expo web build with headless Edge/Chrome.
 
 Prerequisites:  cd apps/mobile && npx expo start --web --port 8081   (mock mode, no .env)
-Usage:          apps/api/.venv/Scripts/python scripts/screenshots.py   (needs Pillow) [--base http://localhost:8081] [--out apps/web/assets/screens]
+Usage:          legacy/api/.venv/Scripts/python scripts/screenshots.py   (needs Pillow) [--base http://localhost:8081] [--out apps/web/assets/screens]
 
 Each screen is opened as ?preview=<Screen> (see apps/mobile/src/dev/PreviewApp.tsx). The preview mode
 draws the app inside a fixed 390px frame (headless Chrome ignores window widths below ~500px), the
