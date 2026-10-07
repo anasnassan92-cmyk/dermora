@@ -57,22 +57,32 @@ export function VerifyEmailScreen({ route }: AuthScreenProps<'VerifyEmail'>) {
       <T variant="bodyMedium" center mb="sm">{email}</T>
       <T variant="small" muted center mb="xl">Ange koden nedan för att slutföra din registrering.</T>
 
-      <Pressable onPress={() => input.current?.focus()} style={styles.boxes} accessibilityLabel="Verifieringskod">
+      <View style={styles.boxes} accessibilityLabel="Verifieringskod">
         {Array.from({ length: 6 }, (_, i) => (
           <View key={i} style={[styles.box, code.length === i && styles.boxActive]}>
             <T variant="h1" style={styles.digit}>{code[i] ?? ''}</T>
           </View>
         ))}
+        {/* Invisible input laid over the boxes: tapping anywhere focuses it, typing fills the boxes.
+            (A 1×1 opacity-0 input does not receive key events on Android.) */}
         <TextInput
           ref={input}
           value={code}
           onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
           keyboardType="number-pad"
+          inputMode="numeric"
           maxLength={6}
           autoFocus
-          style={styles.hiddenInput}
+          caretHidden
+          autoComplete="one-time-code"
+          textContentType="oneTimeCode"
+          autoCorrect={false}
+          style={styles.overlayInput}
           accessibilityLabel="Sexsiffrig kod"
         />
+      </View>
+      <Pressable onPress={() => input.current?.focus()} accessibilityRole="button">
+        <T variant="caption" muted center mb="md">Tryck på rutorna för att skriva koden</T>
       </Pressable>
 
       <T variant="small" muted center>Hittar du inte mejlet?</T>
@@ -99,11 +109,11 @@ export function VerifyEmailScreen({ route }: AuthScreenProps<'VerifyEmail'>) {
 const styles = StyleSheet.create({
   envelope: { width: 200, height: 150, alignSelf: 'center', marginVertical: spacing.lg },
   title: { fontSize: 30, lineHeight: 36, marginBottom: spacing.sm },
-  boxes: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.xl },
+  boxes: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm },
   box: { width: 48, height: 64, borderRadius: radius.md, backgroundColor: colors.surfaceRaised, borderWidth: 1.5, borderColor: colors.line, alignItems: 'center', justifyContent: 'center', ...shadow.sm },
   boxActive: { borderColor: colors.accent },
   digit: { marginBottom: 0 },
-  hiddenInput: { position: 'absolute', opacity: 0, width: 1, height: 1, ...typography.body },
+  overlayInput: { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, color: 'transparent', backgroundColor: 'transparent', ...typography.body, fontSize: 1, letterSpacing: 0, textAlign: 'center' },
   resendRow: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
   mock: { marginBottom: spacing.md },
   cta: { marginTop: spacing.md },
