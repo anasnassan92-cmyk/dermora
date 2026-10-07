@@ -19,7 +19,7 @@
 | Projektpresentation (lärare) | https://lightslategray-wallaby-444786.hostingersite.com/presentation.html |
 | Figma (redigerbar design) | https://www.figma.com/design/3Mytv71asDlX8rEz1JbCGk/Dermora---App---Web--Grupp-6- |
 | GitHub Pages (statisk kopia, mock-läge) | https://anasnassan92-cmyk.github.io/dermora/ |
-| Android-APK | byggs med EAS, se [Bygga APK](#bygga-apk-android) |
+| Android-APK | https://expo.dev/artifacts/eas/5R2o4BqsuJo04TQdJAUB3RdmEqe9V_jJqw86XFpmofk.apk (EAS, 2026-10-07) – se [Bygga APK](#bygga-apk-android) |
 
 ## Delar av systemet
 
@@ -29,7 +29,7 @@
 | Mobilapp | `apps/mobile` – React Native + Expo SDK 57 + TypeScript; körs även som webbapp |
 | Backend + adminpanel | `apps/server` – Node.js 24 + Express 5 + TypeScript. Egen auth (e-postkoder, JWT), Gemini-chatbot, bildhantering, GDPR-radering, adminpanel på `/admin` |
 | Databas | MySQL på Hostinger (`DB_*`), SQLite lokalt och i tester – samma migrationer |
-| AI | Google Gemini: `gemini-2.5-pro` med tankebudget för analysen, `gemini-flash-latest` för chatten, svensk kunskapsbas (BM25-RAG), minne per användare, uppföljning, bildjämförelse i chatten, streaming, följdfrågor och betyg; mock-läge utan nyckel |
+| AI | Google Gemini: `gemini-flash-latest` med liten tankebudget för analysen (pro via env när nyckeln tillåter), samma modell för chatten, svensk kunskapsbas (BM25-RAG), minne per användare, uppföljning, bildjämförelse i chatten, streaming, följdfrågor och betyg; mock-läge utan nyckel |
 | Legacy | `legacy/` – den första FastAPI + Supabase-prototypen (körs inte längre) |
 
 ## Användarresan (MVP)
