@@ -1,6 +1,6 @@
 /** Design screen 01 – Välkomstskärm. Owner: Anas. */
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View, useWindowDimensions } from 'react-native';
 
 import { Button, Screen, T } from '../../components/ui';
 import { DESIGN } from '../../constants/design';
@@ -8,9 +8,13 @@ import type { AuthScreenProps } from '../../navigation/types';
 import { colors, radius, spacing } from '../../theme';
 
 export function WelcomeScreen({ navigation }: AuthScreenProps<'Welcome'>) {
+  const { height } = useWindowDimensions();
+  // The portrait is 800×698; show it uncropped but never taller than ~38 % of the screen.
   return (
     <Screen>
-      <Image source={DESIGN['welcome-portrait']} style={styles.portrait} resizeMode="cover" accessibilityIgnoresInvertColors />
+      <View style={[styles.portraitWrap, { maxHeight: Math.max(220, height * 0.38) }]}>
+        <Image source={DESIGN['welcome-portrait']} style={styles.portrait} resizeMode="cover" accessibilityIgnoresInvertColors />
+      </View>
       <View style={styles.logo}>
         <Image source={require('../../../assets/logo/symbol.png')} style={styles.symbol} resizeMode="contain" />
         <T variant="h1" style={styles.wordmark}>Dermora</T>
@@ -31,7 +35,8 @@ export function WelcomeScreen({ navigation }: AuthScreenProps<'Welcome'>) {
 }
 
 const styles = StyleSheet.create({
-  portrait: { width: '100%', aspectRatio: 1.35, borderRadius: radius.xl, backgroundColor: colors.surfaceMint, marginBottom: spacing.lg },
+  portraitWrap: { width: '100%', borderRadius: radius.xl, overflow: 'hidden', backgroundColor: colors.surfaceMint, marginBottom: spacing.lg, alignSelf: 'center' },
+  portrait: { width: '100%', aspectRatio: 800 / 698 },
   logo: { alignItems: 'center', marginBottom: spacing.lg },
   symbol: { width: 56, height: 48 },
   wordmark: { marginTop: spacing.xs, marginBottom: 0 },
