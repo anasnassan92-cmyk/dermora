@@ -8,6 +8,7 @@ import { DESIGN, IMAGE_SLOTS } from '../../constants/design';
 import type { AppScreenProps } from '../../navigation/types';
 import { aiService } from '../../services/ai/aiService';
 import { imageStorageService } from '../../services/storage/imageStorageService';
+import { useContentWidth } from '../../hooks/useContentWidth';
 import { colors, radius, shadow, spacing } from '../../theme';
 import type { SkinImage } from '../../types/api';
 
@@ -52,6 +53,9 @@ export function AnalyzingScreen({ navigation, route }: AppScreenProps<'Analyzing
 
   const front = images.find((i) => i.area === 'face');
   const thumb = (area: string) => images.find((i) => i.area === area)?.url ?? null;
+  const w = useContentWidth();
+  const corner = Math.round(w * 0.28);
+  const ring = Math.min(150, Math.round(w * 0.42));
 
   return (
     <Screen>
@@ -60,18 +64,18 @@ export function AnalyzingScreen({ navigation, route }: AppScreenProps<'Analyzing
       <T variant="display" style={styles.title}>AI-analys pågår</T>
       <T variant="body" muted mb="xl">Vi analyserar dina bilder med hjälp av avancerad AI för att förstå din hud och ge personliga rekommendationer.</T>
 
-      <View style={styles.visual}>
-        <View style={styles.corner}><Thumb uri={thumb('face')} label="Framifrån" fallback="example-front" /></View>
-        <View style={styles.corner}><Thumb uri={thumb('left')} label="Vänster sida" fallback="example-left" /></View>
-        <View style={styles.center}>
-          <View style={styles.ringOuter}>
-            <View style={styles.ringInner}>
-              <Image source={front?.url ? { uri: front.url } : DESIGN['analyze-center']} style={styles.centerImg} />
+      <View style={[styles.visual, { width: w }]}>
+        <View style={{ width: corner }}><Thumb uri={thumb('face')} label="Framifrån" fallback="example-front" size={corner} /></View>
+        <View style={{ width: corner }}><Thumb uri={thumb('left')} label="Vänster sida" fallback="example-left" size={corner} /></View>
+        <View style={[styles.center, { left: (w - ring) / 2, top: Math.round(corner * 1.05) + 24 - ring / 2 }]}>
+          <View style={[styles.ringOuter, { width: ring, height: ring, borderRadius: ring / 2 }]}>
+            <View style={[styles.ringInner, { width: ring - 26, height: ring - 26, borderRadius: (ring - 26) / 2 }]}>
+              <Image source={front?.url ? { uri: front.url } : DESIGN['analyze-center']} style={{ width: ring - 26, height: ring - 26 }} resizeMode="cover" />
             </View>
           </View>
         </View>
-        <View style={styles.corner}><Thumb uri={thumb('right')} label="Höger sida" fallback="example-right" /></View>
-        <View style={styles.corner}><Thumb uri={thumb('closeup')} label="Närbild" fallback="example-closeup" /></View>
+        <View style={{ width: corner }}><Thumb uri={thumb('right')} label="Höger sida" fallback="example-right" size={corner} /></View>
+        <View style={{ width: corner }}><Thumb uri={thumb('closeup')} label="Närbild" fallback="example-closeup" size={corner} /></View>
       </View>
 
       {error ? (
@@ -105,10 +109,10 @@ export function AnalyzingScreen({ navigation, route }: AppScreenProps<'Analyzing
   );
 }
 
-function Thumb({ uri, label, fallback }: { uri: string | null; label: string; fallback: string }) {
+function Thumb({ uri, label, fallback, size }: { uri: string | null; label: string; fallback: string; size: number }) {
   return (
     <View style={styles.thumbWrap}>
-      <Image source={uri ? { uri } : DESIGN[fallback]} style={styles.thumb} />
+      <Image source={uri ? { uri } : DESIGN[fallback]} style={[styles.thumb, { width: size, height: Math.round(size / 0.95) }]} resizeMode="cover" />
       <View style={styles.thumbLabel}>
         <View style={styles.thumbCheck}><Icon name="check" size={9} color={colors.onPrimary} strokeWidth={3} /></View>
         <T variant="caption">{label}</T>
@@ -119,14 +123,12 @@ function Thumb({ uri, label, fallback }: { uri: string | null; label: string; fa
 
 const styles = StyleSheet.create({
   title: { fontSize: 32, lineHeight: 38, marginBottom: spacing.xs },
-  visual: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xl },
-  corner: { width: '28%', marginBottom: spacing.md },
-  center: { width: '40%', alignItems: 'center', justifyContent: 'center', position: 'absolute', left: '30%', top: '14%' },
-  ringOuter: { width: 150, height: 150, borderRadius: 75, backgroundColor: colors.surfaceMint, alignItems: 'center', justifyContent: 'center' },
-  ringInner: { width: 124, height: 124, borderRadius: 62, borderWidth: 3, borderColor: colors.accent, overflow: 'hidden' },
-  centerImg: { width: '100%', height: '100%' },
+  visual: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', rowGap: spacing.md, marginBottom: spacing.xl, alignSelf: 'center' },
+  center: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
+  ringOuter: { backgroundColor: colors.surfaceMint, alignItems: 'center', justifyContent: 'center' },
+  ringInner: { borderWidth: 3, borderColor: colors.accent, overflow: 'hidden' },
   thumbWrap: { alignItems: 'center', gap: 4 },
-  thumb: { width: '100%', aspectRatio: 0.95, borderRadius: radius.md, backgroundColor: colors.surfaceSunken },
+  thumb: { borderRadius: radius.md, backgroundColor: colors.surfaceSunken },
   thumbLabel: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   thumbCheck: { width: 16, height: 16, borderRadius: 8, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
   steps: { backgroundColor: colors.surfaceRaised, borderRadius: radius.lg, padding: spacing.sm, marginBottom: spacing.lg, ...shadow.sm },

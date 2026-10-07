@@ -10,6 +10,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Blob, Button, Icon, IconBadge, InfoPanel, Screen, T } from '../../components/ui';
 import type { AppStackParamList } from '../../navigation/types';
 import { dayKey, progressService } from '../../services/progress/progressService';
+import { useContentWidth } from '../../hooks/useContentWidth';
 import { colors, radius, shadow, spacing } from '../../theme';
 import type { ProgressData, RoutineSlot, SkinImage } from '../../types/api';
 
@@ -35,6 +36,8 @@ export function ProgressTabScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const [data, setData] = useState<ProgressData | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const w = useContentWidth();
+  const photoW = Math.floor((w - spacing.md * 2 - spacing.sm) / 2);
 
   const load = useCallback(() => {
     progressService.get().then(setData).catch(() => setData(null));
@@ -156,8 +159,8 @@ export function ProgressTabScreen() {
           </View>
           {first ? (
             <View style={styles.compare}>
-              <PhotoCard image={first} label={`Start · ${dateLabel(first.created_at)}`} />
-              {latest ? <PhotoCard image={latest} label={`Senast · ${dateLabel(latest.created_at)}`} /> : <View style={styles.photoPlaceholder}><Icon name="camera" size={26} color={colors.inkMuted} /><T variant="caption" muted center>Ta en ny bild var 4:e vecka i samma ljus</T></View>}
+              <PhotoCard image={first} label={`Start · ${dateLabel(first.created_at)}`} width={photoW} />
+              {latest ? <PhotoCard image={latest} label={`Senast · ${dateLabel(latest.created_at)}`} width={photoW} /> : <View style={[styles.photoPlaceholder, { width: photoW, height: Math.round(photoW / 0.85) }]}><Icon name="camera" size={26} color={colors.inkMuted} /><T variant="caption" muted center>Ta en ny bild var 4:e vecka i samma ljus</T></View>}
             </View>
           ) : (
             <T variant="small" muted>Inga bilder ännu. Bilder du laddar upp i analysen eller skickar i chatten samlas här.</T>
@@ -186,10 +189,10 @@ export function ProgressTabScreen() {
   );
 }
 
-function PhotoCard({ image, label }: { image: SkinImage; label: string }) {
+function PhotoCard({ image, label, width }: { image: SkinImage; label: string; width: number }) {
   return (
-    <View style={styles.photoCard}>
-      <Image source={{ uri: image.url ?? undefined }} style={styles.photo} />
+    <View style={[styles.photoCard, { width }]}>
+      <Image source={{ uri: image.url ?? undefined }} style={[styles.photo, { width, height: Math.round(width / 0.85) }]} resizeMode="cover" />
       <T variant="caption" muted center>{label}</T>
     </View>
   );
@@ -219,9 +222,9 @@ const styles = StyleSheet.create({
   legend: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: spacing.sm },
   legendDot: { width: 12, height: 12, borderRadius: 6 },
   compare: { flexDirection: 'row', gap: spacing.sm },
-  photoCard: { flex: 1, gap: 4 },
-  photo: { width: '100%', aspectRatio: 0.85, borderRadius: radius.md, backgroundColor: colors.surfaceSunken },
-  photoPlaceholder: { flex: 1, aspectRatio: 0.85, borderRadius: radius.md, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderControl, alignItems: 'center', justifyContent: 'center', gap: spacing.xs, padding: spacing.sm },
+  photoCard: { gap: 4 },
+  photo: { borderRadius: radius.md, backgroundColor: colors.surfaceSunken },
+  photoPlaceholder: { borderRadius: radius.md, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderControl, alignItems: 'center', justifyContent: 'center', gap: spacing.xs, padding: spacing.sm },
   strip: { marginTop: spacing.sm },
   stripContent: { gap: spacing.sm },
   stripItem: { width: 72, gap: 2 },

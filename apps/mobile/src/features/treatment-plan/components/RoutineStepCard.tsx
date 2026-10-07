@@ -11,6 +11,12 @@ interface Props {
   tone?: 'sun' | 'moon' | 'week';
 }
 
+/** The model occasionally returns the ordinal as the step name; show something meaningful. */
+export function stepLabel(s: RoutineStep): string {
+  const name = (s.step ?? '').trim();
+  return !name || /^(steg\s*)?\d+[.)]?$/i.test(name) ? s.product_type || `Steg ${name}` : name;
+}
+
 /** Horizontal strip of numbered product cards – design screens 13 and 15. */
 export function RoutineStepStrip({ steps, tone = 'sun' }: Props) {
   const badge = tone === 'moon' ? palette.lavender : tone === 'week' ? colors.surfaceMint : colors.surfaceMint;
@@ -22,8 +28,8 @@ export function RoutineStepStrip({ steps, tone = 'sun' }: Props) {
           <View style={styles.card}>
             <View style={[styles.num, { backgroundColor: badge }]}><T variant="caption" color={badgeInk} style={styles.numText}>{i + 1}</T></View>
             <Image source={productImageFor(s.step, s.product_type)} style={styles.img} resizeMode="contain" />
-            <T variant="bodyMedium" center numberOfLines={1}>{s.step}</T>
-            <T variant="caption" muted center numberOfLines={2} style={styles.sub}>{s.product_type}</T>
+            <T variant="bodyMedium" center numberOfLines={1}>{stepLabel(s)}</T>
+            <T variant="caption" muted center numberOfLines={2} style={styles.sub}>{stepLabel(s) === s.product_type ? (s.active_ingredient ?? s.frequency) : s.product_type}</T>
             {s.duration ? (
               <View style={styles.time}>
                 <Icon name={tone === 'moon' ? 'moon' : tone === 'week' ? 'calendar' : 'sun'} size={12} color={tone === 'moon' ? palette.lavenderInk : palette.sunInk} />
@@ -46,7 +52,7 @@ export function RoutineStepList({ steps }: { steps: RoutineStep[] }) {
         <View key={`${s.step}-${i}`} style={[styles.row, i < steps.length - 1 && styles.rowLine]}>
           <View style={styles.rowNum}><T variant="caption" color={colors.inkBrand} style={styles.numText}>{i + 1}</T></View>
           <Image source={productImageFor(s.step, s.product_type)} style={styles.rowImg} resizeMode="contain" />
-          <T variant="small" style={styles.rowLabel} numberOfLines={1}>{s.step}</T>
+          <T variant="small" style={styles.rowLabel} numberOfLines={1}>{stepLabel(s)}</T>
           <Icon name="chevron-right" size={16} color={colors.inkMuted} />
         </View>
       ))}

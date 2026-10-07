@@ -11,6 +11,7 @@ import { DESIGN, IMAGE_SLOTS } from '../../constants/design';
 import type { AppScreenProps } from '../../navigation/types';
 import { profileService } from '../../services/profile/profileService';
 import { imageStorageService } from '../../services/storage/imageStorageService';
+import { useContentWidth } from '../../hooks/useContentWidth';
 import { colors, radius, spacing } from '../../theme';
 import type { FaceCheck, ImageArea, SkinImage } from '../../types/api';
 import { ImagePicker } from './components/ImagePicker';
@@ -68,6 +69,9 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
   };
 
   const hasFront = images.some((i) => i.area === 'face');
+  const w = useContentWidth();
+  const slotW = Math.floor((w - 3 * spacing.sm) / 4);
+  const exW = Math.floor((w - 2 * spacing.md - 3 * spacing.sm) / 4);
 
   if (consent === false) {
     return (
@@ -126,7 +130,7 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
         <View style={styles.slotRow}>
           {IMAGE_SLOTS.map((s) => (
             <View key={s.area} style={styles.slotCol}>
-              <Image source={DESIGN[s.example]} style={styles.exampleImg} />
+              <Image source={DESIGN[s.example]} style={[styles.exampleImg, { width: exW, height: Math.round(exW / 0.82) }]} resizeMode="cover" />
               <T variant="caption" center>{s.label}</T>
             </View>
           ))}
@@ -139,8 +143,8 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
           const img = images.find((i) => i.area === s.area);
           return (
             <View key={s.area} style={styles.slotCol}>
-              <Pressable onPress={() => setSlot(s.area)} accessibilityRole="button" accessibilityLabel={`${s.label}: ${img ? 'byt bild' : 'lägg till bild'}`} style={[styles.slot, img && styles.slotFilled]}>
-                {img?.url ? <Image source={{ uri: img.url }} style={styles.slotImg} /> : <Icon name="camera" size={26} color={colors.inkMuted} />}
+              <Pressable onPress={() => setSlot(s.area)} accessibilityRole="button" accessibilityLabel={`${s.label}: ${img ? 'byt bild' : 'lägg till bild'}`} style={[styles.slot, { width: slotW, height: Math.round(slotW / 0.95) }, img && styles.slotFilled]}>
+                {img?.url ? <Image source={{ uri: img.url }} style={{ width: slotW, height: Math.round(slotW / 0.95) }} resizeMode="cover" /> : <Icon name="camera" size={26} color={colors.inkMuted} />}
                 {img ? <View style={styles.check}><Icon name="check" size={12} color={colors.onPrimary} strokeWidth={3} /></View> : null}
               </Pressable>
               <T variant="caption" muted center>{s.label}</T>
@@ -169,10 +173,9 @@ const styles = StyleSheet.create({
   examples: { backgroundColor: colors.surfaceMint, borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.xl },
   slotRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
   slotCol: { flex: 1, alignItems: 'center', gap: 6 },
-  exampleImg: { width: '100%', aspectRatio: 0.82, borderRadius: radius.md, backgroundColor: colors.surfaceSunken },
-  slot: { width: '100%', aspectRatio: 0.95, borderRadius: radius.md, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderControl, backgroundColor: colors.surfaceRaised, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  exampleImg: { borderRadius: radius.md, backgroundColor: colors.surfaceSunken },
+  slot: { borderRadius: radius.md, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderControl, backgroundColor: colors.surfaceRaised, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   slotFilled: { borderStyle: 'solid', borderColor: colors.accent },
-  slotImg: { width: '100%', height: '100%' },
   check: { position: 'absolute', top: 4, right: 4, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
   tip: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 2 },
   tipDot: { width: 18, height: 18, borderRadius: 9, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },

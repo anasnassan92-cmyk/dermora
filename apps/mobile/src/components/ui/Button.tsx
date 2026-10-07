@@ -24,6 +24,9 @@ export function Button({ title, onPress, variant = 'primary', disabled, loading,
       accessibilityState={{ disabled: isDisabled }}
       onPress={onPress}
       disabled={isDisabled}
+      hitSlop={6}
+      android_ripple={{ color: 'rgba(255,255,255,0.25)', borderless: false }}
+      unstable_pressDelay={0}
       style={({ pressed }) => [
         styles.base,
         styles[variant],
@@ -56,7 +59,7 @@ const styles = StyleSheet.create({
   secondary: { backgroundColor: colors.surfaceMint },
   ghost: { backgroundColor: 'transparent', borderColor: '#B5DFDB' },
   danger: { backgroundColor: colors.danger },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.99 }] },
+  pressed: { opacity: 0.8 },
   disabled: { opacity: 0.5 },
   text: { ...typography.button },
 });

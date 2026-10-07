@@ -58,6 +58,15 @@
           "resizeMode": "contain",
           "backgroundColor": "#F8FCFB"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
       ]
     ],
     "extra": {

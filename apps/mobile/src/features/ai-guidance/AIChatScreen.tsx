@@ -5,7 +5,7 @@
  * and the user can attach a new skin photo for the bot to compare with the first one.
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 import { Blob, Button, Disclaimer, FlowHeader, Icon, Screen, T, type IconName } from '../../components/ui';
@@ -37,6 +37,9 @@ export function AIChatScreen({ navigation, route }: AppScreenProps<'AIChat'>) {
   const [attachment, setAttachment] = useState<{ id: string; uri: string } | null>(null);
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const input = useRef<TextInput>(null);
+  const { width } = useWindowDimensions();
+  const narrow = width < 420;
+  const lastScroll = useRef(0);
 
   useEffect(() => {
     aiService.latestResult(assessmentId).then((r) => setGuidance(r?.result ?? null));
@@ -45,6 +48,13 @@ export function AIChatScreen({ navigation, route }: AppScreenProps<'AIChat'>) {
   }, [assessmentId]);
 
   const scrollToEnd = useCallback(() => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50), []);
+  // While a reply streams in, scroll at most every 400 ms so the list does not jump on every word.
+  const scrollThrottled = useCallback(() => {
+    const t = Date.now();
+    if (t - lastScroll.current < 400) return;
+    lastScroll.current = t;
+    listRef.current?.scrollToEnd({ animated: false });
+  }, []);
 
   const send = async (text: string) => {
     const content = text.trim();
@@ -64,7 +74,10 @@ export function AIChatScreen({ navigation, route }: AppScreenProps<'AIChat'>) {
     try {
       const reply = await aiService.send(assessmentId, content, {
         imageId,
-        onDelta: (partial) => setMessages((m) => m.map((x) => (x.id === streamingId ? { ...x, content: partial } : x))),
+        onDelta: (partial) => {
+          setMessages((m) => m.map((x) => (x.id === streamingId ? { ...x, content: partial } : x)));
+          scrollThrottled();
+        },
       });
       setMessages((m) => m.map((x) => (x.id === streamingId ? { ...reply, created_at: reply.created_at ?? new Date().toISOString() } : x)));
       if (status?.checkin_due) setStatus({ ...status, checkin_due: false });
@@ -137,7 +150,7 @@ export function AIChatScreen({ navigation, route }: AppScreenProps<'AIChat'>) {
       <Bot text={'Hej! Jag heter Dermora, din personliga AI-hudexpert. ✨\n\nJag har analyserat dina bilder och svar, och är redo att hjälpa dig.'} />
       <Bot text="Här är en kort sammanfattning av din hud:" />
       {guidance ? (
-        <View style={styles.profileCard}>
+        <View style={[styles.profileCard, narrow && styles.profileCardNarrow]}>
           <View style={styles.profileHead}>
             <T variant="bodyMedium">Din hudprofil</T>
             <Pressable onPress={() => navigation.navigate('Result', { assessmentId })} accessibilityRole="button" style={styles.detailsLink}>
@@ -146,10 +159,10 @@ export function AIChatScreen({ navigation, route }: AppScreenProps<'AIChat'>) {
             </Pressable>
           </View>
           <View style={styles.profileGrid}>
-            <Fact icon="drop" label="Hudtyp" value={SKIN_LABEL[guidance.skin_type_estimate] ?? guidance.skin_type_estimate} />
-            <Fact icon="face" label="Huvudproblem" value={guidance.primary_concern} />
-            <Fact icon="skin-layers" label="Hudtextur" value={guidance.skin_texture || '–'} />
-            <Fact icon="bubbles" label="Känslighet" value={guidance.sensitivity || '–'} />
+            <Fact icon="drop" label="Hudtyp" value={SKIN_LABEL[guidance.skin_type_estimate] ?? guidance.skin_type_estimate} wide={narrow} />
+            <Fact icon="face" label="Huvudproblem" value={guidance.primary_concern} wide={narrow} />
+            <Fact icon="skin-layers" label="Hudtextur" value={guidance.skin_texture || '–'} wide={narrow} />
+            <Fact icon="bubbles" label="Känslighet" value={guidance.sensitivity || '–'} wide={narrow} />
           </View>
         </View>
       ) : null}
@@ -217,7 +230,8 @@ export function AIChatScreen({ navigation, route }: AppScreenProps<'AIChat'>) {
         contentContainerStyle={styles.list}
         ListHeaderComponent={header}
         ListFooterComponent={footerList}
-        onContentSizeChange={() => messages.length && listRef.current?.scrollToEnd({ animated: false })}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       />
     </Screen>
   );
@@ -235,9 +249,9 @@ function Bot({ text, sub }: { text: string; sub?: string }) {
   );
 }
 
-function Fact({ icon, label, value }: { icon: IconName; label: string; value: string }) {
+function Fact({ icon, label, value, wide }: { icon: IconName; label: string; value: string; wide?: boolean }) {
   return (
-    <View style={styles.fact}>
+    <View style={[styles.fact, wide && styles.factWide]}>
       <View style={styles.factIcon}><Icon name={icon} size={18} color={colors.inkBrand} /></View>
       <View style={styles.factText}>
         <T variant="caption" muted>{label}</T>
@@ -261,10 +275,12 @@ const styles = StyleSheet.create({
   avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surfaceMint },
   botBubble: { flex: 1, backgroundColor: colors.surfaceSunken, borderRadius: radius.lg, borderTopLeftRadius: 6, padding: spacing.md + 2, gap: 4 },
   profileCard: { marginLeft: 48, backgroundColor: colors.surfaceRaised, borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.md, ...shadow.sm },
+  profileCardNarrow: { marginLeft: 0 },
   profileHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
   detailsLink: { flexDirection: 'row', alignItems: 'center' },
   profileGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   fact: { width: '48%', flexDirection: 'row', gap: spacing.sm, alignItems: 'center', backgroundColor: colors.surfaceMint, borderRadius: radius.md, padding: spacing.sm },
+  factWide: { width: '100%' },
   factIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.surfaceRaised, alignItems: 'center', justifyContent: 'center' },
   factText: { flex: 1 },
   factValue: { fontFamily: 'Montserrat-Medium' },

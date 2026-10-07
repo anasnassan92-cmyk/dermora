@@ -7,12 +7,16 @@ import { Blob, FlowFooter, FlowHeader, Icon, InfoPanel, Screen, T } from '../../
 import { IMAGE_SLOTS } from '../../constants/design';
 import type { AppScreenProps } from '../../navigation/types';
 import { imageStorageService } from '../../services/storage/imageStorageService';
+import { useContentWidth } from '../../hooks/useContentWidth';
 import { colors, radius, shadow, spacing } from '../../theme';
 import type { SkinImage } from '../../types/api';
 
 export function ImageReviewScreen({ navigation, route }: AppScreenProps<'ImageReview'>) {
   const { assessmentId } = route.params;
   const [images, setImages] = useState<SkinImage[]>([]);
+  const w = useContentWidth();
+  const imgW = Math.floor((w - spacing.sm) / 2) - spacing.sm * 2;
+  const imgH = Math.round(imgW / 1.05);
 
   useFocusEffect(
     useCallback(() => {
@@ -55,7 +59,7 @@ export function ImageReviewScreen({ navigation, route }: AppScreenProps<'ImageRe
               </View>
               {img?.url ? (
                 <View>
-                  <Image source={{ uri: img.url }} style={styles.img} />
+                  <Image source={{ uri: img.url }} style={[styles.img, { width: imgW, height: imgH }]} resizeMode="cover" />
                   <View style={styles.actions}>
                     <Pressable onPress={() => navigation.navigate('ImageUpload', { assessmentId })} style={styles.action} accessibilityRole="button" accessibilityLabel={`Byt bild: ${s.label}`}>
                       <Icon name="edit" size={16} color={colors.ink} />
@@ -66,7 +70,7 @@ export function ImageReviewScreen({ navigation, route }: AppScreenProps<'ImageRe
                   </View>
                 </View>
               ) : (
-                <Pressable onPress={() => navigation.navigate('ImageUpload', { assessmentId })} style={styles.empty} accessibilityRole="button" accessibilityLabel={`Lägg till: ${s.label}`}>
+                <Pressable onPress={() => navigation.navigate('ImageUpload', { assessmentId })} style={[styles.empty, { width: imgW, height: imgH }]} accessibilityRole="button" accessibilityLabel={`Lägg till: ${s.label}`}>
                   <Icon name="plus" size={26} color={colors.inkBrand} />
                 </Pressable>
               )}
@@ -97,10 +101,10 @@ const styles = StyleSheet.create({
   cellHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 4, paddingBottom: spacing.sm },
   status: { width: 22, height: 22, borderRadius: 11, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
   statusWarn: { backgroundColor: colors.attention },
-  img: { width: '100%', aspectRatio: 1.05, borderRadius: radius.md, backgroundColor: colors.surfaceSunken },
+  img: { borderRadius: radius.md, backgroundColor: colors.surfaceSunken },
   actions: { position: 'absolute', right: 6, bottom: 6, flexDirection: 'row', gap: 6 },
   action: { width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.92)', alignItems: 'center', justifyContent: 'center' },
-  empty: { width: '100%', aspectRatio: 1.05, borderRadius: radius.md, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderControl, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceMint },
+  empty: { borderRadius: radius.md, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderControl, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceMint },
   checklist: { marginTop: spacing.sm, gap: 6 },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   checkDot: { width: 18, height: 18, borderRadius: 9, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
