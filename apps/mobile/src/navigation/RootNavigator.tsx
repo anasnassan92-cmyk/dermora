@@ -11,6 +11,7 @@ import { WelcomeScreen } from '../features/auth/WelcomeScreen';
 import { LoginScreen } from '../features/auth/LoginScreen';
 import { RegisterScreen } from '../features/auth/RegisterScreen';
 import { VerifyEmailScreen } from '../features/auth/VerifyEmailScreen';
+import { ForgotPasswordScreen } from '../features/auth/ForgotPasswordScreen';
 import { ProfileScreen } from '../features/profile/ProfileScreen';
 import { EditProfileScreen } from '../features/profile/EditProfileScreen';
 import { ProfileSetupScreen } from '../features/profile/ProfileSetupScreen';
@@ -99,6 +100,7 @@ export function RootNavigator() {
           <AuthStack.Screen name="Login" component={LoginScreen} />
           <AuthStack.Screen name="Register" component={RegisterScreen} />
           <AuthStack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
+          <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         </AuthStack.Navigator>
       ) : !session.emailVerified ? (
         <AuthStack.Navigator screenOptions={stackOptions}>

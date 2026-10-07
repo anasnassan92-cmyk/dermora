@@ -160,6 +160,24 @@ export const authService = {
     await rememberDevCode(r.dev_code);
   },
 
+  /** Forgot password step 1: the server e-mails a 6-digit code (demo mode: it is written to the server log). */
+  async forgotPassword(email: string): Promise<{ demo: boolean }> {
+    if (USE_MOCK_API) return { demo: true };
+    const r = await post<{ ok: boolean; demo: boolean }>('/auth/forgot', { email: email.trim().toLowerCase() });
+    return { demo: !!r.demo };
+  },
+
+  /** Forgot password step 2: code + new password → signed in and verified. */
+  async resetPassword(email: string, code: string, password: string): Promise<void> {
+    if (!/^\d{6}$/.test(code)) throw new Error('Ange de sex siffrorna från mejlet.');
+    if (USE_MOCK_API) {
+      await save({ userId: DEV_USER_ID, email: email.trim().toLowerCase(), emailVerified: true, accessToken: `dev:${DEV_USER_ID}` });
+      return;
+    }
+    const r = await post<{ token: string; user: ServerUser }>('/auth/reset', { email: email.trim().toLowerCase(), code, password });
+    await save(toSession(r.token, r.user));
+  },
+
   async signIn(email: string, password: string): Promise<Session> {
     if (USE_MOCK_API) {
       const session: Session = { userId: DEV_USER_ID, email, emailVerified: true, accessToken: `dev:${DEV_USER_ID}` };

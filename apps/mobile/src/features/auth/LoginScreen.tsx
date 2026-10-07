@@ -53,6 +53,9 @@ export function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
       </View>
       <Input label="E-postadress" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" autoComplete="email" />
       <Input label="Lösenord" value={password} onChangeText={setPassword} secureTextEntry autoComplete="password" error={error} />
+      <T variant="small" color={colors.inkBrand} style={styles.forgot} onPress={() => navigation.navigate('ForgotPassword', { email: email.trim() || undefined })} accessibilityRole="link">
+        Glömt lösenord?
+      </T>
       <Button title="Logga in  →" onPress={submit} loading={loading} />
       <View style={styles.row}>
         <T variant="small" muted>Ny här? </T>
@@ -68,5 +71,6 @@ const styles = StyleSheet.create({
   or: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginVertical: spacing.xl },
   orLine: { flex: 1, height: 1, backgroundColor: colors.line },
   row: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xl },
+  forgot: { alignSelf: 'flex-end', marginTop: -spacing.sm, marginBottom: spacing.lg },
   mock: { marginTop: spacing.lg },
 });
