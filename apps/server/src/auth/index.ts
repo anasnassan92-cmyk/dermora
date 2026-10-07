@@ -119,7 +119,9 @@ export function requireUser(opts: { verified?: boolean } = { verified: true }) {
 const CODE_TTL_MIN = 15;
 const MAX_ATTEMPTS = 5;
 
-export async function createEmailCode(userId: string, purpose: 'verify' | 'login' = 'verify'): Promise<string> {
+export type CodePurpose = 'verify' | 'login' | 'reset';
+
+export async function createEmailCode(userId: string, purpose: CodePurpose = 'verify'): Promise<string> {
   const code = String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
   const db = getDb();
   await db.run('DELETE FROM email_codes WHERE user_id = ? AND purpose = ?', [userId, purpose]);
@@ -134,7 +136,7 @@ export async function createEmailCode(userId: string, purpose: 'verify' | 'login
   return code;
 }
 
-export async function checkEmailCode(userId: string, code: string, purpose: 'verify' | 'login' = 'verify'): Promise<void> {
+export async function checkEmailCode(userId: string, code: string, purpose: CodePurpose = 'verify'): Promise<void> {
   const db = getDb();
   const row = await db.get<{ id: string; code_hash: string; attempts: number; expires_at: string }>(
     'SELECT id, code_hash, attempts, expires_at FROM email_codes WHERE user_id = ? AND purpose = ?',

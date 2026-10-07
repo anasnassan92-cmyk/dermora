@@ -30,6 +30,7 @@ import {
   verifyGoogleIdToken,
   type UserRow,
 } from '../auth/index.js';
+import { features } from '../config.js';
 import { getDb, now } from '../db/index.js';
 import { sendCode } from '../services/mailer.js';
 
@@ -90,6 +91,33 @@ authRouter.post('/resend', rateLimit(5, 15 * 60_000), requireUser({ verified: fa
   const code = await createEmailCode(user.id);
   const devCode = await sendCode(user.email, code, user.first_name);
   res.json({ sent: !devCode, dev_code: devCode ?? undefined });
+});
+
+/** Forgot password: always 200 so e-mail addresses cannot be probed. The 6-digit code is e-mailed (or logged in demo mode). */
+authRouter.post('/forgot', rateLimit(5, 15 * 60_000), async (req, res) => {
+  const { email } = z.object({ email: z.string().trim().toLowerCase().email('Ange en giltig e-postadress.') }).parse(req.body);
+  const user = await findUserByEmail(email);
+  if (user) {
+    const code = await createEmailCode(user.id, 'reset');
+    await sendCode(user.email, code, user.first_name, 'reset');
+  }
+  res.json({ ok: true, demo: !features.email });
+});
+
+/** Reset: code + new password → signed in. Also marks the e-mail as verified (the code proves ownership). */
+authRouter.post('/reset', rateLimit(10, 15 * 60_000), async (req, res) => {
+  const { email, code, password } = z
+    .object({ email: z.string().trim().toLowerCase().email(), code: z.string().regex(/^\d{6}$/, 'Ange de sex siffrorna.'), password: z.string() })
+    .parse(req.body);
+  const problem = passwordProblem(password);
+  if (problem) throw new HttpError(422, problem);
+  const user = await findUserByEmail(email);
+  if (!user) throw new HttpError(400, 'Fel kod eller e-postadress.');
+  await checkEmailCode(user.id, code, 'reset');
+  await getDb().run('UPDATE users SET password_hash = ?, email_verified = 1, last_login_at = ? WHERE id = ?', [await hashPassword(password), now(), user.id]);
+  const fresh = (await findUserById(user.id))!;
+  const authUser = toAuthUser(fresh);
+  res.json({ token: signAppToken(authUser), user: userOut(fresh) });
 });
 
 authRouter.post('/login', rateLimit(20, 15 * 60_000), async (req, res) => {

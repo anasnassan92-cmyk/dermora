@@ -6,6 +6,7 @@ export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
   VerifyEmail: { email: string };
+  ForgotPassword: { email?: string } | undefined;
 };
 
 /** Screens after login. One stack for the MVP journey + tabs (Hem, Skanna, Framsteg, Profil). */
