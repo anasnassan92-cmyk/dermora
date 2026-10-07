@@ -29,7 +29,7 @@
 | Mobilapp | `apps/mobile` – React Native + Expo SDK 57 + TypeScript; körs även som webbapp |
 | Backend + adminpanel | `apps/server` – Node.js 24 + Express 5 + TypeScript. Egen auth (e-postkoder, JWT), Gemini-chatbot, bildhantering, GDPR-radering, adminpanel på `/admin` |
 | Databas | MySQL på Hostinger (`DB_*`), SQLite lokalt och i tester – samma migrationer |
-| AI | Google Gemini (strukturerad JSON-analys + chat) med modell-fallback; mock-läge utan nyckel |
+| AI | Google Gemini: `gemini-2.5-pro` med tankebudget för analysen, `gemini-flash-latest` för chatten, svensk kunskapsbas (BM25-RAG), minne per användare, uppföljning, bildjämförelse i chatten, streaming, följdfrågor och betyg; mock-läge utan nyckel |
 | Legacy | `legacy/` – den första FastAPI + Supabase-prototypen (körs inte längre) |
 
 ## Användarresan (MVP)
@@ -116,6 +116,7 @@ Profilerna i `apps/mobile/eas.json` sätter `EXPO_PUBLIC_API_URL` till den live-
 | [docs/08-figma-import.md](docs/08-figma-import.md) | Designen i Figma |
 | [docs/09-setup-and-requirements.md](docs/09-setup-and-requirements.md) | Konton, nycklar, kostnader, checklista |
 | [docs/10-presentation-notes.md](docs/10-presentation-notes.md) | Talmanus och demo-flöde för redovisningen |
+| [docs/11-chatbot-and-apk.md](docs/11-chatbot-and-apk.md) | Chatbotens expertläge (kunskapsbas, minne, streaming), Framsteg, APK-bygge, Google-inloggning, SMTP |
 
 ## Skärmdumpar
 
