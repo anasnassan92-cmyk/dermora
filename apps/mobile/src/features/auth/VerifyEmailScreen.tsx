@@ -1,6 +1,6 @@
 /** Design screen 03 – Verifiera din e-post (6-siffrig kod). Owner: Anas. */
 import React, { useEffect, useRef, useState } from 'react';
-import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Image, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Blob, Button, FlowHeader, Screen, T } from '../../components/ui';
 import { DESIGN } from '../../constants/design';
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   box: { width: 48, height: 64, borderRadius: radius.md, backgroundColor: colors.surfaceRaised, borderWidth: 1.5, borderColor: colors.line, alignItems: 'center', justifyContent: 'center', ...shadow.sm },
   boxActive: { borderColor: colors.accent },
   digit: { marginBottom: 0 },
-  overlayInput: { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, color: 'transparent', backgroundColor: 'transparent', ...typography.body, fontSize: 1, letterSpacing: 0, textAlign: 'center' },
+  overlayInput: { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, color: 'transparent', backgroundColor: 'transparent', ...typography.body, fontSize: 1, letterSpacing: 0, textAlign: 'center', ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : {}) },
   resendRow: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
   mock: { marginBottom: spacing.md },
   cta: { marginTop: spacing.md },
