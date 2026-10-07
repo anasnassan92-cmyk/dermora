@@ -5,7 +5,10 @@
 /** Base URL of the Dermora server API, e.g. "/api" (same site) or "http://192.168.1.20:4000/api". */
 export const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? '').replace(/\/$/, '');
 
-export const USE_MOCK_API = API_URL.length === 0;
+/** Web only: ?preview=<Screen> renders one screen with seeded demo data (design review, Figma import). */
+export const PREVIEW_MODE = typeof window !== 'undefined' && !!window.location && new URLSearchParams(window.location.search).has('preview');
+
+export const USE_MOCK_API = API_URL.length === 0 || PREVIEW_MODE;
 export const USE_MOCK_AUTH = USE_MOCK_API;
 
 export const APP_NAME = 'Dermora';

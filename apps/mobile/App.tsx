@@ -42,8 +42,8 @@ export default function App() {
 
   if (!fontsLoaded) return null;
 
-  // DEV ONLY: ?preview=<Screen> renders one screen with seeded mock data (screenshots / design review)
-  const preview = __DEV__ && Platform.OS === 'web' ? getPreviewParams() : null;
+  // Web: ?preview=<Screen> renders one screen with seeded mock data (screenshots, design review, Figma import)
+  const preview = Platform.OS === 'web' ? getPreviewParams() : null;
   if (preview) {
     return (
       <SafeAreaProvider>
