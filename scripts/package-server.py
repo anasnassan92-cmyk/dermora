@@ -4,7 +4,7 @@
   apps/mobile → expo export (API at /api)   ─┼─► dermora-deploy/public/
   apps/server (src, package.json, lockfile) ─┴─► dermora-deploy/
 
-Usage:  apps/api/.venv/Scripts/python scripts/package-server.py [--no-export]
+Usage:  legacy/api/.venv/Scripts/python scripts/package-server.py [--no-export]
 Output: dist/dermora-deploy.zip
 
 Rules from earlier Hostinger deploys (see the hostinger-nodejs-deploy notes):

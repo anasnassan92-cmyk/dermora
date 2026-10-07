@@ -1,5 +1,8 @@
 # 03 · Databas, auth och bildlagring
 
+> **Obs (2026-10):** detta dokument skrevs för den första prototypen (FastAPI + Supabase, nu i `legacy/`). Produktionen kör `apps/server` (Node.js/Express + MySQL på Hostinger). Principerna gäller, men filvägar, endpoints och tabeller finns i `apps/server/src/`.
+
+
 Ägare: **Assad** (backend + databas), auth-delen tillsammans med **Anas**.
 Källa: [`supabase/schema.sql`](../supabase/schema.sql). Kör den i Supabase SQL-editor.
 
