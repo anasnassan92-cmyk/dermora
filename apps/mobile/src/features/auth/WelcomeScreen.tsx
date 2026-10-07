@@ -2,6 +2,8 @@
 import React from 'react';
 import { Image, StyleSheet, View, useWindowDimensions } from 'react-native';
 
+import { useContentWidth } from '../../hooks/useContentWidth';
+
 import { Button, Screen, T } from '../../components/ui';
 import { DESIGN } from '../../constants/design';
 import type { AuthScreenProps } from '../../navigation/types';
@@ -9,11 +11,13 @@ import { colors, radius, spacing } from '../../theme';
 
 export function WelcomeScreen({ navigation }: AuthScreenProps<'Welcome'>) {
   const { height } = useWindowDimensions();
-  // The portrait is 800×698; show it uncropped but never taller than ~38 % of the screen.
+  const w = useContentWidth();
+  // The portrait is 800×698. Explicit pixel size (Android ignores % + aspectRatio for images), capped at ~36 % of the screen.
+  const h = Math.min(Math.round(w / (800 / 698)), Math.max(220, Math.round(height * 0.36)));
   return (
     <Screen>
-      <View style={[styles.portraitWrap, { maxHeight: Math.max(220, height * 0.38) }]}>
-        <Image source={DESIGN['welcome-portrait']} style={styles.portrait} resizeMode="cover" accessibilityIgnoresInvertColors />
+      <View style={[styles.portraitWrap, { width: w, height: h }]}>
+        <Image source={DESIGN['welcome-portrait']} style={{ width: w, height: h }} resizeMode="cover" accessibilityIgnoresInvertColors />
       </View>
       <View style={styles.logo}>
         <Image source={require('../../../assets/logo/symbol.png')} style={styles.symbol} resizeMode="contain" />
@@ -35,8 +39,7 @@ export function WelcomeScreen({ navigation }: AuthScreenProps<'Welcome'>) {
 }
 
 const styles = StyleSheet.create({
-  portraitWrap: { width: '100%', borderRadius: radius.xl, overflow: 'hidden', backgroundColor: colors.surfaceMint, marginBottom: spacing.lg, alignSelf: 'center' },
-  portrait: { width: '100%', aspectRatio: 800 / 698 },
+  portraitWrap: { borderRadius: radius.xl, overflow: 'hidden', backgroundColor: colors.surfaceMint, marginBottom: spacing.lg, alignSelf: 'center' },
   logo: { alignItems: 'center', marginBottom: spacing.lg },
   symbol: { width: 56, height: 48 },
   wordmark: { marginTop: spacing.xs, marginBottom: 0 },

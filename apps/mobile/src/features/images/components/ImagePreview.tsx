@@ -2,6 +2,7 @@ import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 
 import { Button, Card, T } from '../../../components/ui';
+import { useContentWidth } from '../../../hooks/useContentWidth';
 import { colors, radius, spacing } from '../../../theme';
 import type { FaceCheck } from '../../../types/api';
 
@@ -15,10 +16,11 @@ interface Props {
 }
 
 export function ImagePreview({ uri, check, checking, onRetake, onUse, uploading }: Props) {
+  const w = useContentWidth();
   const bad = check && !check.ok;
   return (
     <View>
-      <Image source={{ uri }} style={styles.image} accessibilityLabel="Förhandsvisning av din bild" />
+      <Image source={{ uri }} style={[styles.image, { width: w, height: Math.round(w / 0.75) }]} resizeMode="cover" accessibilityLabel="Förhandsvisning av din bild" />
       {checking ? (
         <T variant="small" muted center mb="lg">Kontrollerar bildkvalitet …</T>
       ) : bad ? (
@@ -40,6 +42,6 @@ export function ImagePreview({ uri, check, checking, onRetake, onUse, uploading 
 }
 
 const styles = StyleSheet.create({
-  image: { width: '100%', aspectRatio: 3 / 4, borderRadius: radius.lg, marginBottom: spacing.lg, backgroundColor: colors.surfaceSunken },
+  image: { borderRadius: radius.lg, marginBottom: spacing.lg, backgroundColor: colors.surfaceSunken, alignSelf: 'center' },
   gap: { marginTop: spacing.md },
 });

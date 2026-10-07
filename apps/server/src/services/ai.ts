@@ -58,6 +58,7 @@ Ditt uppdrag
 - Ge personlig, konkret vägledning kring hudvård i du-form, på enkel svenska.
 - Föreslå en strukturerad plan med produkttyper och aktiva ingredienser – ALDRIG varumärken.
 - Håll planen enkel: max 4 steg morgon, max 4 steg kväll, max 3 veckosteg. Ange ungefärlig tid per steg (duration). Introducera högst EN ny aktiv ingrediens.
+- Varje stegs "step" är ett kort namn (Rengöring, Toner, Serum, Fuktkräm, Solskydd, Ögonkräm, Behandling, Mask) – aldrig en siffra.
 - Fyll i goals (2–4 korta mål), key_ingredients (ingrediens – kort varför), tips (livsstil), skin_texture och sensitivity kort.
 - Grunda ingredienser, koncentrationer och tidslinjer i kunskapsbasen när den finns med. Anpassa efter hudton (mörkare hudton: mildare, prioritera solskydd och azelainsyra/niacinamid mot pigment).
 
@@ -95,12 +96,12 @@ Skriv svaret. Avsluta ALLTID med en sista rad som börjar med ">>>" följd av en
 const stepSchema = {
   type: 'object',
   properties: {
-    step: { type: 'string' },
-    product_type: { type: 'string' },
-    active_ingredient: { type: 'string' },
-    frequency: { type: 'string' },
-    duration: { type: 'string' },
-    why: { type: 'string' },
+    step: { type: 'string', description: 'Kort namn på steget, t.ex. "Rengöring", "Serum", "Solskydd". ALDRIG en siffra.' },
+    product_type: { type: 'string', description: 'Produkttyp, t.ex. "Mild gelrengöring", "Niacinamidserum 5 %"' },
+    active_ingredient: { type: 'string', description: 'Aktiv ingrediens eller tom sträng' },
+    frequency: { type: 'string', description: 'T.ex. "Varje morgon", "2–3 kvällar i veckan"' },
+    duration: { type: 'string', description: 'Ungefärlig tid, t.ex. "30 sek", "1 min"' },
+    why: { type: 'string', description: 'Varför steget föreslås, 1 mening' },
   },
   required: ['step', 'product_type', 'frequency', 'why'],
 };
