@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 
 import { checkPassword, findUserByEmail, findUserById, signFileToken, toAuthUser } from '../auth/index.js';
 import { config, features } from '../config.js';
+import { knowledgeSize } from '../services/knowledge.js';
 import { getDb, parseJson } from '../db/index.js';
 import { deleteUserEverything } from '../routes/app.js';
 import { loadQuestionnaire } from '../services/questionnaire.js';
@@ -157,6 +158,9 @@ adminRouter.get('/users/:id', async (req, res) => {
   const ai = await db.all<Record<string, unknown>>('SELECT * FROM ai_assessments WHERE user_id = ? ORDER BY created_at DESC', [id]);
   const plans = await db.all<Record<string, unknown>>('SELECT * FROM treatment_plans WHERE user_id = ? ORDER BY created_at DESC', [id]);
   const chats = await db.all<Record<string, unknown>>('SELECT * FROM chat_messages WHERE user_id = ? ORDER BY created_at, id', [id]);
+  const memory = await db.get<{ summary: string | null }>('SELECT summary FROM user_memory WHERE user_id = ?', [id]);
+  const routineCount = Number((await db.get<{ n: number }>('SELECT COUNT(*) AS n FROM routine_logs WHERE user_id = ? AND done = 1', [id]))?.n ?? 0);
+  const lastLog = await db.get<{ day: string; slot: string }>('SELECT day, slot FROM routine_logs WHERE user_id = ? ORDER BY day DESC LIMIT 1', [id]);
   const area: Record<string, string> = { face: 'Framifrån', left: 'Vänster', right: 'Höger', closeup: 'Närbild', other: 'Annat' };
   const body = `<h1>${esc([u.first_name, u.last_name].filter(Boolean).join(' ') || u.email)}</h1>
   <div class="grid"><div class="card"><b>E-post</b><br>${esc(u.email)}</div><div class="card"><b>Verifierad</b><br>${yes(u.email_verified)}</div>
@@ -164,7 +168,9 @@ adminRouter.get('/users/:id', async (req, res) => {
   <h2>Profil</h2><div class="row">${p ? ['age_range', 'gender', 'country', 'skin_tone', 'skin_type'].map((k) => `<span class="pill">${k}: ${esc(p[k] ?? '–')}</span>`).join('') + ` <span class="pill ${Number(p.consent_images) ? 'ok' : 'warn'}">Bildsamtycke: ${Number(p.consent_images) ? 'ja' : 'nej'}</span>` : '–'}</div>
   <h2>Bilder (${images.length})</h2><div class="thumbs">${images.map((i) => `<figure><img src="/api/images/${esc(i.id)}/file?t=${signFileToken(id, String(i.id))}" alt=""><figcaption class="muted">${area[String(i.area)] ?? esc(i.area)}</figcaption></figure>`).join('') || '<span class="muted">Inga bilder.</span>'}</div>
   <h2>AI-analyser (${ai.length})</h2>${ai.map((r) => { const g = parseJson<Record<string, unknown>>(r.result, {}); return `<div class="card" style="margin-bottom:10px"><div class="row"><b>${esc(g.primary_concern)}</b><span class="pill">${esc(r.provider)} · ${esc(r.model)}</span>${Number(r.seek_care) ? '<span class="pill bad">Vårdsignal</span>' : ''}<span class="muted">${date(r.created_at)}</span></div><p>${esc(g.guidance)}</p>${(g.red_flags as string[] | undefined)?.length ? `<p><b>Röda flaggor:</b> ${(g.red_flags as string[]).map(esc).join('; ')}</p>` : ''}<details><summary>Hela resultatet (JSON)</summary><pre>${esc(JSON.stringify(g, null, 2))}</pre></details></div>`; }).join('') || '<span class="muted">Inga analyser.</span>'}
-  <h2>Chatt (${chats.length})</h2><div class="chat">${chats.map((m) => `<div class="msg ${esc(m.role)}">${esc(m.content)}</div>`).join('') || '<span class="muted">Ingen chatt.</span>'}</div>
+  <h2>Minnesanteckningar (chatbot)</h2><p class="muted" style="white-space:pre-wrap">${esc(memory?.summary ?? '') || 'Inga ännu – skapas efter några chattmeddelanden.'}</p>
+  <h2>Rutinlogg (Framsteg)</h2><p class="muted">${routineCount} loggade tillfällen${lastLog ? `, senast ${esc(lastLog.day)} (${esc(lastLog.slot)})` : ''}.</p>
+  <h2>Chatt (${chats.length})</h2><div class="chat">${chats.map((m) => `<div class="msg ${esc(m.role)}">${esc(m.content)}${m.rating === 1 ? ' 👍' : m.rating === -1 ? ' 👎' : ''}</div>`).join('') || '<span class="muted">Ingen chatt.</span>'}</div>
   <h2>Planer (${plans.length})</h2><table><tr><th>Titel</th><th>Status</th><th>Skapad</th></tr>${plans.map((pl) => `<tr><td>${esc(pl.title)}</td><td><span class="pill ${pl.status === 'confirmed' ? 'ok' : ''}">${esc(pl.status)}</span></td><td>${date(pl.created_at)}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">Inga planer.</td></tr>'}</table>
   <h2>Svar på frågeformuläret</h2>${assessments.map((a) => `<details class="card" style="margin-bottom:8px"><summary>${date(a.created_at)} · <span class="pill">${esc(a.status)}</span></summary><pre>${esc(JSON.stringify(parseJson(a.answers, {}), null, 2))}</pre></details>`).join('') || '<span class="muted">Inga bedömningar.</span>'}
   <h2>GDPR</h2><form method="post" action="/admin/users/${esc(id)}/delete" onsubmit="return confirm('Radera användaren och ALL data permanent?')"><button class="btn danger">Radera användare och all data</button></form>`;
@@ -180,10 +186,17 @@ adminRouter.post('/users/:id/delete', async (req, res) => {
 
 adminRouter.get('/chats', async (_req, res) => {
   const rows = await getDb().all<Record<string, unknown>>(
-    'SELECT m.role, m.content, m.created_at, m.user_id, u.email FROM chat_messages m JOIN users u ON u.id = m.user_id ORDER BY m.created_at DESC LIMIT 150',
+    'SELECT m.role, m.content, m.created_at, m.user_id, m.rating, m.feedback, m.meta, u.email FROM chat_messages m JOIN users u ON u.id = m.user_id ORDER BY m.created_at DESC LIMIT 150',
   );
-  const body = `<h1>Senaste chattmeddelanden</h1><table><tr><th>Tid</th><th>Användare</th><th>Roll</th><th>Meddelande</th></tr>
-  ${rows.map((m) => `<tr><td>${date(m.created_at)}</td><td><a href="/admin/users/${esc(m.user_id)}">${esc(m.email)}</a></td><td><span class="pill ${m.role === 'user' ? '' : 'ok'}">${m.role === 'user' ? 'Användare' : 'Dermora AI'}</span></td><td style="white-space:pre-wrap">${esc(String(m.content).slice(0, 400))}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">Inga meddelanden.</td></tr>'}</table>`;
+  const stats = await getDb().get<{ up: number; down: number; total: number }>(
+    "SELECT SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) AS up, SUM(CASE WHEN rating = -1 THEN 1 ELSE 0 END) AS down, COUNT(*) AS total FROM chat_messages WHERE role = 'assistant'",
+  );
+  const ratingCell = (m: Record<string, unknown>) =>
+    m.role !== 'assistant' ? '' : m.rating === 1 ? '<span class="pill ok">👍</span>' : m.rating === -1 ? `<span class="pill warn">👎</span>${m.feedback ? ` <span class="muted">${esc(m.feedback)}</span>` : ''}` : '<span class="muted">–</span>';
+  const body = `<h1>Senaste chattmeddelanden</h1>
+  <p class="muted">AI-svar: ${Number(stats?.total ?? 0)} · 👍 ${Number(stats?.up ?? 0)} · 👎 ${Number(stats?.down ?? 0)}. Modell och använda kunskapsavsnitt visas under varje svar.</p>
+  <table><tr><th>Tid</th><th>Användare</th><th>Roll</th><th>Meddelande</th><th>Betyg</th></tr>
+  ${rows.map((m) => { const meta = parseJson<{ model?: string; sources?: string[] }>(m.meta as string | null, {}); return `<tr><td>${date(m.created_at)}</td><td><a href="/admin/users/${esc(m.user_id)}">${esc(m.email)}</a></td><td><span class="pill ${m.role === 'user' ? '' : 'ok'}">${m.role === 'user' ? 'Användare' : 'Dermora AI'}</span></td><td style="white-space:pre-wrap">${esc(String(m.content).slice(0, 400))}${meta.model || meta.sources?.length ? `<div class="muted" style="font-size:12px;margin-top:4px">${esc(meta.model ?? '')}${meta.sources?.length ? ` · källor: ${meta.sources.map(esc).join(', ')}` : ''}</div>` : ''}</td><td>${ratingCell(m)}</td></tr>`; }).join('') || '<tr><td colspan="5" class="muted">Inga meddelanden.</td></tr>'}</table>`;
   res.type('html').send(layout('Chattar', body, '/admin/chats'));
 });
 
@@ -218,7 +231,8 @@ adminRouter.get('/questionnaire', (_req, res) => {
 adminRouter.get('/system', (_req, res) => {
   const rows = [
     ['Databas', getDb().driver === 'mysql' ? `MySQL (${esc(config.db.name)})` : 'SQLite (lokal utveckling)'],
-    ['AI-provider', features.ai === 'gemini' ? `Gemini · ${esc(config.gemini.model)}` : 'Demo (sätt GEMINI_API_KEY)'],
+    ['AI-provider', features.ai === 'gemini' ? `Gemini · analys: ${esc(config.gemini.analysisModel)} (tänkbudget ${config.gemini.analysisThinking}) · chat: ${esc(config.gemini.chatModel)} · reserv: ${esc(config.gemini.fallbackModels.join(', '))}` : 'Demo (sätt GEMINI_API_KEY)'],
+    ['Kunskapsbas', `${knowledgeSize()} avsnitt (apps/server/src/data/knowledge/*.md) – hämtas med BM25 till varje analys och chattsvar`],
     ['Bildkontroll', features.vision ? 'Google Cloud Vision' : 'Lokal skärpa/ljus (sätt GOOGLE_VISION_API_KEY)'],
     ['E-post (SMTP)', features.email ? `${esc(config.smtp.host)} som ${esc(config.smtp.from)}` : 'Demo – koden visas på skärmen (sätt SMTP_USER + SMTP_PASS)'],
     ['Google-inloggning', features.google ? 'Aktiv' : 'Inte konfigurerad (sätt GOOGLE_CLIENT_ID)'],

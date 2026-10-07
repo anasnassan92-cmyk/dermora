@@ -59,12 +59,20 @@ export const config = {
     .filter(Boolean),
   gemini: {
     apiKey: setting('GEMINI_API_KEY'),
-    model: setting('GEMINI_MODEL') || 'gemini-flash-latest',
-    // Tried in order when the main model is overloaded (503/429) or unknown (404).
-    fallbackModels: (setting('GEMINI_FALLBACK_MODELS') || 'gemini-flash-lite-latest,gemini-2.5-flash,gemini-2.5-flash-lite')
+    /** Analysis (images + structured JSON): the strongest model first, with thinking. */
+    analysisModel: setting('GEMINI_ANALYSIS_MODEL') || setting('GEMINI_MODEL') || 'gemini-2.5-pro',
+    /** Chat: fast model, low latency. */
+    chatModel: setting('GEMINI_CHAT_MODEL') || 'gemini-flash-latest',
+    /** Kept for the admin page and older code paths. */
+    model: setting('GEMINI_ANALYSIS_MODEL') || setting('GEMINI_MODEL') || 'gemini-2.5-pro',
+    // Tried in order when a model is overloaded (503/429), unavailable for the key (404) or too slow.
+    fallbackModels: (setting('GEMINI_FALLBACK_MODELS') || 'gemini-2.5-flash,gemini-flash-latest,gemini-flash-lite-latest,gemini-2.5-flash-lite')
       .split(',')
       .map((m) => m.trim())
       .filter(Boolean),
+    /** Thinking budgets (tokens). 0 = off. Analysis benefits from reasoning; chat stays snappy. */
+    analysisThinking: Number(setting('GEMINI_ANALYSIS_THINKING') || 2048),
+    chatThinking: Number(setting('GEMINI_CHAT_THINKING') || 0),
   },
   visionApiKey: setting('GOOGLE_VISION_API_KEY'),
   googleClientId: setting('GOOGLE_CLIENT_ID'),
