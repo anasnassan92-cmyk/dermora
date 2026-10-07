@@ -120,6 +120,41 @@ const beta = table('beta_signups', [ID, STR('email', 190, false), STR('source', 
 
 const all = [users, codes, profiles, assessments, images, ai, chats, plans, beta];
 
+// v2 – chatbot upgrade: feedback + metadata on messages, per-user memory, routine log for "Framsteg"
+const memory = table('user_memory', [
+  ['user_id', 'CHAR(36) NOT NULL PRIMARY KEY', 'TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE'],
+  TXT('summary'),
+  INT('turns', 0),
+  TS('updated_at'),
+], ['CONSTRAINT fk_memory_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE']);
+
+const routineLogs = table('routine_logs', [
+  ID,
+  USER_FK,
+  STR('day', 10, false), // YYYY-MM-DD (local day chosen by the app)
+  STR('slot', 10, false), // morning | evening | weekly
+  INT('done', 1),
+  TXT('note'),
+  TS('created_at'),
+], ['UNIQUE KEY routine_day (user_id, day, slot)', 'CONSTRAINT fk_routine_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE'], ['UNIQUE (user_id, day, slot)']);
+
 export const MIGRATIONS: { version: number; mysql: string[]; sqlite: string[] }[] = [
   { version: 1, mysql: all.map((t) => t.my), sqlite: all.map((t) => t.sq) },
+  {
+    version: 2,
+    mysql: [
+      'ALTER TABLE chat_messages ADD COLUMN rating INT NULL',
+      'ALTER TABLE chat_messages ADD COLUMN feedback TEXT NULL',
+      'ALTER TABLE chat_messages ADD COLUMN meta TEXT NULL',
+      memory.my,
+      routineLogs.my,
+    ],
+    sqlite: [
+      'ALTER TABLE chat_messages ADD COLUMN rating INTEGER',
+      'ALTER TABLE chat_messages ADD COLUMN feedback TEXT',
+      'ALTER TABLE chat_messages ADD COLUMN meta TEXT',
+      memory.sq,
+      routineLogs.sq,
+    ],
+  },
 ];
