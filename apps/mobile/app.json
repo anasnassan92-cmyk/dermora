@@ -3,7 +3,10 @@
     "name": "Dermora",
     "slug": "dermora",
     "version": "0.1.0",
-    "scheme": "dermora",
+    "scheme": [
+      "dermora",
+      "se.dermora.app"
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

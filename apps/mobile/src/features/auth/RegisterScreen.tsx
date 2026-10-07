@@ -1,6 +1,6 @@
 /** Design screen 02 – Skapa konto (Google + e-post). Owner: Anas. */
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { Blob, Button, FlowHeader, Icon, Input, Screen, T } from '../../components/ui';
@@ -8,6 +8,7 @@ import { useAuth } from '../../hooks/useAuth';
 import type { AuthScreenProps } from '../../navigation/types';
 import { authService } from '../../services/auth/authService';
 import { colors, radius, shadow, spacing } from '../../theme';
+import { SITE_URL } from '../../constants';
 
 function GoogleG() {
   return (
@@ -92,7 +93,7 @@ export function RegisterScreen({ navigation }: AuthScreenProps<'Register'>) {
       <Pressable onPress={() => setTerms((t) => !t)} style={styles.terms} accessibilityRole="checkbox" accessibilityState={{ checked: terms }}>
         <View style={[styles.checkbox, terms && styles.checkboxOn]}>{terms ? <Icon name="check" size={14} color={colors.onPrimary} strokeWidth={3} /> : null}</View>
         <T variant="small" style={styles.termsText}>
-          Jag godkänner Dermoras <T variant="small" color={colors.inkBrand}>användarvillkor</T> och <T variant="small" color={colors.inkBrand}>integritetspolicy</T>.
+          Jag godkänner Dermoras <T variant="small" color={colors.inkBrand} onPress={() => Linking.openURL(`${SITE_URL}/villkor.html`)} accessibilityRole="link">användarvillkor</T> och <T variant="small" color={colors.inkBrand} onPress={() => Linking.openURL(`${SITE_URL}/integritet.html`)} accessibilityRole="link">integritetspolicy</T>.
         </T>
       </Pressable>
 

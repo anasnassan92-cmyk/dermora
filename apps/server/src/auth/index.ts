@@ -153,11 +153,11 @@ export async function checkEmailCode(userId: string, code: string, purpose: 'ver
 // ---------- Google ----------
 /** Verifies a Google Identity Services ID token with Google's tokeninfo endpoint. */
 export async function verifyGoogleIdToken(idToken: string): Promise<{ sub: string; email: string; given_name?: string; family_name?: string }> {
-  if (!config.googleClientId) throw new HttpError(503, 'Google-inloggning är inte aktiverad ännu.');
+  if (!config.googleClientIds.length) throw new HttpError(503, 'Google-inloggning är inte aktiverad ännu.');
   const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
   if (!res.ok) throw new HttpError(401, 'Google-inloggningen kunde inte verifieras.');
   const info = (await res.json()) as { aud: string; sub: string; email: string; email_verified: string | boolean; given_name?: string; family_name?: string; exp: string };
-  if (info.aud !== config.googleClientId) throw new HttpError(401, 'Google-token är inte avsedd för Dermora.');
+  if (!config.googleClientIds.includes(info.aud)) throw new HttpError(401, 'Google-token är inte avsedd för Dermora.');
   if (!(info.email_verified === true || info.email_verified === 'true')) throw new HttpError(401, 'Google-kontots e-post är inte verifierad.');
   if (Number(info.exp) * 1000 < Date.now()) throw new HttpError(401, 'Google-token har gått ut.');
   return info;

@@ -15,6 +15,11 @@ export class ApiError extends Error {
 type TokenGetter = () => Promise<string | null>;
 let getToken: TokenGetter = async () => null;
 
+/** Current access token (for raw fetches such as the streaming chat). */
+export async function authToken(): Promise<string | null> {
+  return getToken();
+}
+
 /** Called once by the AuthProvider so the client can attach tokens. */
 export function setTokenGetter(fn: TokenGetter) {
   getToken = fn;

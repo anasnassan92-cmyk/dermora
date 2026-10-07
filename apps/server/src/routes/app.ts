@@ -25,7 +25,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: con
 
 // ---------- public ----------
 appRouter.get('/config', (_req, res) => {
-  res.json({ ai: features.ai, vision: features.vision, email: features.email, google_client_id: config.googleClientId || null });
+  res.json({ ai: features.ai, vision: features.vision, email: features.email, google_client_id: config.googleClientId || null, google_android_client_id: config.googleAndroidClientId || null });
 });
 
 appRouter.get('/questionnaire', (_req, res) => {
