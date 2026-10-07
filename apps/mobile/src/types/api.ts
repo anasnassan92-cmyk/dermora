@@ -170,6 +170,45 @@ export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
   created_at?: string | null;
+  /** Assistant messages: user rating (1 = 👍, -1 = 👎). */
+  rating?: number | null;
+  /** Assistant messages: 2–3 follow-up questions the user can tap. */
+  suggestions?: string[];
+  /** Knowledge-base sections the reply was grounded in (ids like "ingredienser#niacinamid"). */
+  sources?: string[];
+  /** User messages: an attached skin photo. */
+  image_id?: string | null;
+  /** Client-only: the reply is still streaming in. */
+  streaming?: boolean;
+}
+
+export interface ChatStatus {
+  checkin_due: boolean;
+  days_on_plan: number;
+  follow_up_days: number;
+  adherence_14d: number;
+  streak: number;
+}
+
+// ---- progress (Framsteg) ----
+export type RoutineSlot = 'morning' | 'evening' | 'weekly';
+
+export interface RoutineLog {
+  day: string; // YYYY-MM-DD
+  slot: RoutineSlot;
+  done: number;
+  note: string | null;
+}
+
+export interface ProgressData {
+  plan: TreatmentPlan | null;
+  days_on_plan: number;
+  follow_up_days: number;
+  checkin_due: boolean;
+  adherence_14d: number;
+  streak: number;
+  logs: RoutineLog[];
+  photos: SkinImage[];
 }
 
 // ---- plans ----

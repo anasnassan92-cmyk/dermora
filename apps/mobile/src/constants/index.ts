@@ -8,6 +8,9 @@ export const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? '').replace(/\/$/, ''
 /** Web only: ?preview=<Screen> renders one screen with seeded demo data (design review, Figma import). */
 export const PREVIEW_MODE = typeof window !== 'undefined' && !!window.location && new URLSearchParams(window.location.search).has('preview');
 
+/** Where the landing page (terms, privacy) lives: same host as the API. */
+export const SITE_URL = API_URL.replace(/\/api$/, '');
+
 export const USE_MOCK_API = API_URL.length === 0 || PREVIEW_MODE;
 export const USE_MOCK_AUTH = USE_MOCK_API;
 

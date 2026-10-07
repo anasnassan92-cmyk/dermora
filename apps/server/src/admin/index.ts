@@ -235,7 +235,7 @@ adminRouter.get('/system', (_req, res) => {
     ['Kunskapsbas', `${knowledgeSize()} avsnitt (apps/server/src/data/knowledge/*.md) – hämtas med BM25 till varje analys och chattsvar`],
     ['Bildkontroll', features.vision ? 'Google Cloud Vision' : 'Lokal skärpa/ljus (sätt GOOGLE_VISION_API_KEY)'],
     ['E-post (SMTP)', features.email ? `${esc(config.smtp.host)} som ${esc(config.smtp.from)}` : 'Demo – koden visas på skärmen (sätt SMTP_USER + SMTP_PASS)'],
-    ['Google-inloggning', features.google ? 'Aktiv' : 'Inte konfigurerad (sätt GOOGLE_CLIENT_ID)'],
+    ['Google-inloggning', features.google ? `Aktiv (webb${config.googleAndroidClientId ? ' + Android' : ''})` : 'Inte konfigurerad (sätt GOOGLE_CLIENT_ID, för APK även GOOGLE_ANDROID_CLIENT_ID)'],
     ['Administratörer', config.adminEmails.map(esc).join(', ') || '–'],
   ];
   const body = `<h1>System</h1><p class="muted">Nycklar visas aldrig här – bara om de är satta. Ändras i hPanel → Websites → Environment variables → Apply changes.</p>

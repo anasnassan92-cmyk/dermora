@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Integritetspolicy – Dermora</title>
+  <meta name="description" content="Så behandlar Dermora dina personuppgifter och bilder (GDPR).">
+  <meta name="theme-color" content="#0C9387">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/landing.css">
+  <style>
+    .legal { max-width: 760px; margin: 0 auto; padding: clamp(40px, 6vw, 72px) var(--gutter) 80px; }
+    .legal h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); margin-bottom: .3em; }
+    .legal h2 { font-size: 1.25rem; margin-top: 2em; }
+    .legal p, .legal li, .legal td, .legal th { color: var(--ink); font-size: 1rem; }
+    .legal ul { padding-left: 1.2em; list-style: disc; }
+    .legal li { margin-bottom: .4em; }
+    .legal .updated { color: var(--ink-muted); font-size: .9rem; margin-bottom: 2em; }
+    .legal .box { background: var(--mint); border-radius: var(--r-lg); padding: 18px 20px; margin: 1.5em 0; }
+    .legal table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: .95rem; }
+    .legal th, .legal td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .legal th { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="./" aria-label="Dermora – till startsidan"><img src="assets/logo/logo-horizontal.svg" alt="Dermora" width="150" height="36"></a>
+      <nav class="nav"><ul class="nav-menu" style="display:flex"><li><a href="./">Start</a></li><li><a href="villkor.html">Användarvillkor</a></li><li class="nav-auth"><a class="btn btn-primary btn-sm" href="app/?start=register">Skapa konto</a></li></ul></nav>
+    </div>
+  </header>
+  <main class="legal">
+    <h1>Integritetspolicy</h1>
+    <p class="updated">Gäller från 7 oktober 2026 · Personuppgiftsansvarig: Dermora, studentprojekt Grupp 6 (kontakt nedan)</p>
+
+    <div class="box"><strong>Kort version:</strong> Vi samlar bara in det som behövs för din hudvägledning. Dina bilder lagras privat, GPS-data tas bort, ingen ansiktsigenkänning används, inget säljs vidare, och du kan radera allt själv i appen.</div>
+
+    <h2>1. Vilka uppgifter vi behandlar</h2>
+    <table>
+      <tr><th>Uppgift</th><th>Varför</th><th>Rättslig grund</th></tr>
+      <tr><td>E-post, namn, lösenord (krypterat/hashat)</td><td>Konto, inloggning, verifieringskod</td><td>Avtal (villkoren)</td></tr>
+      <tr><td>Grundprofil: åldersintervall, kön, land, hudton, hudtyp</td><td>Personlig vägledning</td><td>Avtal</td></tr>
+      <tr><td>Svar i frågeformuläret</td><td>Underlag för analysen</td><td>Avtal</td></tr>
+      <tr><td>Bilder på din hud (hälsouppgift)</td><td>AI-analys, jämförelse över tid</td><td>Ditt uttryckliga samtycke (kan återkallas)</td></tr>
+      <tr><td>AI-analys, chatt, plan, rutinlogg, dina betyg på svar</td><td>Leverera och förbättra tjänsten</td><td>Avtal</td></tr>
+      <tr><td>Tekniska loggar (tidpunkt, fel)</td><td>Drift och säkerhet</td><td>Berättigat intresse</td></tr>
+    </table>
+
+    <h2>2. Bilder och AI</h2>
+    <ul>
+      <li>Bilder normaliseras (storlek, EXIF/GPS tas bort) och lagras privat på vår server i EU (Hostinger). Bara du och behöriga administratörer kan se dem.</li>
+      <li>För analysen skickas bilder och svar till Googles Gemini-API. Enligt Googles villkor för betald/API-användning används inte data för att träna modeller; vi skickar aldrig namn eller e-post till AI-tjänsten.</li>
+      <li>Vi använder ansiktsdetektering (finns det ett ansikte, är bilden skarp) – aldrig ansiktsigenkänning. Inga biometriska profiler skapas.</li>
+      <li>AI:n gör automatiserade bedömningar som vägledning. Inga beslut med rättslig verkan fattas om dig.</li>
+    </ul>
+
+    <h2>3. Chattbotens minne</h2>
+    <p>För att ge bättre råd över tid sparar chattboten korta minnesanteckningar (t.ex. produkter du provat, preferenser). De lagras i ditt konto och raderas med det.</p>
+
+    <h2>4. Vem som får tillgång</h2>
+    <p>Projektgruppens administratörer kan se uppgifter för support och för att följa upp vårdsignaler. Personuppgiftsbiträden: Hostinger (drift och lagring, EU), Google (Gemini-API, AI-analys). Vi säljer aldrig uppgifter och visar ingen reklam.</p>
+
+    <h2>5. Lagringstid</h2>
+    <p>Uppgifterna sparas så länge du har ett konto. Raderar du kontot tas alla uppgifter, bilder och chattar bort direkt. Verifieringskoder gäller 15 minuter. Konton i betan kan raderas när projektet avslutas; vi meddelar i appen innan.</p>
+
+    <h2>6. Dina rättigheter</h2>
+    <ul>
+      <li>Tillgång och dataportabilitet: din profil, dina svar och din plan visas i appen.</li>
+      <li>Rättelse: ändra profilen under Profil.</li>
+      <li>Radering: Profil → Radera konto, eller mejla oss.</li>
+      <li>Återkalla samtycke till bildbehandling: stäng av i Profil, då raderas bilderna.</li>
+      <li>Klagomål: Integritetsskyddsmyndigheten (imy.se).</li>
+    </ul>
+
+    <h2>7. Säkerhet</h2>
+    <p>HTTPS, lösenord lagras hashade (bcrypt), tidsbegränsade åtkomsttoken, bildlänkar som bara fungerar för ditt konto, och administratörsåtkomst begränsad till namngivna konton.</p>
+
+    <h2>8. Kakor och lokal lagring</h2>
+    <p>Appen sparar din inloggning lokalt på enheten. Landningssidan använder inga spårningskakor.</p>
+
+    <h2>9. Kontakt</h2>
+    <p>Frågor om personuppgifter: <a href="mailto:anas.nassan.92@gmail.com">anas.nassan.92@gmail.com</a>.</p>
+  </main>
+  <footer class="site-footer"><div class="container"><p class="footer-note">© 2026 Dermora · Grupp 6 · <a href="villkor.html">Användarvillkor</a> · <a href="./">Start</a></p></div></footer>
+</body>
+</html>

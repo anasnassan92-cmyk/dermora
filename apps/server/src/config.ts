@@ -76,6 +76,9 @@ export const config = {
   },
   visionApiKey: setting('GOOGLE_VISION_API_KEY'),
   googleClientId: setting('GOOGLE_CLIENT_ID'),
+  /** All OAuth client ids whose ID tokens we accept: web client + Android/iOS clients (GOOGLE_CLIENT_IDS, comma-separated). */
+  googleClientIds: [setting('GOOGLE_CLIENT_ID'), ...(setting('GOOGLE_CLIENT_IDS') || '').split(',')].map((x) => x.trim()).filter(Boolean),
+  googleAndroidClientId: setting('GOOGLE_ANDROID_CLIENT_ID'),
   smtp: {
     host: setting('SMTP_HOST') || 'smtp.hostinger.com',
     port: Number(setting('SMTP_PORT') || 465),

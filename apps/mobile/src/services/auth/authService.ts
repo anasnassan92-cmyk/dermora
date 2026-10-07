@@ -78,9 +78,28 @@ function loadGsi(): Promise<GoogleId> {
   });
 }
 
+/** Native (APK/iOS): OAuth via the system browser with expo-auth-session; the id_token is verified by the server. */
+async function nativeGoogleIdToken(androidClientId: string | null): Promise<string> {
+  const clientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || androidClientId;
+  if (!clientId) throw new Error('Google-inloggning i appen är inte aktiverad ännu. Använd e-post så länge.');
+  const [{ AuthRequest, ResponseType, makeRedirectUri }, Crypto] = await Promise.all([import('expo-auth-session'), import('expo-crypto')]);
+  const nonce = Crypto.randomUUID().replace(/-/g, '');
+  const request = new AuthRequest({
+    clientId,
+    responseType: ResponseType.IdToken,
+    scopes: ['openid', 'profile', 'email'],
+    redirectUri: makeRedirectUri({ native: 'se.dermora.app:/oauthredirect' }),
+    usePKCE: false,
+    extraParams: { nonce, prompt: 'select_account' },
+  });
+  const result = await request.promptAsync({ authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth' });
+  if (result.type !== 'success' || !result.params.id_token) throw new Error('Google-inloggningen avbröts.');
+  return result.params.id_token;
+}
+
 async function googleIdToken(): Promise<string> {
-  if (Platform.OS !== 'web') throw new Error('Google-inloggning fungerar i webbappen. I mobilappen kommer den i nästa version.');
-  const cfg = (await (await fetch(`${API_URL}/config`)).json()) as { google_client_id: string | null };
+  const cfg = (await (await fetch(`${API_URL}/config`)).json()) as { google_client_id: string | null; google_android_client_id?: string | null };
+  if (Platform.OS !== 'web') return nativeGoogleIdToken(cfg.google_android_client_id ?? null);
   if (!cfg.google_client_id) throw new Error('Google-inloggning är inte aktiverad ännu. Använd e-post så länge.');
   const google = await loadGsi();
   return new Promise((resolve, reject) => {
