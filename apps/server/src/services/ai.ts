@@ -337,7 +337,7 @@ export async function analyze(context: string, images: ImageInput[], hints: stri
           ...thinking(config.gemini.analysisThinking),
         },
       }),
-    { models: [config.gemini.analysisModel], perCallMs: 40_000, budgetMs: 50_000 },
+    { models: [config.gemini.analysisModel], perCallMs: 32_000, budgetMs: 50_000 },
   );
   const text = response.text;
   if (!text) throw new Error('AI-tjänsten gav inget svar (möjligen blockerat av säkerhetsfilter).');

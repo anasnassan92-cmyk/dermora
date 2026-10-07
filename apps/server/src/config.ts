@@ -59,19 +59,20 @@ export const config = {
     .filter(Boolean),
   gemini: {
     apiKey: setting('GEMINI_API_KEY'),
-    /** Analysis (images + structured JSON): the strongest model first, with thinking. */
-    analysisModel: setting('GEMINI_ANALYSIS_MODEL') || setting('GEMINI_MODEL') || 'gemini-2.5-pro',
+    /** Analysis (images + structured JSON) with a small thinking budget. gemini-2.5-pro is not available on every key (404) and
+     * a large budget blows Hostinger's ~55 s proxy limit – set GEMINI_ANALYSIS_MODEL / GEMINI_ANALYSIS_THINKING when the key allows. */
+    analysisModel: setting('GEMINI_ANALYSIS_MODEL') || setting('GEMINI_MODEL') || 'gemini-flash-latest',
     /** Chat: fast model, low latency. */
     chatModel: setting('GEMINI_CHAT_MODEL') || 'gemini-flash-latest',
     /** Kept for the admin page and older code paths. */
-    model: setting('GEMINI_ANALYSIS_MODEL') || setting('GEMINI_MODEL') || 'gemini-2.5-pro',
+    model: setting('GEMINI_ANALYSIS_MODEL') || setting('GEMINI_MODEL') || 'gemini-flash-latest',
     // Tried in order when a model is overloaded (503/429), unavailable for the key (404) or too slow.
-    fallbackModels: (setting('GEMINI_FALLBACK_MODELS') || 'gemini-2.5-flash,gemini-flash-latest,gemini-flash-lite-latest,gemini-2.5-flash-lite')
+    fallbackModels: (setting('GEMINI_FALLBACK_MODELS') || 'gemini-flash-lite-latest,gemini-2.5-flash,gemini-2.5-flash-lite')
       .split(',')
       .map((m) => m.trim())
       .filter(Boolean),
     /** Thinking budgets (tokens). 0 = off. Analysis benefits from reasoning; chat stays snappy. */
-    analysisThinking: Number(setting('GEMINI_ANALYSIS_THINKING') || 2048),
+    analysisThinking: Number(setting('GEMINI_ANALYSIS_THINKING') || 512),
     chatThinking: Number(setting('GEMINI_CHAT_THINKING') || 0),
   },
   visionApiKey: setting('GOOGLE_VISION_API_KEY'),
