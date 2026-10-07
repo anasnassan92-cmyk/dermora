@@ -67,6 +67,7 @@ test('parseChatOutput splits the suggestion tail', async () => {
   assert.deepEqual(r.suggestions, ['Hur ofta?', 'Vad om det svider?']);
   assert.deepEqual(parseChatOutput('Bara text').suggestions, []);
   assert.equal(parseChatOutput('Text\n>>> - En fråga\n- Två').suggestions.length, 2);
+  assert.deepEqual(parseChatOutput('Svar.\n>>> ["Hur ofta?", "Vad gör jag om det svider?", "Kan jag').suggestions, ['Hur ofta?', 'Vad gör jag om det svider?', 'Kan jag']);
 });
 
 test('chat: suggestions, sources, streaming, feedback, status, progress', async () => {
