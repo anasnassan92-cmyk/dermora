@@ -367,7 +367,7 @@ export function parseChatOutput(raw: string): { text: string; suggestions: strin
       .replace(/^[\[\s]+|[\]\s]+$/g, '')
       .split(/"\s*,\s*"|\n/)
       .map((l) => l.replace(/^[-•*\d.)\s"\[]+|["\s\],]+$/g, '').trim())
-      .filter((l) => l.length > 3 && l.length < 90)
+      .filter((l) => l.length >= 2 && l.length < 90)
       .slice(0, 3);
   }
   return { text: raw.slice(0, idx).trim(), suggestions };
