@@ -33,7 +33,7 @@ Fel returneras som `{"detail": "..."}` (sträng) eller `{"detail": {"errors": [.
 | GET | `/plans` | Even | Alla planer |
 | GET | `/plans/active` | Even | Den bekräftade planen eller `null` |
 | GET | `/plans/{id}` | Even | En plan |
-| POST | `/plans/{id}/confirm` | Even | Bekräfta (föregående bekräftad arkiveras) |
+| POST | `/plans/{id}/confirm` | Even | Aktivera (föregående aktiv arkiveras). Sedan 2026-10-08 sker detta automatiskt i `POST /ai/analyze` – appen har inget bekräftelsesteg. |
 | POST | `/plans/{id}/archive` | Even | Arkivera |
 
 ## Statuskoder att hantera i appen
