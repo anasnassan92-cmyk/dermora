@@ -143,6 +143,43 @@ authRouter.post('/google', rateLimit(20, 15 * 60_000), async (req, res) => {
   res.json({ token: signAppToken(toAuthUser(user)), user: userOut(user) });
 });
 
+// ---------- account settings (logged in) ----------
+authRouter.post('/change-password', rateLimit(10, 15 * 60_000), requireUser(), async (req, res) => {
+  const { current_password, new_password } = z.object({ current_password: z.string(), new_password: z.string() }).parse(req.body);
+  const user = (await findUserById(req.user!.id))!;
+  if (!user.password_hash || !(await checkPassword(current_password, user.password_hash))) throw new HttpError(401, 'Nuvarande lösenord stämmer inte.');
+  const problem = passwordProblem(new_password);
+  if (problem) throw new HttpError(422, problem);
+  await getDb().run('UPDATE users SET password_hash = ? WHERE id = ?', [await hashPassword(new_password), user.id]);
+  res.json({ ok: true });
+});
+
+/** Step 1: verify the password, remember the new address, send a code to it. */
+authRouter.post('/change-email', rateLimit(5, 15 * 60_000), requireUser(), async (req, res) => {
+  const { password, new_email } = z.object({ password: z.string(), new_email: z.string().trim().toLowerCase().email('Ange en giltig e-postadress.').max(190) }).parse(req.body);
+  const user = (await findUserById(req.user!.id))!;
+  if (!user.password_hash || !(await checkPassword(password, user.password_hash))) throw new HttpError(401, 'Lösenordet stämmer inte.');
+  if (new_email === user.email) throw new HttpError(422, 'Det är redan din e-postadress.');
+  if (await findUserByEmail(new_email)) throw new HttpError(409, 'E-postadressen används redan av ett annat konto.');
+  await getDb().run('UPDATE users SET pending_email = ? WHERE id = ?', [new_email, user.id]);
+  const code = await createEmailCode(user.id, 'email_change');
+  await sendCode(new_email, code, user.first_name, 'email_change');
+  res.json({ ok: true, demo: !features.email, new_email });
+});
+
+/** Step 2: the code from the new address makes it the login e-mail. A new token is issued (the e-mail is inside it). */
+authRouter.post('/confirm-email', rateLimit(20, 15 * 60_000), requireUser(), async (req, res) => {
+  const { code } = z.object({ code: z.string().regex(/^\d{6}$/, 'Ange de sex siffrorna.') }).parse(req.body);
+  const user = (await findUserById(req.user!.id)) as (UserRow & { pending_email?: string | null }) | undefined;
+  if (!user?.pending_email) throw new HttpError(400, 'Ingen ny e-postadress väntar på bekräftelse.');
+  if (await findUserByEmail(user.pending_email)) throw new HttpError(409, 'E-postadressen används redan av ett annat konto.');
+  await checkEmailCode(user.id, code, 'email_change');
+  await getDb().run('UPDATE users SET email = ?, pending_email = NULL, email_verified = 1 WHERE id = ?', [user.pending_email, user.id]);
+  const fresh = (await findUserById(user.id))!;
+  const authUser = toAuthUser(fresh);
+  res.json({ token: signAppToken(authUser), user: userOut(fresh) });
+});
+
 authRouter.get('/me', requireUser({ verified: false }), async (req, res) => {
   const user = (await findUserById(req.user!.id))!;
   res.json({ user: userOut(user) });

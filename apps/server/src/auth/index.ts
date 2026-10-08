@@ -119,7 +119,7 @@ export function requireUser(opts: { verified?: boolean } = { verified: true }) {
 const CODE_TTL_MIN = 15;
 const MAX_ATTEMPTS = 5;
 
-export type CodePurpose = 'verify' | 'login' | 'reset';
+export type CodePurpose = 'verify' | 'login' | 'reset' | 'email_change';
 
 export async function createEmailCode(userId: string, purpose: CodePurpose = 'verify'): Promise<string> {
   const code = String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');

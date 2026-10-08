@@ -201,6 +201,34 @@ export const authService = {
     await save(toSession(r.token, r.user));
   },
 
+  /** Account settings: both passwords are checked by the server. */
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    if (USE_MOCK_API) return;
+    const s = await load();
+    await post('/auth/change-password', { current_password: currentPassword, new_password: newPassword }, s?.accessToken);
+  },
+
+  /** Change e-mail step 1: password + new address → a code is sent to the NEW address. */
+  async changeEmail(password: string, newEmail: string): Promise<{ demo: boolean; newEmail: string }> {
+    const email = newEmail.trim().toLowerCase();
+    if (USE_MOCK_API) return { demo: true, newEmail: email };
+    const s = await load();
+    const r = await post<{ ok: boolean; demo: boolean; new_email: string }>('/auth/change-email', { password, new_email: email }, s?.accessToken);
+    return { demo: !!r.demo, newEmail: r.new_email ?? email };
+  },
+
+  /** Change e-mail step 2: the code makes the new address the login address and the session is refreshed. */
+  async confirmEmail(code: string, newEmail: string): Promise<void> {
+    if (!/^\d{6}$/.test(code)) throw new Error('Ange de sex siffrorna från mejlet.');
+    const s = await load();
+    if (USE_MOCK_API) {
+      if (s) await save({ ...s, email: newEmail });
+      return;
+    }
+    const r = await post<{ token: string; user: ServerUser }>('/auth/confirm-email', { code }, s?.accessToken);
+    await save(toSession(r.token, r.user));
+  },
+
   async markVerified(): Promise<void> {
     const s = await load();
     if (s) await save({ ...s, emailVerified: true });
