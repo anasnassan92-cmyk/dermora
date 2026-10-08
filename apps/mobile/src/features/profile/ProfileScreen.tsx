@@ -13,6 +13,7 @@ import { Button, Card, Chip, ListRow, Screen, T } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
 import type { AppStackParamList, TabParamList } from '../../navigation/types';
 import { aiService } from '../../services/ai/aiService';
+import { authService } from '../../services/auth/authService';
 import { profileService } from '../../services/profile/profileService';
 import { spacing } from '../../theme';
 import type { Profile, SkinGuidance, TreatmentPlan } from '../../types/api';
@@ -40,12 +41,14 @@ export function ProfileScreen({ navigation }: Props) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [guidance, setGuidance] = useState<SkinGuidance | null | undefined>(undefined);
   const [plan, setPlan] = useState<TreatmentPlan | null | undefined>(undefined);
+  const [hasPassword, setHasPassword] = useState<boolean | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       profileService.get().then(setProfile).catch(() => setProfile(null));
       latestGuidance().then(setGuidance).catch(() => setGuidance(null));
       planService.active().then(setPlan).catch(() => setPlan(null));
+      authService.me().then((u) => setHasPassword(u?.has_password !== false)).catch(() => setHasPassword(true));
     }, []),
   );
 
@@ -131,7 +134,7 @@ export function ProfileScreen({ navigation }: Props) {
 
       <Card>
         <T variant="label" muted mb="sm">Inloggning</T>
-        <ListRow icon="lock" title="Byt lösenord" subtitle="Kräver ditt nuvarande lösenord" onPress={() => navigation.navigate('ChangePassword')} />
+        <ListRow icon="lock" title={hasPassword === false ? 'Skapa lösenord' : 'Byt lösenord'} subtitle={hasPassword === false ? 'Du loggar in med Google – lägg till ett lösenord för e-postinloggning' : 'Kräver ditt nuvarande lösenord'} onPress={() => navigation.navigate('ChangePassword')} />
         <ListRow icon="mail" title="Byt e-postadress" subtitle={session?.email ?? ''} onPress={() => navigation.navigate('ChangeEmail')} />
       </Card>
 
