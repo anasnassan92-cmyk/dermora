@@ -22,7 +22,7 @@ Visa: `presentation.html` (sektionerna Varför Dermora, Roadmap).
 | Ta bild | Ali | "Ansiktsguide + kvalitetskontroll på servern: suddig, mörk, inget ansikte → tips om att ta om. Ingen ansiktsigenkänning, EXIF/GPS tas bort." |
 | Analyserar → Bedömning | Youssef | "Multimodal modell får bild + svar, svarar i ett strikt JSON-schema. Regelbaserade röda flaggor i kod tvingar 'kontakta vården'." |
 | Chat | Youssef | "Chatten känner till profilen, svaren och bedömningen. Stannar inom hudvård." |
-| Plan → Bekräfta → Hem/Plan-flik | Even | "AI föreslår, användaren bekräftar. Max en aktiv plan. Disclaimer på varje AI-skärm." |
+| Resultat (sammanfattning + plan) → Hem/Chatt | Even | "Planen aktiveras direkt efter analysen – vill användaren ändra något sker det i chatten. Max en aktiv plan. Disclaimer på varje AI-skärm." |
 
 Demo-tips: kör mock-läge som backup om wifi strular (`.env` tom → allt fungerar offline). Ha en inspelad video som reserv.
 

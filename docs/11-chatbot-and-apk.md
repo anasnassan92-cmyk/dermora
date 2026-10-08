@@ -69,3 +69,13 @@ Profil-fliken visar nu namn, sammanfattningen från senaste analysen, den bekrä
 2. Sätt `EXPO_PUBLIC_API_URL=https://dermora.site/api` i `apps/mobile/eas.json` och bygg om APK:n (`npx eas build -p android --profile preview`).
 3. Google OAuth: Web-klient med origin `https://dermora.site` → `GOOGLE_CLIENT_ID`; Android-klient (paket `se.dermora.app`, SHA-1 från `npx eas credentials -p android`) → `GOOGLE_ANDROID_CLIENT_ID`.
 4. E-post: skapa `no-reply@dermora.site` i hPanel → Emails, sätt `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` → Apply changes + redeploy. Då skickas koderna på riktigt i stället för till Runtime logs.
+
+## Användarresan (förenklad 2026-10-08)
+1. Välkommen → Logga in / Skapa konto (Google = ett klick, eller e-post + sexsiffrig kod)
+2. Grundprofil (en gång) → Frågor (en gång) → Bilder → Analys
+3. **Resultat**: sammanfattning + planen, som redan är aktiv (ingen förslags-/bekräftelsesida)
+4. Flikar: **Hem** (dagens rutin) · **Chatt** (AI-experten – ändringar i planen görs här) · **Framsteg** · **Profil**
+5. Ny analys senare = Profil → *Ny analys med nya bilder* (svaren återanvänds; `assessmentService.createFromLatest`)
+
+Borttaget: notisklockan, Skanna-fliken, TreatmentPlan/ConfirmPlan/PlanSaved-skärmarna, knappen "Fortsätt till min plan" i chatten.
+Google på webben: `google.accounts.oauth2.initTokenClient` → popup direkt → `POST /auth/google {access_token}`.
