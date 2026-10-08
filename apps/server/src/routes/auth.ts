@@ -44,6 +44,8 @@ const userOut = (u: UserRow) => ({
   last_name: u.last_name,
   email_verified: !!Number(u.email_verified),
   is_admin: !!Number(u.is_admin) || isAdminEmail(u.email),
+  /** false for accounts created with Google that never chose a password – the app then offers "Skapa lösenord". */
+  has_password: !!u.password_hash,
 });
 
 async function createUser(data: { email: string; password_hash: string | null; google_sub?: string | null; first_name?: string | null; last_name?: string | null; verified: boolean }) {
@@ -147,9 +149,10 @@ authRouter.post('/google', rateLimit(20, 15 * 60_000), async (req, res) => {
 
 // ---------- account settings (logged in) ----------
 authRouter.post('/change-password', rateLimit(10, 15 * 60_000), requireUser(), async (req, res) => {
-  const { current_password, new_password } = z.object({ current_password: z.string(), new_password: z.string() }).parse(req.body);
+  const { current_password, new_password } = z.object({ current_password: z.string().optional(), new_password: z.string() }).parse(req.body);
   const user = (await findUserById(req.user!.id))!;
-  if (!user.password_hash || !(await checkPassword(current_password, user.password_hash))) throw new HttpError(401, 'Nuvarande lösenord stämmer inte.');
+  // A Google account without a password sets its first one here; everyone else must prove the current one.
+  if (user.password_hash && !(await checkPassword(current_password ?? '', user.password_hash))) throw new HttpError(401, 'Nuvarande lösenord stämmer inte.');
   const problem = passwordProblem(new_password);
   if (problem) throw new HttpError(422, problem);
   await getDb().run('UPDATE users SET password_hash = ? WHERE id = ?', [await hashPassword(new_password), user.id]);

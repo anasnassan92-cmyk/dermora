@@ -25,6 +25,7 @@ interface ServerUser {
   first_name: string | null;
   email_verified: boolean;
   is_admin: boolean;
+  has_password?: boolean;
 }
 
 const KEY = 'dermora.session';
@@ -207,11 +208,21 @@ export const authService = {
     await save(toSession(r.token, r.user));
   },
 
-  /** Account settings: both passwords are checked by the server. */
-  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  /** Fresh user record from the server (e.g. whether the account has a password yet). */
+  async me(): Promise<ServerUser | null> {
+    const s = await load();
+    if (!s) return null;
+    if (USE_MOCK_API) return { id: s.userId, email: s.email, first_name: s.firstName ?? null, email_verified: true, is_admin: false, has_password: true };
+    const res = await fetch(`${API_URL}/auth/me`, { headers: { Authorization: `Bearer ${s.accessToken}` } });
+    const data = (await res.json().catch(() => ({}))) as { user?: ServerUser } & ServerUser;
+    return data.user ?? (data.id ? data : null);
+  },
+
+  /** Account settings: both passwords are checked by the server (Google accounts set their first password without one). */
+  async changePassword(currentPassword: string | null, newPassword: string): Promise<void> {
     if (USE_MOCK_API) return;
     const s = await load();
-    await post('/auth/change-password', { current_password: currentPassword, new_password: newPassword }, s?.accessToken);
+    await post('/auth/change-password', { ...(currentPassword ? { current_password: currentPassword } : {}), new_password: newPassword }, s?.accessToken);
   },
 
   /** Change e-mail step 1: password + new address → a code is sent to the NEW address. */
