@@ -157,4 +157,6 @@ export const MIGRATIONS: { version: number; mysql: string[]; sqlite: string[] }[
       routineLogs.sq,
     ],
   },
+  // v3 – change e-mail address with a code sent to the new address
+  { version: 3, mysql: ['ALTER TABLE users ADD COLUMN pending_email VARCHAR(190) NULL'], sqlite: ['ALTER TABLE users ADD COLUMN pending_email TEXT'] },
 ];

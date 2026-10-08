@@ -22,13 +22,13 @@ function getTransport() {
 }
 
 /** Returns the code when it could NOT be e-mailed (demo mode), otherwise null. */
-export async function sendCode(to: string, code: string, name?: string | null, kind: 'verify' | 'reset' = 'verify'): Promise<string | null> {
+export async function sendCode(to: string, code: string, name?: string | null, kind: 'verify' | 'reset' | 'email_change' = 'verify'): Promise<string | null> {
   if (!features.email) {
     // Demo mode (no SMTP): the code is written to the server log so the site owner can read it in hPanel → Runtime logs.
     console.log(`[auth] demo-kod (${kind}) för ${to}: ${code}`);
     return code;
   }
-  const intro = kind === 'reset' ? 'Din kod för att välja ett nytt lösenord är:' : 'Din verifieringskod är:';
+  const intro = kind === 'reset' ? 'Din kod för att välja ett nytt lösenord är:' : kind === 'email_change' ? 'Din kod för att bekräfta din nya e-postadress är:' : 'Din verifieringskod är:';
   const outro = kind === 'reset' ? 'Koden gäller i 15 minuter. Har du inte begärt ett nytt lösenord kan du ignorera mejlet.' : 'Koden gäller i 15 minuter. Har du inte skapat ett konto kan du ignorera mejlet.';
   const html = `
   <div style="font-family:Montserrat,Arial,sans-serif;max-width:480px;margin:auto;padding:24px;color:#121C33">

@@ -14,6 +14,9 @@ import { VerifyEmailScreen } from '../features/auth/VerifyEmailScreen';
 import { ForgotPasswordScreen } from '../features/auth/ForgotPasswordScreen';
 import { ProfileScreen } from '../features/profile/ProfileScreen';
 import { EditProfileScreen } from '../features/profile/EditProfileScreen';
+import { MyInfoScreen } from '../features/profile/MyInfoScreen';
+import { ChangePasswordScreen } from '../features/profile/ChangePasswordScreen';
+import { ChangeEmailScreen } from '../features/profile/ChangeEmailScreen';
 import { ProfileSetupScreen } from '../features/profile/ProfileSetupScreen';
 import { AssessmentIntroScreen } from '../features/assessment/AssessmentIntroScreen';
 import { AssessmentScreen } from '../features/assessment/AssessmentScreen';
@@ -110,6 +113,9 @@ export function RootNavigator() {
         <AppStack.Navigator initialRouteName={needsProfile ? 'ProfileSetup' : 'Tabs'} screenOptions={stackOptions}>
           <AppStack.Screen name="Tabs">{() => <MainTabs />}</AppStack.Screen>
           <AppStack.Screen name="EditProfile" component={EditProfileScreen} options={{ ...headerOptions, headerShown: true, title: 'Profil' }} />
+          <AppStack.Screen name="MyInfo" component={MyInfoScreen} options={{ ...headerOptions, headerShown: true, title: 'Mina uppgifter' }} />
+          <AppStack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ ...headerOptions, headerShown: true, title: 'Byt lösenord' }} />
+          <AppStack.Screen name="ChangeEmail" component={ChangeEmailScreen} options={{ ...headerOptions, headerShown: true, title: 'Byt e-postadress' }} />
           <AppStack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
           <AppStack.Screen name="AssessmentIntro" component={AssessmentIntroScreen} />
           <AppStack.Screen name="Assessment" component={AssessmentScreen} />

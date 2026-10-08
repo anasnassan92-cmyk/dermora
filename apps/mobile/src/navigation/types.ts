@@ -13,6 +13,9 @@ export type AuthStackParamList = {
 export type AppStackParamList = {
   Tabs: { screen?: keyof TabParamList } | undefined;
   EditProfile: undefined;
+  MyInfo: undefined; // read-only questionnaire answers + uploaded images
+  ChangePassword: undefined;
+  ChangeEmail: undefined;
   ProfileSetup: undefined; // onboarding 1/3
   AssessmentIntro: { assessmentId?: string } | undefined; // onboarding 2/3
   Assessment: { assessmentId?: string; startIndex?: number }; // onboarding 3/3 + follow-ups
