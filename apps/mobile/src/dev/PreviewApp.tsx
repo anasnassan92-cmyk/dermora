@@ -18,6 +18,9 @@ import { LoginScreen } from '../features/auth/LoginScreen';
 import { RegisterScreen } from '../features/auth/RegisterScreen';
 import { VerifyEmailScreen } from '../features/auth/VerifyEmailScreen';
 import { EditProfileScreen } from '../features/profile/EditProfileScreen';
+import { MyInfoScreen } from '../features/profile/MyInfoScreen';
+import { ChangePasswordScreen } from '../features/profile/ChangePasswordScreen';
+import { ChangeEmailScreen } from '../features/profile/ChangeEmailScreen';
 import { ProfileSetupScreen } from '../features/profile/ProfileSetupScreen';
 import { AssessmentIntroScreen } from '../features/assessment/AssessmentIntroScreen';
 import { AssessmentScreen } from '../features/assessment/AssessmentScreen';
@@ -67,7 +70,7 @@ export function PreviewApp({ screen, q, tab }: { screen: string; q: number; tab?
   }
 
   const a = seed.assessmentId;
-  const stackScreens = new Set(['EditProfile', 'ProfileSetup', 'AssessmentIntro', 'Assessment', 'ImageUpload', 'ImageReview', 'Analyzing', 'Result', 'AIChat', 'TreatmentPlan', 'ConfirmPlan', 'PlanSaved', 'Plan']);
+  const stackScreens = new Set(['EditProfile', 'MyInfo', 'ChangePassword', 'ChangeEmail', 'ProfileSetup', 'AssessmentIntro', 'Assessment', 'ImageUpload', 'ImageReview', 'Analyzing', 'Result', 'AIChat', 'TreatmentPlan', 'ConfirmPlan', 'PlanSaved', 'Plan']);
   const initial = (stackScreens.has(screen) ? screen : 'Tabs') as keyof AppStackParamList;
   const initialTab = (tab ?? 'Home') as keyof TabParamList;
 
@@ -76,6 +79,9 @@ export function PreviewApp({ screen, q, tab }: { screen: string; q: number; tab?
       <AppStack.Navigator initialRouteName={initial} screenOptions={stackOptions}>
         <AppStack.Screen name="Tabs">{() => <MainTabs initial={initialTab} />}</AppStack.Screen>
         <AppStack.Screen name="EditProfile" component={EditProfileScreen} options={{ ...headerOptions, headerShown: true, title: 'Profil' }} />
+        <AppStack.Screen name="MyInfo" component={MyInfoScreen} options={{ ...headerOptions, headerShown: true, title: 'Mina uppgifter' }} />
+        <AppStack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ ...headerOptions, headerShown: true, title: 'Byt lösenord' }} />
+        <AppStack.Screen name="ChangeEmail" component={ChangeEmailScreen} options={{ ...headerOptions, headerShown: true, title: 'Byt e-postadress' }} />
         <AppStack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
         <AppStack.Screen name="AssessmentIntro" component={AssessmentIntroScreen} initialParams={{ assessmentId: a }} />
         <AppStack.Screen name="Assessment" component={AssessmentScreen} initialParams={{ assessmentId: a, startIndex: q }} />
