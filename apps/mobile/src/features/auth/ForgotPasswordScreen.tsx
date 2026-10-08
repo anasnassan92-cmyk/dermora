@@ -12,7 +12,6 @@ export function ForgotPasswordScreen({ navigation, route }: AuthScreenProps<'For
   const { refresh, isMock } = useAuth();
   const [email, setEmail] = useState(route.params?.email ?? '');
   const [step, setStep] = useState<1 | 2>(1);
-  const [demo, setDemo] = useState(false);
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -23,8 +22,7 @@ export function ForgotPasswordScreen({ navigation, route }: AuthScreenProps<'For
     if (!email.includes('@')) return setError('Ange en giltig e-postadress.');
     setLoading(true);
     try {
-      const r = await authService.forgotPassword(email);
-      setDemo(r.demo);
+      await authService.forgotPassword(email);
       setStep(2);
     } catch (e) {
       setError((e as Error).message);
@@ -60,9 +58,7 @@ export function ForgotPasswordScreen({ navigation, route }: AuthScreenProps<'For
       ) : (
         <>
           <T variant="body" muted mb="lg">Vi har skickat en kod till <T variant="bodyMedium">{email}</T>. Skriv koden och ditt nya lösenord.</T>
-          {demo || isMock ? (
-            <InfoPanel title="Demo-läge" text={isMock ? 'Vilka sex siffror som helst fungerar.' : 'E-post är inte aktiverad ännu. Koden finns i serverns logg (hPanel → Runtime logs) – be administratören om den.'} />
-          ) : null}
+          {isMock ? <InfoPanel title="Demo-läge" text="Vilka sex siffror som helst fungerar." /> : <T variant="caption" muted>Kommer inget mejl inom en minut – kolla skräpposten eller tryck på ”Skicka ny kod”.</T>}
           <View style={styles.gap} />
           <Input label="Kod (6 siffror)" value={code} onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))} keyboardType="number-pad" autoComplete="one-time-code" placeholder="123456" />
           <Input label="Nytt lösenord" value={password} onChangeText={setPassword} secureTextEntry autoComplete="new-password" hint="Minst 8 tecken, med en siffra och en bokstav." error={error} />

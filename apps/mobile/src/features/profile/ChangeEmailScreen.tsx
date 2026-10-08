@@ -13,7 +13,6 @@ export function ChangeEmailScreen({ navigation }: AppScreenProps<'ChangeEmail'>)
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [step, setStep] = useState<1 | 2>(1);
-  const [demo, setDemo] = useState(false);
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -25,7 +24,6 @@ export function ChangeEmailScreen({ navigation }: AppScreenProps<'ChangeEmail'>)
     try {
       const r = await authService.changeEmail(password, email);
       setEmail(r.newEmail);
-      setDemo(r.demo);
       setStep(2);
     } catch (e) {
       setError((e as Error).message);
@@ -61,9 +59,7 @@ export function ChangeEmailScreen({ navigation }: AppScreenProps<'ChangeEmail'>)
       ) : (
         <>
           <T muted mb="lg">Vi har skickat en kod till <T variant="bodyMedium">{email}</T>. Skriv koden för att slutföra bytet.</T>
-          {demo || isMock ? (
-            <InfoPanel title="Demo-läge" text={isMock ? 'Vilka sex siffror som helst fungerar.' : 'E-post är inte aktiverad ännu. Koden finns i serverns logg (hPanel → Runtime logs) – be administratören om den.'} />
-          ) : null}
+          {isMock ? <InfoPanel title="Demo-läge" text="Vilka sex siffror som helst fungerar." /> : <T variant="caption" muted>Kommer inget mejl inom en minut – kolla skräpposten eller tryck på ”Skicka ny kod”.</T>}
           <View style={styles.gap} />
           <Input label="Kod (6 siffror)" value={code} onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))} keyboardType="number-pad" autoComplete="one-time-code" placeholder="123456" error={error} />
           <Button title="Bekräfta ny adress" onPress={confirm} loading={loading} disabled={code.length < 6} style={styles.btn} />

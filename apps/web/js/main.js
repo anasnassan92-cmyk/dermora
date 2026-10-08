@@ -50,3 +50,12 @@
     });
   });
 })();
+
+// Logo → top of the page (the sticky header carries no anchor, so a plain #top would not move).
+document.querySelectorAll('[data-scroll-top]').forEach(function (el) {
+  el.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (history.replaceState) history.replaceState(null, '', location.pathname + location.search);
+  });
+});
