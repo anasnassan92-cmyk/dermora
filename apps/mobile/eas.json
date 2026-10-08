@@ -11,7 +11,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://lightslategray-wallaby-444786.hostingersite.com/api",
+        "EXPO_PUBLIC_API_URL": "https://dermora.site/api",
         "ORG_GRADLE_PROJECT_reactNativeArchitectures": "arm64-v8a"
       }
     },
@@ -21,7 +21,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://lightslategray-wallaby-444786.hostingersite.com/api"
+        "EXPO_PUBLIC_API_URL": "https://dermora.site/api"
       }
     }
   },
