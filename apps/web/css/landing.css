@@ -134,7 +134,7 @@ svg.icon { width: 24px; height: 24px; flex: none; }
 
 .float { position: absolute; background: #fff; border-radius: var(--r-lg); box-shadow: var(--shadow-lg); color: var(--ink); z-index: 3; }
 .float-photo { left: 0; top: 36px; width: 210px; padding: 10px; transform: rotate(-6deg); z-index: 1; }
-.float-photo img { width: 100%; aspect-ratio: .9; object-fit: cover; object-position: 60% 30%; border-radius: 18px; }
+.float-photo img { width: 100%; height: auto; aspect-ratio: .9; object-fit: cover; object-position: 60% 30%; border-radius: 18px; }
 .float-photo figcaption { display: none; }
 .float-photo figcaption svg { width: 15px; height: 15px; }
 .float-chat { right: -10px; bottom: 36px; width: 250px; display: flex; gap: 12px; align-items: center; padding: 12px 14px 12px 12px; }

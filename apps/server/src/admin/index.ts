@@ -3,10 +3,10 @@
  * Access: users whose e-mail is in ADMIN_EMAILS (or is_admin = 1) log in with their normal
  * Dermora e-mail + password. Session = signed httpOnly cookie (SameSite=Strict).
  */
-import { Router, type NextFunction, type Request, type Response } from 'express';
+import express, { Router, type NextFunction, type Request, type Response } from 'express';
 import jwt from 'jsonwebtoken';
 
-import { checkPassword, findUserByEmail, findUserById, signFileToken, toAuthUser } from '../auth/index.js';
+import { checkPassword, findUserByEmail, findUserById, signFileToken, toAuthUser, verifyGoogleAccessToken } from '../auth/index.js';
 import { config, features } from '../config.js';
 import { knowledgeSize } from '../services/knowledge.js';
 import { getDb, parseJson } from '../db/index.js';
@@ -21,18 +21,19 @@ const esc = (v: unknown) =>
 const date = (v: unknown) => (v ? new Date(String(v)).toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' }) : '–');
 const yes = (v: unknown) => (Number(v) ? '<span class="pill ok">Ja</span>' : '<span class="pill">Nej</span>');
 
+/** Sections of the panel – label + one-line explanation (shown as tooltip and on Översikt). */
+const NAV: [string, string, string][] = [
+  ['/admin', 'Översikt', 'Siffror, systemstatus och senaste användare'],
+  ['/admin/users', 'Användare', 'Alla konton: svar, bilder, analyser, plan, chatt – och radering'],
+  ['/admin/chats', 'Chattar', 'Alla meddelanden mellan användare och AI:n, med tumme upp/ner'],
+  ['/admin/flags', 'Vårdsignaler', 'Analyser där AI:n rekommenderat att kontakta vården'],
+  ['/admin/beta', 'Beta-anmälningar', 'E-postadresser från formuläret på dermora.site'],
+  ['/admin/questionnaire', 'Frågeformulär', 'Frågorna som appen ställer (läsläge)'],
+  ['/admin/system', 'System', 'AI-modeller, kunskapsbas, e-post och Google-status'],
+];
+
 function layout(title: string, body: string, active = ''): string {
-  const nav = [
-    ['/admin', 'Översikt'],
-    ['/admin/users', 'Användare'],
-    ['/admin/chats', 'Chattar'],
-    ['/admin/flags', 'Vårdsignaler'],
-    ['/admin/beta', 'Beta-anmälningar'],
-    ['/admin/questionnaire', 'Frågeformulär'],
-    ['/admin/system', 'System'],
-  ]
-    .map(([href, label]) => `<a href="${href}" class="${active === href ? 'on' : ''}">${label}</a>`)
-    .join('');
+  const nav = NAV.map(([href, label, hint]) => `<a href="${href}" class="${active === href ? 'on' : ''}" title="${esc(hint)}">${label}</a>`).join('');
   return `<!doctype html><html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)} · Dermora Admin</title><meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
@@ -69,7 +70,17 @@ img{height:36px;margin:0 auto 8px}input{padding:12px 14px;border:1.5px solid #E6
 <form method="post" action="/admin/login"><img src="/assets/logo/logo-horizontal.svg" alt="Dermora"><h2 style="margin:0">Admin</h2>
 ${error ? `<div class="err">${esc(error)}</div>` : ''}
 <input type="email" name="email" placeholder="E-post" required autocomplete="username"><input type="password" name="password" placeholder="Lösenord" required autocomplete="current-password">
-<button>Logga in</button><p class="muted">Endast för Dermoras administratörer (ADMIN_EMAILS). Använd samma konto som i appen.</p></form></body></html>`;
+<button>Logga in</button>
+${config.googleClientId ? `<div class="muted" style="text-align:center">eller</div><button type="button" id="g" style="background:#fff;color:#121C33;border:1.5px solid #E6E1D6">Logga in med Google</button>` : ''}
+<p class="muted">Endast för Dermoras administratörer (ADMIN_EMAILS). Använd samma konto som i appen.</p></form>
+${config.googleClientId ? `<script src="https://accounts.google.com/gsi/client" async></script><script>
+document.getElementById('g').onclick=function(){var c=google.accounts.oauth2.initTokenClient({client_id:${JSON.stringify(config.googleClientId)},scope:'openid email profile',callback:function(r){if(!r.access_token)return;fetch('/admin/login/google',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({access_token:r.access_token})}).then(function(x){return x.json()}).then(function(d){if(d.ok)location.href='/admin';else{var e=document.querySelector('.err')||document.createElement('div');e.className='err';e.textContent=d.detail||'Kunde inte logga in.';document.querySelector('form').insertBefore(e,document.querySelector('form').children[2]);}});}});c.requestAccessToken({prompt:'select_account'});};
+</script>` : ''}</body></html>`;
+}
+
+function setAdminCookie(res: Response, userId: string) {
+  const token = jwt.sign({ sub: userId, typ: 'admin' }, config.jwtSecret, { expiresIn: '8h' });
+  res.cookie(COOKIE, token, { httpOnly: true, sameSite: 'strict', secure: config.isProd, maxAge: 8 * 3600_000, path: '/admin' });
 }
 
 async function requireAdmin(req: Request, res: Response, next: NextFunction) {
@@ -93,9 +104,21 @@ adminRouter.post('/login', async (req, res) => {
   const user = await findUserByEmail(email);
   const ok = user && (await checkPassword(String(req.body?.password ?? ''), user.password_hash)) && toAuthUser(user).isAdmin;
   if (!ok) return res.status(401).type('html').send(loginPage('Fel e-post/lösenord, eller kontot är inte administratör.'));
-  const token = jwt.sign({ sub: user!.id, typ: 'admin' }, config.jwtSecret, { expiresIn: '8h' });
-  res.cookie(COOKIE, token, { httpOnly: true, sameSite: 'strict', secure: config.isProd, maxAge: 8 * 3600_000, path: '/admin' });
+  setAdminCookie(res, user!.id);
   res.redirect('/admin');
+});
+
+/** Google one-click login for administrators (same Google account as in the app). */
+adminRouter.post('/login/google', express.json(), async (req, res) => {
+  try {
+    const info = await verifyGoogleAccessToken(String(req.body?.access_token ?? ''));
+    const user = await findUserByEmail(info.email);
+    if (!user || !toAuthUser(user).isAdmin) return res.status(403).json({ ok: false, detail: 'Kontot är inte administratör. Skapa först ett konto i appen med en adress i ADMIN_EMAILS.' });
+    setAdminCookie(res, user.id);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(401).json({ ok: false, detail: (e as Error).message });
+  }
 });
 
 adminRouter.post('/logout', (_req, res) => {
@@ -120,7 +143,9 @@ adminRouter.get('/', async (_req, res) => {
     ['Beta-anmälningar', await count('SELECT COUNT(*) AS n FROM beta_signups')],
   ];
   const recent = await getDb().all<{ id: string; email: string; first_name: string | null; created_at: string; email_verified: number }>('SELECT id, email, first_name, created_at, email_verified FROM users ORDER BY created_at DESC LIMIT 8');
-  const body = `<h1>Översikt</h1><div class="grid">${stats.map(([l, n]) => `<div class="card stat"><b>${n}</b><span>${l}</span></div>`).join('')}</div>
+  const body = `<h1>Översikt</h1>
+  <div class="card" style="margin-bottom:20px"><b>Så här använder du panelen</b><div class="grid" style="margin-top:10px">${NAV.slice(1).map(([href, label, hint]) => `<a class="card" href="${href}" style="text-decoration:none"><b>${label}</b><div class="muted" style="font-size:12px;margin-top:4px">${esc(hint)}</div></a>`).join('')}</div></div>
+  <div class="grid">${stats.map(([l, n]) => `<div class="card stat"><b>${n}</b><span>${l}</span></div>`).join('')}</div>
   <h2>Systemstatus</h2><div class="row">
     <span class="pill ${features.ai === 'gemini' ? 'ok' : 'warn'}">AI: ${features.ai === 'gemini' ? 'Gemini aktiv' : 'Demo-läge (ingen GEMINI_API_KEY)'}</span>
     <span class="pill ${features.vision ? 'ok' : 'warn'}">Bildkontroll: ${features.vision ? 'Google Vision' : 'Lokal (ingen Vision-nyckel)'}</span>
