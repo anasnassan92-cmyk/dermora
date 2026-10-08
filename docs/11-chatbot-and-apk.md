@@ -39,13 +39,13 @@ npx eas build:list --platform android --limit 1                           # stat
 npx eas build -p android --profile production                             # AAB för Google Play
 ```
 
-`eas.json` sätter `EXPO_PUBLIC_API_URL=https://lightslategray-wallaby-444786.hostingersite.com/api` i båda profilerna, så APK:n pratar med den live-körda servern. Signeringsnyckeln skapades automatiskt i EAS vid första bygget (behåll den – samma nyckel krävs för uppdateringar).
+`eas.json` sätter `EXPO_PUBLIC_API_URL=https://dermora.site/api` i båda profilerna, så APK:n pratar med den live-körda servern. Signeringsnyckeln skapades automatiskt i EAS vid första bygget (behåll den – samma nyckel krävs för uppdateringar).
 
 Installera på Android: ladda ner APK-länken på telefonen → öppna → tillåt "okända källor" → installera.
 
 ## Google-inloggning
 
-- **Webb:** OAuth-klient av typen *Web application* i Google Cloud → `GOOGLE_CLIENT_ID` på servern. Tillåtna JavaScript-origins: `https://lightslategray-wallaby-444786.hostingersite.com`.
+- **Webb:** OAuth-klient av typen *Web application* i Google Cloud → `GOOGLE_CLIENT_ID` på servern. Tillåtna JavaScript-origins: `https://dermora.site`.
 - **Android (APK):** OAuth-klient av typen *Android* med paketnamn `se.dermora.app` och SHA-1-fingeravtrycket från EAS-nyckeln (`npx eas credentials -p android` → Keystore → SHA-1). Sätt `GOOGLE_ANDROID_CLIENT_ID` på servern (och bygg om APK:n, eller sätt `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` i `eas.json`). Appen använder `expo-auth-session` med redirect `se.dermora.app:/oauthredirect` och skickar `id_token` till `POST /auth/google`, som accepterar alla id:n i `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_IDS` + `GOOGLE_ANDROID_CLIENT_ID`.
 
 ## E-postkoder (SMTP)
@@ -65,7 +65,7 @@ Inloggade användare kan byta lösenord och e-postadress (Profil → Inloggning)
 Profil-fliken visar nu namn, sammanfattningen från senaste analysen, den bekräftade planen (→ Min plan), *Mina svar och bilder* (formuläret skrivskyddat + uppladdade bilder) samt Byt lösenord / Byt e-postadress. Test: `apps/server/test/account.test.ts`.
 
 ### Domän dermora.site (köpt 2026-10-08)
-1. hPanel → Websites → `lightslategray-wallaby-444786.hostingersite.com` → **Connect domain** → bocka i "I understand…" → **Change** → välj `dermora.site`. (Dialogen varnar bara om domännamn lagrade i databasen – Dermora lagrar inga, så det är ofarligt.)
+1. hPanel → Websites → `dermora.site` → **Connect domain** → bocka i "I understand…" → **Change** → välj `dermora.site`. (Dialogen varnar bara om domännamn lagrade i databasen – Dermora lagrar inga, så det är ofarligt.)
 2. Sätt `EXPO_PUBLIC_API_URL=https://dermora.site/api` i `apps/mobile/eas.json` och bygg om APK:n (`npx eas build -p android --profile preview`).
 3. Google OAuth: Web-klient med origin `https://dermora.site` → `GOOGLE_CLIENT_ID`; Android-klient (paket `se.dermora.app`, SHA-1 från `npx eas credentials -p android`) → `GOOGLE_ANDROID_CLIENT_ID`.
 4. E-post: skapa `no-reply@dermora.site` i hPanel → Emails, sätt `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` → Apply changes + redeploy. Då skickas koderna på riktigt i stället för till Runtime logs.

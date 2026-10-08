@@ -13,10 +13,10 @@
 
 | | |
 |---|---|
-| Landningssida (kund) | https://lightslategray-wallaby-444786.hostingersite.com/ |
-| Appen i webbläsaren | https://lightslategray-wallaby-444786.hostingersite.com/app/ |
-| Adminpanel | https://lightslategray-wallaby-444786.hostingersite.com/admin/login |
-| Projektpresentation (lärare) | https://lightslategray-wallaby-444786.hostingersite.com/presentation.html |
+| Landningssida (kund) | https://dermora.site/ |
+| Appen i webbläsaren | https://dermora.site/app/ |
+| Adminpanel | https://dermora.site/admin/login |
+| Projektpresentation (lärare) | https://dermora.site/presentation.html |
 | Figma (redigerbar design) | https://www.figma.com/design/3Mytv71asDlX8rEz1JbCGk/Dermora---App---Web--Grupp-6- |
 | GitHub Pages (statisk kopia, mock-läge) | https://anasnassan92-cmyk.github.io/dermora/ |
 | Android-APK | https://expo.dev/artifacts/eas/5R2o4BqsuJo04TQdJAUB3RdmEqe9V_jJqw86XFpmofk.apk (EAS, 2026-10-07) – se [Bygga APK](#bygga-apk-android) |
