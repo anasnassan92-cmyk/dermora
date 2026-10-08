@@ -102,7 +102,7 @@ export function ProgressTabScreen() {
         </View>
 
         {data?.checkin_due ? (
-          <Pressable onPress={() => data.plan?.assessment_id && navigation.navigate('AIChat', { assessmentId: data.plan.assessment_id })} style={styles.checkin} accessibilityRole="button">
+          <Pressable onPress={() => navigation.navigate('Tabs', { screen: 'Chat' })} style={styles.checkin} accessibilityRole="button">
             <Icon name="chat" size={22} color={colors.inkBrand} />
             <View style={styles.flex}>
               <T variant="bodyMedium">Dags för uppföljning med Dermora</T>
@@ -179,7 +179,7 @@ export function ProgressTabScreen() {
             title="Ny uppföljningsbild i chatten  →"
             variant="ghost"
             style={styles.gap}
-            onPress={() => data?.plan?.assessment_id && navigation.navigate('AIChat', { assessmentId: data.plan.assessment_id })}
+            onPress={() => navigation.navigate('Tabs', { screen: 'Chat' })}
           />
         </View>
 

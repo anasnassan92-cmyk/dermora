@@ -262,6 +262,8 @@ appRouter.post('/ai/analyze/:id', auth, async (req, res) => {
     [id, req.user!.id, a.id, result.provider, result.model, JSON.stringify(result.guidance), result.guidance.seek_care ? 1 : 0, result.inputTokens ?? null, result.outputTokens ?? null, now()],
   );
   await db.run('UPDATE assessments SET status = ?, analyzed_at = ? WHERE id = ?', ['analyzed', now(), a.id]);
+  // The AI plan becomes the active plan immediately; an older active plan is archived.
+  await activatePlan(req.user!.id, await insertPlan(req.user!.id, a.id, result.guidance.plan));
   const existing = await db.get('SELECT id FROM chat_messages WHERE assessment_id = ?', [a.id]);
   if (!existing) await db.run('INSERT INTO chat_messages (id, user_id, assessment_id, role, content, created_at, meta) VALUES (?, ?, ?, ?, ?, ?, ?)', [crypto.randomUUID(), req.user!.id, a.id, 'assistant', result.guidance.guidance, now(), JSON.stringify({ sources: result.sources ?? [], model: result.model })]);
   res.json({ assessment_id: a.id, provider: result.provider, model: result.model, result: result.guidance });
@@ -484,6 +486,15 @@ async function getPlan(userId: string, id: string) {
   return p;
 }
 
+/** Archives the user's current active plan and makes `plan` the active one. */
+async function activatePlan(userId: string, plan: PlanRow): Promise<PlanRow> {
+  if (plan.status === 'confirmed') return plan;
+  const db = getDb();
+  await db.run("UPDATE treatment_plans SET status = 'archived', updated_at = ? WHERE user_id = ? AND status = 'confirmed'", [now(), userId]);
+  await db.run("UPDATE treatment_plans SET status = 'confirmed', confirmed_at = ?, updated_at = ? WHERE id = ?", [now(), now(), plan.id]);
+  return getPlan(userId, plan.id);
+}
+
 async function insertPlan(userId: string, assessmentId: string | null, plan: { title: string; summary?: string }) {
   const id = crypto.randomUUID();
   const t = now();
@@ -528,12 +539,7 @@ appRouter.get('/plans/:id', auth, async (req, res) => {
 
 appRouter.post('/plans/:id/confirm', auth, async (req, res) => {
   const p = await getPlan(req.user!.id, String(req.params.id));
-  if (p.status !== 'confirmed') {
-    const db = getDb();
-    await db.run("UPDATE treatment_plans SET status = 'archived', updated_at = ? WHERE user_id = ? AND status = 'confirmed'", [now(), req.user!.id]);
-    await db.run("UPDATE treatment_plans SET status = 'confirmed', confirmed_at = ?, updated_at = ? WHERE id = ?", [now(), now(), p.id]);
-  }
-  res.json(planOut(await getPlan(req.user!.id, p.id)));
+  res.json(planOut(await activatePlan(req.user!.id, p)));
 });
 
 appRouter.post('/plans/:id/archive', auth, async (req, res) => {

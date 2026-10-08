@@ -22,17 +22,13 @@ export type AppStackParamList = {
   ImageUpload: { assessmentId: string };
   ImageReview: { assessmentId: string };
   Analyzing: { assessmentId: string };
-  Result: { assessmentId: string };
-  AIChat: { assessmentId: string };
-  TreatmentPlan: { assessmentId: string; planId?: string };
-  ConfirmPlan: { planId: string; assessmentId: string };
-  PlanSaved: { planId: string };
-  Plan: undefined; // saved plan (full view)
+  Result: { assessmentId: string }; // summary + the plan (activated automatically)
+  Plan: undefined; // active plan (full view)
 };
 
 export type TabParamList = {
   Home: undefined;
-  Scan: undefined;
+  Chat: undefined; // AI chat for the active plan's assessment
   Progress: undefined;
   Profile: undefined;
 };

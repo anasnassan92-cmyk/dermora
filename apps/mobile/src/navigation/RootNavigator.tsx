@@ -25,12 +25,8 @@ import { ImageReviewScreen } from '../features/images/ImageReviewScreen';
 import { AnalyzingScreen } from '../features/ai-guidance/AnalyzingScreen';
 import { ResultScreen } from '../features/ai-guidance/ResultScreen';
 import { AIChatScreen } from '../features/ai-guidance/AIChatScreen';
-import { TreatmentPlanScreen } from '../features/treatment-plan/TreatmentPlanScreen';
-import { ConfirmPlanScreen } from '../features/treatment-plan/ConfirmPlanScreen';
-import { PlanSavedScreen } from '../features/treatment-plan/PlanSavedScreen';
 import { SavedPlanScreen } from '../features/treatment-plan/SavedPlanScreen';
 import { HomeScreen } from '../features/treatment-plan/HomeScreen';
-import { ScanTabScreen } from '../features/treatment-plan/ScanTabScreen';
 import { ProgressTabScreen } from '../features/treatment-plan/ProgressTabScreen';
 import type { AppStackParamList, AuthStackParamList, TabParamList } from './types';
 
@@ -66,7 +62,7 @@ export function MainTabs({ initial = 'Home' }: { initial?: keyof TabParamList })
   return (
     <Tabs.Navigator initialRouteName={initial} screenOptions={tabOptions}>
       <Tabs.Screen name="Home" component={HomeScreen} options={{ title: 'Hem', tabBarIcon: ({ color }) => <Icon name="home" size={22} color={color} /> }} />
-      <Tabs.Screen name="Scan" component={ScanTabScreen} options={{ title: 'Skanna', tabBarIcon: ({ color }) => <Icon name="face-scan" size={22} color={color} /> }} />
+      <Tabs.Screen name="Chat" component={AIChatScreen} options={{ title: 'Chatt', tabBarIcon: ({ color }) => <Icon name="chat" size={22} color={color} /> }} />
       <Tabs.Screen name="Progress" component={ProgressTabScreen} options={{ title: 'Framsteg', tabBarIcon: ({ color }) => <Icon name="trend-up" size={22} color={color} /> }} />
       <Tabs.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profil', tabBarIcon: ({ color }) => <Icon name="user" size={22} color={color} /> }} />
     </Tabs.Navigator>
@@ -122,11 +118,7 @@ export function RootNavigator() {
           <AppStack.Screen name="ImageUpload" component={ImageUploadScreen} />
           <AppStack.Screen name="ImageReview" component={ImageReviewScreen} />
           <AppStack.Screen name="Analyzing" component={AnalyzingScreen} options={{ gestureEnabled: false }} />
-          <AppStack.Screen name="Result" component={ResultScreen} options={{ ...headerOptions, headerShown: true, title: 'Din hudprofil' }} />
-          <AppStack.Screen name="AIChat" component={AIChatScreen} />
-          <AppStack.Screen name="TreatmentPlan" component={TreatmentPlanScreen} />
-          <AppStack.Screen name="ConfirmPlan" component={ConfirmPlanScreen} />
-          <AppStack.Screen name="PlanSaved" component={PlanSavedScreen} options={{ gestureEnabled: false }} />
+          <AppStack.Screen name="Result" component={ResultScreen} options={{ ...headerOptions, headerShown: true, headerBackVisible: false, gestureEnabled: false, title: 'Din hudprofil' }} />
           <AppStack.Screen name="Plan" component={SavedPlanScreen} options={{ ...headerOptions, headerShown: true, title: 'Min plan' }} />
         </AppStack.Navigator>
       )}

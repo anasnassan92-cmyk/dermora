@@ -165,6 +165,23 @@ export async function verifyGoogleIdToken(idToken: string): Promise<{ sub: strin
   return info;
 }
 
+/** Web popup flow (google.accounts.oauth2 token client): the access token is checked with Google, then the profile is read. */
+export async function verifyGoogleAccessToken(accessToken: string): Promise<{ sub: string; email: string; given_name?: string; family_name?: string }> {
+  if (!config.googleClientIds.length) throw new HttpError(503, 'Google-inloggning är inte aktiverad ännu.');
+  const check = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`);
+  if (!check.ok) throw new HttpError(401, 'Google-inloggningen kunde inte verifieras.');
+  const info = (await check.json()) as { aud?: string; azp?: string; email?: string; email_verified?: string | boolean; expires_in?: string };
+  const aud = info.aud ?? info.azp ?? '';
+  if (!config.googleClientIds.includes(aud)) throw new HttpError(401, 'Google-token är inte avsedd för Dermora.');
+  if (!(info.email_verified === true || info.email_verified === 'true')) throw new HttpError(401, 'Google-kontots e-post är inte verifierad.');
+  if (Number(info.expires_in ?? 0) <= 0) throw new HttpError(401, 'Google-token har gått ut.');
+  const prof = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${accessToken}` } });
+  if (!prof.ok) throw new HttpError(401, 'Google-profilen kunde inte läsas.');
+  const u = (await prof.json()) as { sub: string; email: string; given_name?: string; family_name?: string };
+  if (!u.email || (info.email && info.email !== u.email)) throw new HttpError(401, 'Google-kontot kunde inte bekräftas.');
+  return u;
+}
+
 // ---------- simple in-memory rate limit for auth endpoints ----------
 const hits = new Map<string, { n: number; reset: number }>();
 export function rateLimit(max: number, windowMs: number) {

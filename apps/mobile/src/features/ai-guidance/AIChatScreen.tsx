@@ -6,12 +6,17 @@
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { useFocusEffect, type CompositeScreenProps } from '@react-navigation/native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
 
-import { Blob, Button, Disclaimer, FlowHeader, Icon, Screen, T, type IconName } from '../../components/ui';
+import { Blob, Button, Disclaimer, Icon, IconBadge, Screen, T, type IconName } from '../../components/ui';
 import { DESIGN } from '../../constants/design';
-import type { AppScreenProps } from '../../navigation/types';
+import type { AppStackParamList, TabParamList } from '../../navigation/types';
 import { aiService } from '../../services/ai/aiService';
+import { assessmentService } from '../assessment/services/assessmentService';
+import { planService } from '../treatment-plan/services/planService';
 import { imageStorageService } from '../../services/storage/imageStorageService';
 import { colors, radius, shadow, spacing, typography } from '../../theme';
 import type { ChatMessage, ChatStatus, SkinGuidance } from '../../types/api';
@@ -26,8 +31,49 @@ const QUICK: { icon: IconName; label: string; prompt: string }[] = [
 
 const SKIN_LABEL: Record<string, string> = { oily: 'Fet hud', dry: 'Torr hud', combination: 'Kombinationshud', normal: 'Normal hud', sensitive: 'Känslig hud', unknown: 'Okänd' };
 
-export function AIChatScreen({ navigation, route }: AppScreenProps<'AIChat'>) {
-  const { assessmentId } = route.params;
+type Props = CompositeScreenProps<BottomTabScreenProps<TabParamList, 'Chat'>, NativeStackScreenProps<AppStackParamList>>;
+
+/** The chat belongs to the assessment behind the active plan (fallback: the latest analysed assessment). */
+async function chatAssessmentId(): Promise<string | null> {
+  const plan = await planService.active().catch(() => null);
+  if (plan?.assessment_id) return plan.assessment_id;
+  const list = await assessmentService.list().catch(() => []);
+  return list.find((a) => a.status === 'analyzed')?.id ?? null;
+}
+
+export function AIChatScreen({ navigation }: Props) {
+  const [assessmentId, setAssessmentId] = useState<string | null | undefined>(undefined);
+
+  useFocusEffect(
+    useCallback(() => {
+      chatAssessmentId().then(setAssessmentId);
+    }, []),
+  );
+
+  if (assessmentId === undefined) {
+    return (
+      <Screen scroll={false}>
+        <View style={styles.centerBox}><ActivityIndicator color={colors.accent} /></View>
+      </Screen>
+    );
+  }
+  if (!assessmentId) {
+    return (
+      <Screen>
+        <Blob />
+        <View style={styles.emptyHero}>
+          <IconBadge name="chat" size={110} />
+          <T variant="display" center style={styles.title}>Chatta med Dermora</T>
+          <T variant="body" muted center>När din hudanalys är klar kan du ställa frågor om din hud, dina produkter och din plan här.</T>
+        </View>
+        <Button title="Starta hudanalys  →" onPress={() => navigation.navigate('AssessmentIntro')} />
+      </Screen>
+    );
+  }
+  return <Chat key={assessmentId} assessmentId={assessmentId} onDetails={() => navigation.navigate('Result', { assessmentId })} />;
+}
+
+function Chat({ assessmentId, onDetails }: { assessmentId: string; onDetails: () => void }) {
   const [guidance, setGuidance] = useState<SkinGuidance | null>(null);
   const [status, setStatus] = useState<ChatStatus | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -124,11 +170,10 @@ export function AIChatScreen({ navigation, route }: AppScreenProps<'AIChat'>) {
   const header = (
     <View>
       <Blob />
-      <FlowHeader step={4} onBack={() => navigation.goBack()} onSkip={() => navigation.navigate('TreatmentPlan', { assessmentId })} />
       <View style={styles.intro}>
         <View style={styles.introText}>
-          <T variant="display" style={styles.title}>Din AI-vägledning{'\n'}är redo!</T>
-          <T variant="body" muted>Baserat på din hudanalys, dina svar och dina bilder kan jag nu ge dig personliga rekommendationer.</T>
+          <T variant="display" style={styles.title}>Din AI-hudexpert</T>
+          <T variant="body" muted>Fråga om din hud, dina produkter eller din plan. Vill du ändra något i planen – säg det här, så justerar jag den.</T>
         </View>
         <View style={styles.robotCol}>
           <Image source={DESIGN['robot-wave']} style={styles.robot} resizeMode="contain" />
@@ -153,7 +198,7 @@ export function AIChatScreen({ navigation, route }: AppScreenProps<'AIChat'>) {
         <View style={[styles.profileCard, narrow && styles.profileCardNarrow]}>
           <View style={styles.profileHead}>
             <T variant="bodyMedium">Din hudprofil</T>
-            <Pressable onPress={() => navigation.navigate('Result', { assessmentId })} accessibilityRole="button" style={styles.detailsLink}>
+            <Pressable onPress={onDetails} accessibilityRole="button" style={styles.detailsLink}>
               <T variant="small" color={colors.inkBrand}>Se detaljer</T>
               <Icon name="chevron-right" size={16} color={colors.inkBrand} />
             </Pressable>
@@ -218,7 +263,6 @@ export function AIChatScreen({ navigation, route }: AppScreenProps<'AIChat'>) {
               {sending ? <ActivityIndicator size="small" color={colors.onPrimary} /> : <Icon name="arrow-right" size={20} color={colors.onPrimary} strokeWidth={2.2} />}
             </Pressable>
           </View>
-          <Button title="Fortsätt till min plan  →" onPress={() => navigation.navigate('TreatmentPlan', { assessmentId })} style={styles.cta} />
         </View>
       }
     >
@@ -298,5 +342,6 @@ const styles = StyleSheet.create({
   input: { ...typography.small, flex: 1, maxHeight: 100, paddingVertical: spacing.sm, color: colors.ink },
   send: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
   sendOff: { opacity: 0.4 },
-  cta: { marginTop: spacing.md },
+  centerBox: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  emptyHero: { alignItems: 'center', gap: spacing.md, marginTop: spacing.xl, marginBottom: spacing.xl },
 });

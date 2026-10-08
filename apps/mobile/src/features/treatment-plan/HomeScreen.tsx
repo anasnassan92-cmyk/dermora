@@ -40,7 +40,7 @@ export function HomeScreen({ navigation }: Props) {
     if (!profile?.age_range) return navigation.navigate('ProfileSetup');
     navigation.navigate('AssessmentIntro');
   };
-  const chat = () => (plan?.assessment_id ? navigation.navigate('AIChat', { assessmentId: plan.assessment_id }) : start());
+  const chat = () => navigation.navigate('Tabs', { screen: 'Chat' });
 
   return (
     <Screen>
@@ -50,10 +50,6 @@ export function HomeScreen({ navigation }: Props) {
           <T variant="h2" style={styles.brandName}>Dermora</T>
           <T variant="caption" muted>Din hud, förstådd</T>
         </View>
-        <Pressable style={styles.bell} accessibilityRole="button" accessibilityLabel="Notiser">
-          <Icon name="bell" size={22} color={colors.ink} />
-          <View style={styles.bellDot} />
-        </Pressable>
       </View>
 
       {plan ? (
@@ -143,14 +139,6 @@ export function HomeScreen({ navigation }: Props) {
         </>
       ) : (
         <>
-          <Pressable onPress={start} style={styles.weekly} accessibilityRole="button">
-            <View style={[styles.routineIcon, { backgroundColor: colors.surfaceMint }]}><Icon name="face-scan" size={22} color={colors.inkBrand} /></View>
-            <View style={styles.weeklyText}>
-              <T variant="bodyMedium">AI-hudanalys</T>
-              <T variant="caption" muted>Frågor, bilder och personlig vägledning</T>
-            </View>
-            <Icon name="chevron-right" size={18} color={colors.inkMuted} />
-          </Pressable>
           {!profile?.consent_images ? (
             <InfoPanel icon="shield-check" title="Dina bilder är privata" text="Vi lagrar bilder krypterat, tar bort GPS-data och använder aldrig ansiktsigenkänning. Du godkänner bildbehandling i din profil." />
           ) : null}
@@ -184,8 +172,6 @@ const styles = StyleSheet.create({
   symbol: { width: 52, height: 44 },
   brand: { flex: 1 },
   brandName: { marginBottom: 0 },
-  bell: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surfaceRaised, alignItems: 'center', justifyContent: 'center', ...shadow.sm },
-  bellDot: { position: 'absolute', top: 10, right: 11, width: 8, height: 8, borderRadius: 4, backgroundColor: colors.danger },
   banner: { flexDirection: 'row', backgroundColor: colors.surfaceMint, borderRadius: radius.xl, padding: spacing.lg, marginBottom: spacing.md, overflow: 'hidden' },
   bannerText: { flex: 1.4 },
   bannerRobot: { width: 120, height: 150, alignSelf: 'flex-end', marginRight: -spacing.md },

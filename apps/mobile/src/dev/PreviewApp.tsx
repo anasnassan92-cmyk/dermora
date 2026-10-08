@@ -28,10 +28,6 @@ import { ImageUploadScreen } from '../features/images/ImageUploadScreen';
 import { ImageReviewScreen } from '../features/images/ImageReviewScreen';
 import { AnalyzingScreen } from '../features/ai-guidance/AnalyzingScreen';
 import { ResultScreen } from '../features/ai-guidance/ResultScreen';
-import { AIChatScreen } from '../features/ai-guidance/AIChatScreen';
-import { TreatmentPlanScreen } from '../features/treatment-plan/TreatmentPlanScreen';
-import { ConfirmPlanScreen } from '../features/treatment-plan/ConfirmPlanScreen';
-import { PlanSavedScreen } from '../features/treatment-plan/PlanSavedScreen';
 import { SavedPlanScreen } from '../features/treatment-plan/SavedPlanScreen';
 import { MainTabs, headerOptions, navTheme, stackOptions } from '../navigation/RootNavigator';
 import type { AppStackParamList, AuthStackParamList, TabParamList } from '../navigation/types';
@@ -70,7 +66,7 @@ export function PreviewApp({ screen, q, tab }: { screen: string; q: number; tab?
   }
 
   const a = seed.assessmentId;
-  const stackScreens = new Set(['EditProfile', 'MyInfo', 'ChangePassword', 'ChangeEmail', 'ProfileSetup', 'AssessmentIntro', 'Assessment', 'ImageUpload', 'ImageReview', 'Analyzing', 'Result', 'AIChat', 'TreatmentPlan', 'ConfirmPlan', 'PlanSaved', 'Plan']);
+  const stackScreens = new Set(['EditProfile', 'MyInfo', 'ChangePassword', 'ChangeEmail', 'ProfileSetup', 'AssessmentIntro', 'Assessment', 'ImageUpload', 'ImageReview', 'Analyzing', 'Result', 'Plan']);
   const initial = (stackScreens.has(screen) ? screen : 'Tabs') as keyof AppStackParamList;
   const initialTab = (tab ?? 'Home') as keyof TabParamList;
 
@@ -89,10 +85,6 @@ export function PreviewApp({ screen, q, tab }: { screen: string; q: number; tab?
         <AppStack.Screen name="ImageReview" component={ImageReviewScreen} initialParams={{ assessmentId: a }} />
         <AppStack.Screen name="Analyzing" component={AnalyzingScreen} initialParams={{ assessmentId: a }} />
         <AppStack.Screen name="Result" component={ResultScreen} initialParams={{ assessmentId: a }} options={{ ...headerOptions, headerShown: true, title: 'Din hudprofil' }} />
-        <AppStack.Screen name="AIChat" component={AIChatScreen} initialParams={{ assessmentId: a }} />
-        <AppStack.Screen name="TreatmentPlan" component={TreatmentPlanScreen} initialParams={{ assessmentId: a }} />
-        <AppStack.Screen name="ConfirmPlan" component={ConfirmPlanScreen} initialParams={{ assessmentId: a, planId: seed.planId }} />
-        <AppStack.Screen name="PlanSaved" component={PlanSavedScreen} initialParams={{ planId: seed.planId }} />
         <AppStack.Screen name="Plan" component={SavedPlanScreen} options={{ ...headerOptions, headerShown: true, title: 'Min plan' }} />
       </AppStack.Navigator>
     </NavigationContainer>

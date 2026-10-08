@@ -3,11 +3,12 @@
  * (my answers & images, edit profile, change password / e-mail, delete data, log out).
  */
 import React, { useCallback, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useFocusEffect, type CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
+import { Alert } from 'react-native';
 import { Button, Card, Chip, ListRow, Screen, T } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
 import type { AppStackParamList, TabParamList } from '../../navigation/types';
@@ -63,6 +64,16 @@ export function ProfileScreen({ navigation }: Props) {
 
   const name = profile?.display_name || session?.firstName || 'Din profil';
 
+  /** New photos only – the answers from the first questionnaire are reused. */
+  const newPhotos = async () => {
+    try {
+      const a = await assessmentService.createFromLatest();
+      navigation.navigate('ImageUpload', { assessmentId: a.id });
+    } catch (e) {
+      Alert.alert('Kunde inte starta', (e as Error).message);
+    }
+  };
+
   return (
     <Screen>
       <T variant="h1" mb="xs">{name}</T>
@@ -109,6 +120,11 @@ export function ProfileScreen({ navigation }: Props) {
       <Card>
         <T variant="label" muted mb="sm">Mina uppgifter</T>
         <ListRow icon="document" title="Mina svar och bilder" subtitle="Formuläret du fyllde i (låst) och dina uppladdade bilder" onPress={() => navigation.navigate('MyInfo')} />
+        {guidance ? (
+          <ListRow icon="camera" title="Ny analys med nya bilder" subtitle="Dina svar behålls – ladda bara upp nya bilder så uppdateras din plan" onPress={newPhotos} />
+        ) : (
+          <ListRow icon="face-scan" title="Starta hudanalys" subtitle="Frågor, bilder och din personliga plan" onPress={() => navigation.navigate('AssessmentIntro')} />
+        )}
         <ListRow icon="edit" title="Redigera profil" subtitle="Namn, födelseår, hudtyp" onPress={() => navigation.navigate('EditProfile')} />
         <ListRow icon="face" title="Grundprofil" subtitle="Ålder, kön, hudton" onPress={() => navigation.navigate('ProfileSetup')} />
       </Card>
