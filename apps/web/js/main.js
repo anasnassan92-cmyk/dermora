@@ -55,7 +55,11 @@
 document.querySelectorAll('[data-scroll-top]').forEach(function (el) {
   el.addEventListener('click', function (e) {
     e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Instant jump: smooth scrolling over a long page is unreliable on some phones.
+    var root = document.documentElement, prev = root.style.scrollBehavior;
+    root.style.scrollBehavior = 'auto';
+    window.scrollTo(0, 0);
+    root.style.scrollBehavior = prev;
     if (history.replaceState) history.replaceState(null, '', location.pathname + location.search);
   });
 });
