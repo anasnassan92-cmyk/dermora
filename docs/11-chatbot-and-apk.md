@@ -51,3 +51,21 @@ Installera på Android: ladda ner APK-länken på telefonen → öppna → till�
 ## E-postkoder (SMTP)
 
 Skapa en brevlåda i hPanel → Emails (gratis med hostingen), sätt `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` (samma adress) på servern → Apply changes → redeploy. Tills dess visar appen koden på skärmen ("Demo").
+
+## Konto (2026-10-08)
+
+Inloggade användare kan byta lösenord och e-postadress (Profil → Inloggning):
+
+| Anrop | Kropp | Svar |
+|---|---|---|
+| `POST /api/auth/change-password` | `{current_password, new_password}` | `{ok}` – 401 om nuvarande lösenord är fel, 422 om det nya är för svagt |
+| `POST /api/auth/change-email` | `{password, new_email}` | `{ok, demo, new_email}` – en kod skickas till **den nya** adressen (`users.pending_email`, migration v3) |
+| `POST /api/auth/confirm-email` | `{code}` | `{token, user}` – adressen byts, ny token utfärdas |
+
+Profil-fliken visar nu namn, sammanfattningen från senaste analysen, den bekräftade planen (→ Min plan), *Mina svar och bilder* (formuläret skrivskyddat + uppladdade bilder) samt Byt lösenord / Byt e-postadress. Test: `apps/server/test/account.test.ts`.
+
+### Domän dermora.site (köpt 2026-10-08)
+1. hPanel → Websites → `lightslategray-wallaby-444786.hostingersite.com` → **Connect domain** → bocka i "I understand…" → **Change** → välj `dermora.site`. (Dialogen varnar bara om domännamn lagrade i databasen – Dermora lagrar inga, så det är ofarligt.)
+2. Sätt `EXPO_PUBLIC_API_URL=https://dermora.site/api` i `apps/mobile/eas.json` och bygg om APK:n (`npx eas build -p android --profile preview`).
+3. Google OAuth: Web-klient med origin `https://dermora.site` → `GOOGLE_CLIENT_ID`; Android-klient (paket `se.dermora.app`, SHA-1 från `npx eas credentials -p android`) → `GOOGLE_ANDROID_CLIENT_ID`.
+4. E-post: skapa `no-reply@dermora.site` i hPanel → Emails, sätt `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` → Apply changes + redeploy. Då skickas koderna på riktigt i stället för till Runtime logs.
