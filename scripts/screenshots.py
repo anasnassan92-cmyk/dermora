@@ -28,12 +28,12 @@ SCREENS = [
     ("09-bilder", "ImageUpload", "Bilduppladdning"),
     ("10-granska-bilder", "ImageReview", "Granska bilder"),
     ("11-analys", "Analyzing", "AI-analys"),
-    ("12-chat", "AIChat", "AI-vägledning (chat)"),
-    ("13-plan", "TreatmentPlan", "AI-föreslagen plan"),
-    ("14-bekrafta", "ConfirmPlan", "Bekräfta plan"),
-    ("15-sparad", "PlanSaved", "Plan sparad"),
-    ("16-hem", "Tabs&tab=Home", "Hem"),
-    ("17-skanna", "Tabs&tab=Scan", "Skanna"),
+    ("12-resultat", "Result", "Resultat + plan"),
+    ("13-hem", "Tabs&tab=Home", "Hem"),
+    ("14-chat", "Tabs&tab=Chat", "Chatt"),
+    ("15-framsteg", "Tabs&tab=Progress", "Framsteg"),
+    ("16-profil", "Tabs&tab=Profile", "Profil"),
+    ("17-min-plan", "Plan", "Min plan"),
 ]
 
 CANDIDATES = [

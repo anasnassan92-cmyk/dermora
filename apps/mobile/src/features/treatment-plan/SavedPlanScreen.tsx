@@ -25,7 +25,7 @@ export function SavedPlanScreen({ navigation }: AppScreenProps<'Plan'>) {
     return (
       <Screen>
         <T variant="display" style={styles.title}>Ingen plan ännu</T>
-        <T variant="body" muted mb="xl">Gör en hudanalys så får du ett förslag på en plan som du kan bekräfta.</T>
+        <T variant="body" muted mb="xl">Gör en hudanalys så får du din personliga plan direkt.</T>
         <Button title="Starta hudanalys  →" onPress={() => navigation.navigate('AssessmentIntro')} />
       </Screen>
     );
@@ -36,7 +36,7 @@ export function SavedPlanScreen({ navigation }: AppScreenProps<'Plan'>) {
 
   return (
     <Screen>
-      <T variant="label" muted mb="xs">Aktiv plan · bekräftad {confirmed}</T>
+      <T variant="label" muted mb="xs">Aktiv plan · sedan {confirmed}</T>
       <T variant="display" style={styles.title}>{plan.title}</T>
       <T variant="body" muted mb="lg">{plan.summary}</T>
 
@@ -65,8 +65,8 @@ export function SavedPlanScreen({ navigation }: AppScreenProps<'Plan'>) {
       </View>
 
       <InfoPanel title="Vad du kan förvänta dig" text={`${p.expectations} Uppföljning med ny bild om ${p.follow_up_days} dagar.`} />
-      {plan.assessment_id ? <Button title="Chatta om planen" variant="secondary" onPress={() => navigation.navigate('AIChat', { assessmentId: plan.assessment_id! })} /> : null}
-      <Button title="Gör en ny hudanalys" variant="ghost" onPress={() => navigation.navigate('AssessmentIntro')} style={styles.gap} />
+      <Button title="Chatta om planen" variant="secondary" onPress={() => navigation.navigate('Tabs', { screen: 'Chat' })} />
+      <Button title="Uppdatera med nya bilder" variant="ghost" onPress={() => navigation.navigate('Tabs', { screen: 'Profile' })} style={styles.gap} />
       <Disclaimer />
     </Screen>
   );

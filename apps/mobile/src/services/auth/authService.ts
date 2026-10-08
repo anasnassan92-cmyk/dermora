@@ -63,43 +63,13 @@ async function rememberDevCode(code?: string) {
 // ---------- Google Identity Services (web) ----------
 type GoogleId = {
   accounts: {
-    id: {
-      initialize: (o: object) => void;
-      prompt: (cb?: (n: { isNotDisplayed: () => boolean; isSkippedMoment: () => boolean }) => void) => void;
-      renderButton: (el: HTMLElement, o: object) => void;
-      cancel: () => void;
-    };
+    oauth2: { initTokenClient: (o: object) => { requestAccessToken: (o?: object) => void } };
   };
 };
 
-/**
- * One Tap only works when the browser already has a Google session (and FedCM allows it). When it is not shown,
- * we open a small overlay with Google's own "Fortsätt med Google" button, which always opens the account chooser.
- */
-function gsiButtonOverlay(google: GoogleId, onCancel: () => void): HTMLElement {
-  const overlay = document.createElement('div');
-  overlay.setAttribute('style', 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(16,42,52,.45);padding:16px');
-  const card = document.createElement('div');
-  card.setAttribute('style', 'background:#FAF7F0;border-radius:20px;padding:24px 20px;max-width:340px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25);text-align:center;font-family:Montserrat,system-ui,sans-serif;color:#102A34');
-  card.innerHTML = '<div style="font-weight:700;font-size:18px;margin-bottom:6px">Välj ditt Google-konto</div><div style="font-size:14px;opacity:.75;margin-bottom:18px">Google öppnar ett litet fönster där du väljer konto.</div>';
-  const slot = document.createElement('div');
-  slot.setAttribute('style', 'display:flex;justify-content:center;margin-bottom:14px');
-  card.appendChild(slot);
-  const cancel = document.createElement('button');
-  cancel.type = 'button';
-  cancel.textContent = 'Avbryt';
-  cancel.setAttribute('style', 'background:none;border:0;color:#0F766E;font-weight:600;font-size:14px;cursor:pointer;padding:8px 16px');
-  cancel.onclick = () => { overlay.remove(); onCancel(); };
-  card.appendChild(cancel);
-  overlay.appendChild(card);
-  document.body.appendChild(overlay);
-  google.accounts.id.renderButton(slot, { theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with', locale: 'sv', width: 280 });
-  return overlay;
-}
-
 function loadGsi(): Promise<GoogleId> {
   const w = window as unknown as { google?: GoogleId };
-  if (w.google?.accounts?.id) return Promise.resolve(w.google);
+  if (w.google?.accounts?.oauth2) return Promise.resolve(w.google);
   return new Promise((resolve, reject) => {
     const s = document.createElement('script');
     s.src = 'https://accounts.google.com/gsi/client';
@@ -129,24 +99,21 @@ async function nativeGoogleIdToken(androidClientId: string | null): Promise<stri
   return result.params.id_token;
 }
 
-async function googleIdToken(): Promise<string> {
+/** Returns either an id_token (native) or an access_token (web); the server accepts both. */
+async function googleCredential(): Promise<{ id_token?: string; access_token?: string }> {
   const cfg = (await (await fetch(`${API_URL}/config`)).json()) as { google_client_id: string | null; google_android_client_id?: string | null };
-  if (Platform.OS !== 'web') return nativeGoogleIdToken(cfg.google_android_client_id ?? null);
+  if (Platform.OS !== 'web') return { id_token: await nativeGoogleIdToken(cfg.google_android_client_id ?? null) };
   if (!cfg.google_client_id) throw new Error('Google-inloggning är inte aktiverad ännu. Använd e-post så länge.');
   const google = await loadGsi();
+  // One click: the OAuth token client opens Google's own account chooser popup straight away.
   return new Promise((resolve, reject) => {
-    let overlay: HTMLElement | null = null;
-    const done = (r: { credential?: string }) => {
-      overlay?.remove();
-      if (r.credential) resolve(r.credential);
-      else reject(new Error('Google-inloggningen avbröts.'));
-    };
-    google.accounts.id.initialize({ client_id: cfg.google_client_id, callback: done, ux_mode: 'popup', use_fedcm_for_prompt: true });
-    google.accounts.id.prompt((n) => {
-      if ((n.isNotDisplayed() || n.isSkippedMoment()) && !overlay) {
-        overlay = gsiButtonOverlay(google, () => reject(new Error('Google-inloggningen avbröts.')));
-      }
+    const client = google.accounts.oauth2.initTokenClient({
+      client_id: cfg.google_client_id,
+      scope: 'openid email profile',
+      callback: (r: { access_token?: string; error?: string }) => (r.access_token ? resolve({ access_token: r.access_token }) : reject(new Error('Google-inloggningen avbröts.'))),
+      error_callback: (e: { type?: string }) => reject(new Error(e.type === 'popup_closed' ? 'Google-inloggningen avbröts.' : 'Google-fönstret kunde inte öppnas. Tillåt popup-fönster och försök igen.')),
     });
+    client.requestAccessToken({ prompt: 'select_account' });
   });
 }
 
@@ -236,8 +203,7 @@ export const authService = {
       await save({ userId: DEV_USER_ID, email: 'demo@gmail.com', emailVerified: true, accessToken: `dev:${DEV_USER_ID}` });
       return;
     }
-    const idToken = await googleIdToken();
-    const r = await post<{ token: string; user: ServerUser }>('/auth/google', { id_token: idToken });
+    const r = await post<{ token: string; user: ServerUser }>('/auth/google', await googleCredential());
     await save(toSession(r.token, r.user));
   },
 

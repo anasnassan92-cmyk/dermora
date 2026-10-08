@@ -4,7 +4,7 @@
  *   POST /verify   {code}  (Bearer)                       → {token, user}
  *   POST /resend           (Bearer)                       → {sent, dev_code?}
  *   POST /login    {email,password}                       → {token, user}
- *   POST /google   {id_token}                             → {token, user}
+ *   POST /google   {id_token} | {access_token}            → {token, user}
  *   GET  /me               (Bearer)                       → {user}
  * dev_code is only returned when SMTP is not configured (demo mode).
  */
@@ -27,6 +27,7 @@ import {
   requireUser,
   signAppToken,
   toAuthUser,
+  verifyGoogleAccessToken,
   verifyGoogleIdToken,
   type UserRow,
 } from '../auth/index.js';
@@ -131,8 +132,9 @@ authRouter.post('/login', rateLimit(20, 15 * 60_000), async (req, res) => {
 });
 
 authRouter.post('/google', rateLimit(20, 15 * 60_000), async (req, res) => {
-  const { id_token } = z.object({ id_token: z.string().min(20) }).parse(req.body);
-  const info = await verifyGoogleIdToken(id_token);
+  const { id_token, access_token } = z.object({ id_token: z.string().min(20).optional(), access_token: z.string().min(20).optional() }).parse(req.body);
+  if (!id_token && !access_token) throw new HttpError(400, 'id_token eller access_token saknas.');
+  const info = id_token ? await verifyGoogleIdToken(id_token) : await verifyGoogleAccessToken(access_token!);
   let user = await findUserByEmail(info.email);
   if (!user) {
     user = await createUser({ email: info.email, password_hash: null, google_sub: info.sub, first_name: info.given_name ?? null, last_name: info.family_name ?? null, verified: true });

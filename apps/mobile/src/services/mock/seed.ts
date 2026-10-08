@@ -24,7 +24,7 @@ export interface DemoSeed {
 
 const ORDER = [
   'Welcome', 'Login', 'Register', 'VerifyEmail', 'ProfileSetup', 'AssessmentIntro', 'Assessment', 'ImageUpload', 'ImageReview',
-  'Analyzing', 'Result', 'AIChat', 'TreatmentPlan', 'ConfirmPlan', 'PlanSaved', 'Tabs', 'Plan', 'EditProfile',
+  'Analyzing', 'Result', 'Tabs', 'Plan', 'EditProfile',
 ];
 
 /** A tiny neutral "skin" placeholder (SVG data URL) so image screens have thumbnails without real photos. */
@@ -62,15 +62,11 @@ export async function seedDemo(screen: string): Promise<DemoSeed> {
   if (stage >= ORDER.indexOf('Result')) {
     await assessmentService.submit(a.id);
     await aiService.analyze(a.id);
-  }
-  if (stage >= ORDER.indexOf('AIChat')) {
-    await aiService.send(a.id, 'Jag får ofta utbrott på kinderna. Vad kan det bero på?');
-  }
-  if (stage >= ORDER.indexOf('ConfirmPlan')) {
-    planId = (await planService.proposeFromAssessment(a.id)).id;
-  }
-  if (stage >= ORDER.indexOf('PlanSaved')) {
+    planId = (await planService.proposeFromAssessment(a.id)).id; // the real server activates the plan inside /ai/analyze
     await planService.confirm(planId);
+  }
+  if (stage >= ORDER.indexOf('Tabs')) {
+    await aiService.send(a.id, 'Jag får ofta utbrott på kinderna. Vad kan det bero på?');
   }
   return { assessmentId: a.id, planId };
 }

@@ -6,7 +6,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Blob, Button, Card, FlowHeader, Icon, InfoPanel, Screen, T } from '../../components/ui';
 import { DESIGN, IMAGE_SLOTS } from '../../constants/design';
 import type { AppScreenProps } from '../../navigation/types';
+import { USE_MOCK_API } from '../../constants';
 import { aiService } from '../../services/ai/aiService';
+import { planService } from '../treatment-plan/services/planService';
 import { imageStorageService } from '../../services/storage/imageStorageService';
 import { useContentWidth } from '../../hooks/useContentWidth';
 import { colors, radius, shadow, spacing } from '../../theme';
@@ -45,7 +47,10 @@ export function AnalyzingScreen({ navigation, route }: AppScreenProps<'Analyzing
     }, 1500);
     aiService
       .analyze(assessmentId)
-      .then(() => navigation.replace('AIChat', { assessmentId }))
+      .then(async () => {
+        if (USE_MOCK_API) await planService.confirm((await planService.proposeFromAssessment(assessmentId)).id); // the server does this itself
+        navigation.replace('Result', { assessmentId });
+      })
       .catch((e: Error) => setError(e.message))
       .finally(() => clearInterval(t));
     return () => clearInterval(t);

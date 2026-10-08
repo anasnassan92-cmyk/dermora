@@ -23,6 +23,19 @@ export const assessmentService = {
     return api.post<Assessment>('/assessments', { questionnaire_version: '1.0.0' });
   },
 
+  /**
+   * "Ny analys med nya bilder": the questionnaire is answered once. A follow-up assessment copies the latest
+   * answers and is submitted right away, so the user only uploads new photos before the AI runs again.
+   */
+  async createFromLatest(): Promise<Assessment> {
+    const list = await this.list();
+    const prev = list.find((a) => a.status === 'analyzed') ?? list.find((a) => Object.keys(a.answers ?? {}).length > 0);
+    if (!prev) throw new Error('Det finns inga tidigare svar – gör hudanalysen först.');
+    const a = await this.create();
+    await this.saveAnswers(a.id, prev.answers);
+    return this.submit(a.id);
+  },
+
   async list(): Promise<Assessment[]> {
     if (USE_MOCK_API) return [...mockStore.values()].reverse();
     return api.get<Assessment[]>('/assessments');
