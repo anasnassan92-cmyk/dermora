@@ -1,12 +1,13 @@
 /** Byt e-postadress – password + new address → code sent to the new address. Owner: Anas. */
 import React, { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Button, InfoPanel, Input, Screen, T } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
 import type { AppScreenProps } from '../../navigation/types';
 import { authService } from '../../services/auth/authService';
 import { colors, spacing } from '../../theme';
+import { showMessage } from '../../utils/dialog';
 
 export function ChangeEmailScreen({ navigation }: AppScreenProps<'ChangeEmail'>) {
   const { session, refresh, isMock } = useAuth();
@@ -38,7 +39,7 @@ export function ChangeEmailScreen({ navigation }: AppScreenProps<'ChangeEmail'>)
     try {
       await authService.confirmEmail(code, email);
       await refresh();
-      Alert.alert('Klart', `Du loggar nu in med ${email}.`, [{ text: 'OK', onPress: () => navigation.goBack() }]);
+      showMessage('Klart', `Du loggar nu in med ${email}.`, () => navigation.goBack());
     } catch (e) {
       setError((e as Error).message);
     } finally {
