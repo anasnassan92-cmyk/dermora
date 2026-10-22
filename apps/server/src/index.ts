@@ -50,7 +50,7 @@ export function createApp() {
   app.use(express.urlencoded({ extended: false, limit: '100kb' }));
   app.use(cookieParser());
 
-  app.get('/api/health', (_req, res) => res.json({ status: 'ok', ai: features.ai, vision: features.vision, email: features.email, google: features.google }));
+  app.get('/api/health', (_req, res) => res.json({ status: 'ok', ai: features.ai, vision: features.vision, email: features.email, google: features.google, uptime_s: Math.round(process.uptime()) }));
   app.use('/api/auth', authRouter);
   app.use('/api', appRouter);
   app.use('/api', (_req, _res, next) => next(new HttpError(404, 'Okänd API-väg.')));
