@@ -1,11 +1,12 @@
 /** Byt lösenord – current + new password. Owner: Anas. */
 import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { Button, Input, Screen, T } from '../../components/ui';
 import type { AppScreenProps } from '../../navigation/types';
 import { authService } from '../../services/auth/authService';
 import { spacing } from '../../theme';
+import { showMessage } from '../../utils/dialog';
 
 export function ChangePasswordScreen({ navigation }: AppScreenProps<'ChangePassword'>) {
   const [current, setCurrent] = useState('');
@@ -25,7 +26,7 @@ export function ChangePasswordScreen({ navigation }: AppScreenProps<'ChangePassw
     setLoading(true);
     try {
       await authService.changePassword(hasPassword ? current : null, next);
-      Alert.alert('Klart', hasPassword ? 'Ditt lösenord är ändrat.' : 'Ditt lösenord är sparat. Nu kan du logga in med e-post och lösenord också.', [{ text: 'OK', onPress: () => navigation.goBack() }]);
+      showMessage('Klart', hasPassword ? 'Ditt lösenord är ändrat.' : 'Ditt lösenord är sparat. Nu kan du logga in med e-post och lösenord också.', () => navigation.goBack());
     } catch (e) {
       setError((e as Error).message);
     } finally {
