@@ -43,8 +43,13 @@ export function VerifyEmailScreen({ route }: AuthScreenProps<'VerifyEmail'>) {
   };
 
   const resend = async () => {
-    await authService.resendVerification(email);
-    setCountdown(30);
+    setError(null);
+    try {
+      await authService.resendVerification(email);
+      setCountdown(30);
+    } catch (e) {
+      setError((e as Error).message);
+    }
   };
 
   return (
