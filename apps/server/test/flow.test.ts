@@ -78,7 +78,7 @@ const ANSWERS = {
 test('health and public config', async () => {
   const h = await api('GET', '/api/health');
   assert.equal(h.status, 200);
-  assert.equal(h.data.ai, 'mock');
+  assert.equal(typeof h.data.uptime_s, 'number');
   const q = await api('GET', '/api/questionnaire');
   assert.equal(q.status, 200);
   assert.ok(q.data.questions.length > 5);
