@@ -8,7 +8,6 @@ import { useFocusEffect, type CompositeScreenProps } from '@react-navigation/nat
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { Alert } from 'react-native';
 import { Button, Card, Chip, ListRow, Screen, T } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
 import type { AppStackParamList, TabParamList } from '../../navigation/types';
@@ -17,6 +16,7 @@ import { authService } from '../../services/auth/authService';
 import { profileService } from '../../services/profile/profileService';
 import { spacing } from '../../theme';
 import type { Profile, SkinGuidance, TreatmentPlan } from '../../types/api';
+import { confirmAction, showMessage } from '../../utils/dialog';
 import { assessmentService } from '../assessment/services/assessmentService';
 import { planService } from '../treatment-plan/services/planService';
 
@@ -52,18 +52,12 @@ export function ProfileScreen({ navigation }: Props) {
     }, []),
   );
 
-  const deleteData = () =>
-    Alert.alert('Radera all min data?', 'Bilder, svar, bedömningar och planer tas bort permanent.', [
-      { text: 'Avbryt', style: 'cancel' },
-      {
-        text: 'Radera',
-        style: 'destructive',
-        onPress: async () => {
-          await profileService.deleteAllData();
-          await signOut();
-        },
-      },
-    ]);
+  const deleteData = async () => {
+    const ok = await confirmAction('Radera all min data?', 'Bilder, svar, bedömningar och planer tas bort permanent.', 'Radera');
+    if (!ok) return;
+    await profileService.deleteAllData();
+    await signOut();
+  };
 
   const name = profile?.display_name || session?.firstName || 'Din profil';
 
@@ -73,7 +67,7 @@ export function ProfileScreen({ navigation }: Props) {
       const a = await assessmentService.createFromLatest();
       navigation.navigate('ImageUpload', { assessmentId: a.id });
     } catch (e) {
-      Alert.alert('Kunde inte starta', (e as Error).message);
+      showMessage('Kunde inte starta', (e as Error).message);
     }
   };
 
