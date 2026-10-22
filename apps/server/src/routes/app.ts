@@ -11,7 +11,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
 
-import { HttpError, requireUser, signFileToken, verifyFileToken } from '../auth/index.js';
+import { HttpError, rateLimit, requireUser, signFileToken, verifyFileToken } from '../auth/index.js';
 import { UPLOAD_DIR, config, features } from '../config.js';
 import { getDb, now, parseJson } from '../db/index.js';
 import { assessmentOut, planOut, profileOut, type AssessmentRow, type ImageRow, type PlanRow, type ProfileRow } from '../db/repo.js';
