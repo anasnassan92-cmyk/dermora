@@ -32,7 +32,7 @@ appRouter.get('/questionnaire', (_req, res) => {
   res.json(loadQuestionnaire());
 });
 
-appRouter.post('/beta', async (req, res) => {
+appRouter.post('/beta', rateLimit(10, 15 * 60_000), async (req, res) => {
   const { email } = z.object({ email: z.string().trim().toLowerCase().email('Ange en giltig e-postadress.').max(190) }).parse(req.body);
   const db = getDb();
   const exists = await db.get('SELECT id FROM beta_signups WHERE email = ?', [email]);
