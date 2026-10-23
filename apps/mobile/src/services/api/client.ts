@@ -32,7 +32,13 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!(init.body instanceof FormData) && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
-  const res = await fetch(`${API_URL}${path}`, { ...init, headers });
+  
+let res: Response;
+try {
+  res = await fetch(`${API_URL}${path}`, { ...init, headers });
+} catch {
+  throw new ApiError(0, 'Ingen kontakt med servern. Kontrollera internetanslutningen och försök igen.');
+}
   if (res.status === 204) return undefined as T;
   const text = await res.text();
   const data = text ? safeJson(text) : null;
