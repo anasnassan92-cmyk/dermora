@@ -18,7 +18,7 @@ export function AIMessage({ message, onRate }: { message: ChatMessage; onRate?: 
     <View style={[styles.row, mine && styles.rowMine]}>
       {!mine ? <Image source={require('../../../../assets/logo/symbol.png')} style={styles.avatar} resizeMode="contain" /> : null}
       <View style={styles.col}>
-        <View style={[styles.bubble, mine ? styles.bubbleMine : styles.bubbleAI]}>
+        <View accessible accessibilityLabel={`${mine ? 'Du' : 'Dermora'}: ${message.content}`} style={[styles.bubble, mine ? styles.bubbleMine : styles.bubbleAI]}> 
           {preview ? <Image source={{ uri: preview }} style={styles.photo} /> : null}
           {message.streaming && !message.content ? (
             <View style={styles.typing}><ActivityIndicator size="small" color={colors.inkBrand} /><Text style={[styles.text, styles.typingText]}>Dermora skriver …</Text></View>
@@ -65,3 +65,5 @@ const styles = StyleSheet.create({
   rateOn: { backgroundColor: colors.accent },
   rateOff: { backgroundColor: colors.inkMuted },
 });
+
+
