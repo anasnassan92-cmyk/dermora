@@ -50,6 +50,7 @@ const sha256 = (v: string) => crypto.createHash('sha256').update(v).digest('hex'
 
 export function passwordProblem(pw: string): string | null {
   if (pw.length < 8) return 'Lösenordet måste vara minst 8 tecken.';
+  if (pw.length > 200) return 'Lösenordet får vara högst 200 tecken.';
   if (!/\d/.test(pw) || !/[A-Za-zÅÄÖåäö]/.test(pw)) return 'Lösenordet måste innehålla minst en siffra och en bokstav.';
   return null;
 }
