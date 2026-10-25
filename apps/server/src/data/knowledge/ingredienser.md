@@ -32,3 +32,6 @@ Lugnande ingredienser mot rodnad, sveda och irritation. Bra "återhämtningskvä
 
 ## Solskydd (SPF)
 Den viktigaste produkten mot pigmentfläckar, åldrande och efterinflammatorisk hyperpigmentering. SPF 30–50, bredspektrum (UVA + UVB). Mineraliska filter (zinkoxid, titandioxid) passar känslig hud; kemiska filter är lättare i konsistens. Lägg på som sista steg på morgonen, ungefär två fingerlängder för ansiktet, förnya efter 2 timmar utomhus.
+
+## Lera (kaolin, bentonit) i masker
+Lermasker binder överflödig talg och kan kännas skönt för fet hud och T-zonen, men de ger ingen varaktig förändring av porernas storlek. Använd högst 1–2 gånger i veckan, 5–10 minuter, och återfukta direkt efteråt – låt aldrig masken torka helt så att huden stramar. Torr eller känslig hud mår oftast bättre av en återfuktande mask i stället.
