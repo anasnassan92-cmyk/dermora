@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.5-flash"
     anthropic_api_key: str = ""
-    ai_model: str = "claude-opus-5-5"
+    ai_model: str = "gemini-2.5-flash"
     ai_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"
 
     # Face detection (photo quality) – opencv runs locally, google calls Cloud Vision

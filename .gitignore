@@ -27,7 +27,6 @@ __pycache__/
 Thumbs.db
 
 # --- local tooling ---
-.claude/
 
 # --- server local data ---
 apps/server/.data/

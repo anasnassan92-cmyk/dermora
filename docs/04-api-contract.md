@@ -88,7 +88,7 @@ Om `face_check.ok` är `false` innehåller `reasons` svenska tips ("Bilden är s
 ```json
 POST /ai/analyze/{assessment_id}
 {
-  "assessment_id": "…", "provider": "anthropic", "model": "claude-opus-5-5",
+  "assessment_id": "…", "provider": "gemini", "model": "gemini-flash-latest",
   "result": {
     "skin_type_estimate": "combination",
     "primary_concern": "Mild till måttlig akne i T-zonen",

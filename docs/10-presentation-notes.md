@@ -28,7 +28,7 @@ Demo-tips: kör mock-läge som backup om wifi strular (`.env` tom → allt funge
 
 ## 3. Arkitekturen – Assad (3 min)
 
-- Tre lager: app → FastAPI → Supabase/Claude. Appen pratar aldrig direkt med databas eller AI.
+- Tre lager: app → FastAPI → Supabase/Gemini. Appen pratar aldrig direkt med databas eller AI.
 - Varför backend i mitten: nycklar på servern, kvalitetskontroll, regelbaserad säkerhet, testbarhet.
 - Databas: 7 tabeller, RLS `auth.uid() = user_id` på allt, privat bucket med sökväg per användare, `delete_user_data()`.
 - Tester: `pytest` kör hela resan utan nätverk; CI på varje PR.

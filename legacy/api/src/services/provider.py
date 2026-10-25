@@ -4,7 +4,7 @@
                       by teammates who are not working on the AI feature.
 `GeminiProvider`    – Google Gemini (team default, free tier). JSON output is
                       constrained with response_schema=SkinGuidance.
-`AnthropicProvider` – Claude with vision + structured outputs. Kept as an
+`AnthropicProvider` – alternative provider with vision + structured outputs. Kept as an
                       alternative; switch with AI_PROVIDER=anthropic.
 All providers return a validated SkinGuidance, so the rest of the system never
 sees malformed JSON.
@@ -135,7 +135,7 @@ class MockProvider:
 
 
 # ----------------------------------------------------------------------------
-# Anthropic (Claude)
+# Anthropic (alternative provider)
 # ----------------------------------------------------------------------------
 class AnthropicProvider:
     name = "anthropic"

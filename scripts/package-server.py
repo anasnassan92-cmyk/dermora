@@ -31,7 +31,7 @@ FOLDER = "dermora-deploy"
 
 # .env.example is NOT shipped: Hostinger turns every key in it into a required field.
 SERVER_FILES = ["package.json", "package-lock.json", "tsconfig.json"]
-SKIP_NAMES = {"node_modules", ".data", "dist", ".env", ".claude", "inline-icons.py"}
+SKIP_NAMES = {"node_modules", ".data", "dist", ".env", "inline-icons.py"}  # plus every dot-folder/dot-file (local tooling)
 
 
 def export_web_app() -> None:
@@ -53,7 +53,7 @@ def export_web_app() -> None:
 def copy_tree(src: Path, dst: Path) -> None:
     for path in src.rglob("*"):
         rel = path.relative_to(src)
-        if any(part in SKIP_NAMES for part in rel.parts) or path.suffix in {".db", ".log"}:
+        if any(part in SKIP_NAMES or part.startswith(".") for part in rel.parts) or path.suffix in {".db", ".log"}:
             continue
         target = dst / rel
         if path.is_dir():

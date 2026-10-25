@@ -2,7 +2,7 @@
 
 Steps performed:
   1. cd apps/mobile && npx expo export --platform web --output-dir ../web/app   (unless --no-export)
-  2. zip apps/web/** (minus inline-icons.py and .claude) into dist/dermora-web.zip
+  2. zip apps/web/** (minus inline-icons.py and dot-folders) into dist/dermora-web.zip
 
 Upload: Hostinger hPanel -> Files -> File Manager -> public_html -> Upload -> dermora-web.zip -> Extract.
 The site then runs at https://<your-domain>/ with the app at https://<your-domain>/app/.
@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 WEB = ROOT / "apps/web"
 MOBILE = ROOT / "apps/mobile"
 DIST = ROOT / "dist"
-SKIP = {"inline-icons.py", ".claude"}
+SKIP = {"inline-icons.py"}  # plus every dot-folder/dot-file (local tooling)
 
 
 def main() -> None:
@@ -41,7 +41,7 @@ def main() -> None:
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
         for path in WEB.rglob("*"):
             rel = path.relative_to(WEB)
-            if any(part in SKIP for part in rel.parts) or path.is_dir():
+            if any(part in SKIP or part.startswith(".") for part in rel.parts) or path.is_dir():
                 continue
             z.write(path, str(rel))
     # .htaccess so /app/ deep links fall back to the app's index.html (Apache on Hostinger)

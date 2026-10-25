@@ -60,7 +60,7 @@ Mobilapp                      Backend                              Supabase / AI
    │ ─────────────────────────────▶ │ validera obligatoriska svar       │
    │  POST /ai/analyze/{id}         │                                   │
    │ ─────────────────────────────▶ │ profil + svar + bilder → kontext  │
-   │                                │ → provider.analyze() ───────────▶ │ Claude (structured output)
+   │                                │ → provider.analyze() ───────────▶ │ Gemini (structured output)
    │                                │ ◀ SkinGuidance (validerad Pydantic)
    │                                │ spara ai_assessments, seed chat   │
    │ ◀───────────────────────────── │ AnalyzeOut                        │
@@ -119,7 +119,7 @@ apps/api/src/
 |---|---|---|---|
 | 1 | FastAPI som mellanlager | Appen pratar direkt med Supabase + AI | Nycklar på servern, kvalitetskontroll, regelbaserad säkerhet, testbarhet |
 | 2 | Supabase för Postgres/Auth/Storage | Egen Postgres + JWT + S3 | Gratis nivå, e-postverifiering och RLS ut ur lådan, SQL som läraren kan läsa |
-| 3 | Google Gemini (multimodal) med JSON-schema, Claude som alternativ | Träna egen CNN | Gratisnivå för studenter; ingen datainsamling behövs i MVP; teamets AI-arbete blir prompter, schema, kontext, tester |
+| 3 | Google Gemini (multimodal) med JSON-schema, annan LLM som alternativ | Träna egen CNN | Gratisnivå för studenter; ingen datainsamling behövs i MVP; teamets AI-arbete blir prompter, schema, kontext, tester |
 | 4 | Ansiktsdetektering på servern: Google Cloud Vision med OpenCV-fallback | ML Kit på enheten | Fungerar i Expo Go utan native build; bättre träffsäkerhet än Haar; inga landmarks begärs eller lagras |
 | 5 | Mock-läge i både app och backend | Vänta på riktig integration | Alla sex kan demo:a sprint 1 utan konton/nycklar |
 | 6 | Bilder lagras under `<user_id>/` i privat bucket | Publik bucket med obskyra namn | Storage-RLS kan då bindas till `auth.uid()` |
