@@ -17,7 +17,13 @@ interface Props {
 /** Row with mint icon badge, title, subtitle and chevron – used in plan and profile screens. */
 export function ListRow({ icon, title, subtitle, onPress, trailing = 'chevron' }: Props) {
   return (
-    <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+    <Pressable
+      onPress={onPress}
+      disabled={!onPress}
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title}
+      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+    >
       <IconBadge name={icon} size={40} />
       <View style={styles.text}>
         <T variant="bodyMedium">{title}</T>
