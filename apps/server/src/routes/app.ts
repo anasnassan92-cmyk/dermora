@@ -140,6 +140,9 @@ appRouter.post('/assessments/:id/submit', auth, async (req, res) => {
 
 // ---------- images (Ali) ----------
 const AREAS = ['face', 'left', 'right', 'closeup', 'other'] as const;
+/** Smallest accepted side (px) – below this the AI cannot see enough detail. */
+const MIN_IMAGE_SIDE = 300;
+
 
 function imageOut(i: ImageRow, base = '/api') {
   return {
@@ -179,7 +182,7 @@ appRouter.post('/images', auth, upload.single('file'), async (req, res) => {
   const assessmentId = req.body.assessment_id ? String(req.body.assessment_id) : null;
   if (assessmentId) await getAssessment(req.user!.id, assessmentId);
   const img = await readUpload(req.file);
-  if (Math.min(img.width, img.height) < 300) throw new HttpError(422, 'Bilden har för låg upplösning.');
+    if (Math.min(img.width, img.height) < MIN_IMAGE_SIDE) throw new HttpError(422, `Bilden har för låg upplösning (minst ${MIN_IMAGE_SIDE} px på kortaste sidan).`);
   const check = area === 'closeup' ? null : await faceCheck(img.data, img.width, img.height);
   const id = crypto.randomUUID();
   const fileName = `${req.user!.id}/${id}.jpg`;
