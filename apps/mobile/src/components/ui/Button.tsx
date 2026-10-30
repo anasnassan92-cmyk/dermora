@@ -13,14 +13,26 @@ interface Props {
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
-export function Button({ title, onPress, variant = 'primary', disabled, loading, style, accessibilityLabel }: Props) {
+export function Button({
+  title,
+  onPress,
+  variant = 'primary',
+  disabled,
+  loading,
+  style,
+  accessibilityLabel,
+  accessibilityHint,
+}: Props) {
   const isDisabled = disabled || loading;
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: isDisabled }}
       onPress={onPress}
       disabled={isDisabled}
