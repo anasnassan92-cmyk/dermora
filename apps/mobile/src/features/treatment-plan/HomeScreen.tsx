@@ -81,7 +81,11 @@ export function HomeScreen({ navigation }: Props) {
             <View style={styles.goalsIcon}><Icon name="award" size={24} color={colors.inkBrand} /></View>
             <View style={styles.goalsText}>
               <T variant="bodyMedium">Dina huvudsakliga mål</T>
-              <T variant="small" muted>{plan.plan.goals.join(', ').replace(/^./, (c) => c.toUpperCase())}.</T>
+              <T variant="small" muted>
+                {plan.plan.goals.length
+                  ? `${plan.plan.goals.join(', ').replace(/^./, (c) => c.toUpperCase())}.`
+                  : 'Inga mål angivna ännu.'}
+              </T>
             </View>
             <Pressable onPress={() => navigation.navigate('Plan')} style={styles.linkBtn} accessibilityRole="button">
               <T variant="caption" color={colors.inkBrand}>Visa mål</T>
