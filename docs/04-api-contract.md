@@ -3,7 +3,7 @@
 > **Obs (2026-10):** detta dokument skrevs för den första prototypen (FastAPI + Supabase, nu i `legacy/`). Produktionen kör `apps/server` (Node.js/Express + MySQL på Hostinger). Principerna gäller, men filvägar, endpoints och tabeller finns i `apps/server/src/`.
 
 
-Bas-URL lokalt: `http://localhost:8000`. Interaktiv dokumentation: `/docs` (Swagger) och `/redoc`.
+Bas-URL lokalt: `http://localhost:4000/api` (apps/server). Live: `https://dermora.site/api`.
 Alla endpoints utom `/health` och `/questionnaire` kräver `Authorization: Bearer <jwt>`.
 Fel returneras som `{"detail": "..."}` (sträng) eller `{"detail": {"errors": [...]}}` vid valideringsfel.
 
@@ -35,6 +35,34 @@ Fel returneras som `{"detail": "..."}` (sträng) eller `{"detail": {"errors": [.
 | GET | `/plans/{id}` | Even | En plan |
 | POST | `/plans/{id}/confirm` | Even | Aktivera (föregående aktiv arkiveras). Sedan 2026-10-08 sker detta automatiskt i `POST /ai/analyze` – appen har inget bekräftelsesteg. |
 | POST | `/plans/{id}/archive` | Even | Arkivera |
+
+### Konto och inloggning (`apps/server/src/routes/auth.ts`, ägare Anas)
+
+| Metod | Path | Beskrivning |
+|---|---|---|
+| POST | `/api/auth/register` | `{first_name, last_name?, email, password}` → `{token, user, dev_code?}` (`dev_code` bara i demo-läge utan SMTP) |
+| POST | `/api/auth/verify` | `{code}` (Bearer) → `{token, user}` – e-posten markeras verifierad |
+| POST | `/api/auth/resend` | (Bearer) skickar en ny kod |
+| POST | `/api/auth/login` | `{email, password}` → `{token, user}` |
+| POST | `/api/auth/google` | `{id_token}` (APK) eller `{access_token}` (webb) → `{token, user}` |
+| POST | `/api/auth/forgot` | `{email}` → alltid 200; en 6-siffrig kod mejlas |
+| POST | `/api/auth/reset` | `{email, code, password}` → `{token, user}` |
+| POST | `/api/auth/change-password` | `{current_password?, new_password}` (Bearer) |
+| POST | `/api/auth/change-email` | `{password, new_email}` (Bearer) → kod till den nya adressen |
+| POST | `/api/auth/confirm-email` | `{code}` (Bearer) → `{token, user}` med den nya adressen |
+| GET | `/api/auth/me` | (Bearer) → `{user}` inkl. `has_password` |
+
+### Chatt, framsteg och övrigt (`apps/server/src/routes/app.ts`)
+
+| Metod | Path | Ägare | Beskrivning |
+|---|---|---|---|
+| GET | `/api/config` | Assad | Publik: ai/vision/email-status + Google client id |
+| POST | `/api/beta` | Youssef | `{email}` från landningssidans formulär |
+| POST | `/api/ai/chat/{id}/stream` | Youssef | Som `/ai/chat/{id}` men svaret strömmas som SSE (`delta` … `done`) |
+| GET | `/api/ai/chat/{id}/status` | Youssef | `checkin_due`, `days_on_plan`, `adherence_14d`, `streak` |
+| POST | `/api/ai/chat/{id}/feedback` | Youssef | `{message_id, rating: 1 / -1 / 0, comment?}` |
+| GET | `/api/progress` | Even | Aktiv plan, rutinlogg (28 dagar), följsamhet, bilder över tid |
+| POST | `/api/progress/log` | Even | `{day: YYYY-MM-DD, slot: morning/evening/weekly, done, note?}` |
 
 ## Statuskoder att hantera i appen
 
