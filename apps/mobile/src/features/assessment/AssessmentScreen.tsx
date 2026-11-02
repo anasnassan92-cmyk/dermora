@@ -86,6 +86,7 @@ export function AssessmentScreen({ navigation, route }: AppScreenProps<'Assessme
     <Screen footer={<FlowFooter onBack={index > 0 ? back : undefined} onNext={next} disabled={!canContinue} loading={submitting} />}>
       <Blob />
       <FlowHeader step={3} onBack={back} onSkip={current.required === false ? next : undefined} />
+      <T variant="caption" muted mb="sm">Fråga {Math.min(index, visible.length - 1) + 1} av {visible.length}</T>
       <QuestionRenderer question={current} value={answers[current.id]} onChange={setAnswer} />
       {error ? <T color={colors.danger}>{error}</T> : null}
     </Screen>
