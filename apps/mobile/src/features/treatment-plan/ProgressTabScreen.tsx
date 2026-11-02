@@ -121,7 +121,14 @@ export function ProgressTabScreen() {
             {(['morning', 'evening'] as RoutineSlot[]).map((slot) => {
               const done = isDone(today, slot);
               return (
-                <Pressable key={slot} onPress={() => toggle(today, slot)} style={[styles.todayBtn, done && styles.todayOn]} accessibilityRole="checkbox" accessibilityState={{ checked: done }}>
+                <Pressable
+                  key={slot}
+                  onPress={() => toggle(today, slot)}
+                  style={[styles.todayBtn, done && styles.todayOn]}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: done }}
+                  accessibilityLabel={slot === 'morning' ? 'Morgonrutin idag' : 'Kvällsrutin idag'}
+                >
                   <Icon name={slot === 'morning' ? 'sun' : 'moon'} size={22} color={done ? colors.onPrimary : colors.inkBrand} />
                   <T variant="small" color={done ? colors.onPrimary : colors.ink} style={styles.todayLabel}>{slot === 'morning' ? 'Morgonrutin' : 'Kvällsrutin'}</T>
                   <Icon name={done ? 'check' : 'plus'} size={16} color={done ? colors.onPrimary : colors.inkMuted} />
