@@ -2,18 +2,18 @@
 
 ## Grupp 6
 
-| | Namn | Roll | Ansvarsområde (ägare) | Mappar |
-|---|---|---|---|---|
-| A | **Youssef** | Product Owner | AI-vägledning + AI-integration | `apps/mobile/src/features/ai-guidance/`, `apps/mobile/src/services/ai/`, `apps/api/src/services/{ai_service,provider,prompts,context_builder}.py` |
-| B | **Anas** | Utvecklare | Autentisering + profil | `apps/mobile/src/features/{auth,profile}/`, `apps/mobile/src/services/auth/`, `apps/api/src/api/routes/profile.py`, `apps/api/src/core/security.py` |
-| C | **Adam** | Utvecklare | Frågeformulär | `apps/mobile/src/features/assessment/`, `apps/api/src/data/questionnaire_v1.json`, `apps/api/src/api/routes/assessment.py` |
-| D | **Ali** | Utvecklare | Bilduppladdning + lagring | `apps/mobile/src/features/images/`, `apps/mobile/src/services/storage/`, `apps/api/src/api/routes/images.py`, `apps/api/src/services/face_detection.py` |
-| E | **Assad** | Utvecklare | Backend + databas | `apps/api/src/{main.py,core/,repositories/,schemas/}`, `supabase/` |
-| F | **Even** | Scrum Master | Behandlingsplan + delat UI | `apps/mobile/src/features/treatment-plan/`, `apps/mobile/src/components/ui/`, `apps/mobile/src/theme/`, `apps/api/src/api/routes/plans.py` |
+| | Namn | GitHub | Roll | Ansvarsområde (ägare) | Mappar |
+|---|---|---|---|---|---|
+| A | **Youssef** | `@youssefsusaeg` | Product Owner | AI-vägledning + AI-integration | `apps/mobile/src/features/ai-guidance/`, `apps/mobile/src/services/ai/`, `apps/api/src/services/{ai_service,provider,prompts,context_builder}.py` |
+| B | **Anas** | `@anasnassan92-cmyk` | Utvecklare | Autentisering + profil | `apps/mobile/src/features/{auth,profile}/`, `apps/mobile/src/services/auth/`, `apps/api/src/api/routes/profile.py`, `apps/api/src/core/security.py` |
+| C | **Adam** | `@Adamo124` | Utvecklare | Frågeformulär | `apps/mobile/src/features/assessment/`, `apps/api/src/data/questionnaire_v1.json`, `apps/api/src/api/routes/assessment.py` |
+| D | **Ali** | `@Almonski` | Utvecklare | Bilduppladdning + lagring | `apps/mobile/src/features/images/`, `apps/mobile/src/services/storage/`, `apps/api/src/api/routes/images.py`, `apps/api/src/services/face_detection.py` |
+| E | **Assad** | `@Asad8687` | Utvecklare | Backend + databas | `apps/api/src/{main.py,core/,repositories/,schemas/}`, `supabase/` |
+| F | **Even** | `@evenhadeghe` | Scrum Master | Behandlingsplan + delat UI | `apps/mobile/src/features/treatment-plan/`, `apps/mobile/src/components/ui/`, `apps/mobile/src/theme/`, `apps/api/src/api/routes/plans.py` |
 
 Vi delar inte projektet i sex orelaterade bitar. Vi delar **en användarresa** i sex ägarområden:
 
-```
+```text
 Welcome → Konto (Anas) → Frågeformulär (Adam) → Bilder (Ali) → AI-vägledning (Youssef) → Plan (Even)
                                       ▲ allt vilar på Backend + databas (Assad)
 ```
@@ -38,7 +38,7 @@ Welcome → Konto (Anas) → Frågeformulär (Adam) → Bilder (Ali) → AI-väg
 2. Branch per uppgift: `feat/<område>-<kort>` t.ex. `feat/auth-verify-email`, `fix/images-exif`. Utgå från uppdaterad `main`.
 3. Små commits med tydliga meddelanden: `auth: add VerifyEmailScreen (DER-12)`.
 4. Pull request med mallen ifylld → minst **en** granskare från ett annat område → merge (squash).
-5. CI måste vara grön: `pytest` + `ruff` (backend), `tsc` (app).
+5. CI måste vara grön: `npm test` + typkontroll i `apps/server`, `npm run typecheck` i `apps/mobile`, och `questionnaire_v1.json` måste vara identisk i server och app (se `.github/workflows/ci.yml`).
 6. Hemligheter läggs aldrig i git. `.env` är ignorerad; `.env.example` uppdateras när ni lägger till variabler.
 7. Delade filer (`components/ui`, `types/api.ts`, `schemas/`, `schema.sql`) ändras bara efter en kort avstämning i Discord med ägaren.
 
@@ -63,4 +63,5 @@ Behöver du något som inte finns än? Skapa en **mock-gräns**, inte funktionen
 
 1. **Professionalism, lugn och positivitet** – lösningsorienterade, även under press och under demo.
 2. **Alla ska få komma till tals** – beslut fattas efter att alla fått bidra.
-3. **Delaktighet och hjälp varandra – laget före jaget** – säg till tidigt när något är svårt.
+3. **Delaktighet och hjälp varandra – laget före jaget** – säg till tidigt när något är svårt. 
+
