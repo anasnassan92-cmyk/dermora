@@ -68,11 +68,11 @@ export function validateAnswers(q: Questionnaire, answers: Record<string, unknow
       continue;
     }
     const allowed = new Set((question.options ?? []).map((o) => o.value));
-    if (question.type === 'single' && !allowed.has(String(v))) errors.push(`Ogiltigt svar på ${question.id}`);
-    if (question.type === 'multi' && (!Array.isArray(v) || v.some((x) => !allowed.has(String(x))))) errors.push(`Ogiltigt svar på ${question.id}`);
-    if (question.type === 'boolean' && typeof v !== 'boolean') errors.push(`${question.id} måste vara ja/nej`);
-    if (question.type === 'scale' && !(typeof v === 'number' && v >= (question.min ?? 0) && v <= (question.max ?? 10))) errors.push(`${question.id} är utanför skalan`);
-    if (question.type === 'text' && (typeof v !== 'string' || v.length > 1000)) errors.push(`${question.id} är för långt`);
+    if (question.type === 'single' && !allowed.has(String(v))) errors.push(`Ogiltigt svar på "${question.title}"`);
+    if (question.type === 'multi' && (!Array.isArray(v) || v.some((x) => !allowed.has(String(x))))) errors.push(`Ogiltigt svar på "${question.title}"`);
+    if (question.type === 'boolean' && typeof v !== 'boolean') errors.push(`"${question.title}" måste besvaras med ja eller nej`);
+    if (question.type === 'scale' && !(typeof v === 'number' && v >= (question.min ?? 0) && v <= (question.max ?? 10))) errors.push(`"${question.title}" är utanför skalan`);
+    if (question.type === 'text' && (typeof v !== 'string' || v.length > 1000)) errors.push(`Svaret på "${question.title}" är för långt (max 1000 tecken)`);
   }
   return errors;
 }
