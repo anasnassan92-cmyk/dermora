@@ -14,6 +14,7 @@ import type { SkinImage } from '../../types/api';
 export function ImageReviewScreen({ navigation, route }: AppScreenProps<'ImageReview'>) {
   const { assessmentId } = route.params;
   const [images, setImages] = useState<SkinImage[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const w = useContentWidth();
   const imgW = Math.floor((w - spacing.sm) / 2) - spacing.sm * 2;
   const imgH = Math.round(imgW / 1.05);
@@ -24,10 +25,16 @@ export function ImageReviewScreen({ navigation, route }: AppScreenProps<'ImageRe
     }, [assessmentId]),
   );
 
-  const remove = async (id: string) => {
-    await imageStorageService.remove(id);
-    setImages((l) => l.filter((x) => x.id !== id));
+    const remove = async (id: string) => {
+    setError(null);
+    try {
+      await imageStorageService.remove(id);
+      setImages((l) => l.filter((x) => x.id !== id));
+    } catch (e) {
+      setError(`Bilden kunde inte tas bort: ${(e as Error).message}`);
+    }
   };
+
 
   const allOk = images.length > 0 && images.every((i) => !i.face_check || i.face_check.ok);
   const checks = [
@@ -79,6 +86,7 @@ export function ImageReviewScreen({ navigation, route }: AppScreenProps<'ImageRe
         })}
       </View>
 
+            {error ? <T variant="small" color={colors.danger} mb="md">{error}</T> : null}
       <InfoPanel title="Ser det bra ut?" text="Tydliga bilder hjälper vår AI att ge mer exakta och personliga rekommendationer.">
         <View style={styles.checklist}>
           {checks.map((c) => (
