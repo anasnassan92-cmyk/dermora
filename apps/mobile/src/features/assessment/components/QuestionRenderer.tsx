@@ -56,17 +56,20 @@ export function QuestionRenderer({ question, value, onChange }: Props) {
       )}
 
       {question.type === 'text' && (
-        <TextInput
-          value={typeof value === 'string' ? value : ''}
-          onChangeText={onChange}
-          multiline
-          numberOfLines={4}
-          maxLength={1000}
-          placeholder="Skriv här …"
-          placeholderTextColor={colors.inkMuted}
-          style={styles.textarea}
-          accessibilityLabel={question.title}
-        />
+        <>
+          <TextInput
+            value={typeof value === 'string' ? value : ''}
+            onChangeText={onChange}
+            multiline
+            numberOfLines={4}
+            maxLength={1000}
+            placeholder="Skriv här …"
+            placeholderTextColor={colors.inkMuted}
+            style={styles.textarea}
+            accessibilityLabel={question.title}
+          />
+          <T variant="caption" muted style={styles.counter}>{typeof value === 'string' ? value.length : 0}/1000 tecken</T>
+        </>
       )}
 
       {question.note ? <InfoPanel text={question.note} /> : null}
@@ -78,6 +81,7 @@ const styles = StyleSheet.create({
   wrap: { paddingBottom: spacing.md },
   title: { fontSize: 30, lineHeight: 36, marginBottom: spacing.sm },
   scale: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: spacing.lg },
+  counter: { textAlign: 'right', marginTop: -spacing.sm, marginBottom: spacing.lg },
   textarea: {
     ...typography.body,
     minHeight: 120,
