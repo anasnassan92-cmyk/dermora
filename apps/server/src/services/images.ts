@@ -40,6 +40,11 @@ async function localStats(data: Buffer): Promise<{ brightness: number; blur: num
 
 const LIKELY = new Set(['LIKELY', 'VERY_LIKELY']);
 
+/** Thresholds for the local check (no Vision key). The app's ImageReviewScreen uses the same numbers. */
+const BLUR_MIN = 60; // variance of the Laplacian – lower = out of focus
+const BRIGHTNESS_MIN = 60; // mean grey level 0–255
+const BRIGHTNESS_MAX = 215;
+
 export async function faceCheck(data: Buffer, width: number, height: number): Promise<FaceCheck> {
   const { brightness, blur } = await localStats(data);
   const reasons: string[] = [];
@@ -81,8 +86,9 @@ export async function faceCheck(data: Buffer, width: number, height: number): Pr
     }
   }
 
-  if (blur < 60) reasons.push('Bilden verkar suddig. Håll kameran stilla och fokusera.');
-  if (brightness < 60) reasons.push('Bilden är för mörk. Vänd dig mot ett fönster eller tänd mer ljus.');
-  if (brightness > 215) reasons.push('Bilden är överexponerad. Undvik direkt starkt ljus eller blixt.');
+  if (blur < BLUR_MIN) reasons.push('Bilden verkar suddig. Håll kameran stilla och fokusera.');
+  if (brightness < BRIGHTNESS_MIN) reasons.push('Bilden är för mörk. Vänd dig mot ett fönster eller tänd mer ljus.');
+  if (brightness > BRIGHTNESS_MAX) reasons.push('Bilden är överexponerad. Undvik direkt starkt ljus eller blixt.');
+
   return { face_found: true, faces: 0, blur_score: Math.round(blur), brightness: Math.round(brightness), face_coverage: 0, ok: !reasons.length, reasons, method: 'local' };
 }
