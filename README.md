@@ -102,6 +102,14 @@ Profilerna i `apps/mobile/eas.json` sätter `EXPO_PUBLIC_API_URL` till den live-
 
 `/admin/login` – logga in med ett vanligt Dermora-konto vars e-post finns i `ADMIN_EMAILS`. Sidor: Översikt, Användare (profil, bilder, AI-resultat, chat, planer, GDPR-radering), Chattar, Vårdsignaler, Beta (CSV), Frågeformulär, System.
 
+## Ändra frågeformuläret
+
+Frågorna ligger i `apps/server/src/data/questionnaire_v1.json` och samma fil finns kopierad i `apps/mobile/src/services/mock/questionnaire_v1.json` för appens mock-läge. CI stoppar en pull request om filerna skiljer sig, så ändra alltid båda och kopiera filen efter redigering.
+
+- Fält per fråga: `id`, `type` (`single` | `multi` | `scale` | `text` | `boolean`), `title`, `help`, `options`, `required` (standardvärde `true`), `layout` (`cards` visar bilder från `apps/mobile/src/constants/design.ts`) och `show_if` (`{ question_id, includes | equals | gte }`).
+- Reglerna för villkor och validering finns i `apps/server/src/services/questionnaire.ts` (server) och `apps/mobile/src/utils/questionnaire.ts` (app). Håll dem i synk.
+- Testa ändringarna med `cd apps/server && npm test`. Det finns bland annat tester i `test/questionnaire.test.ts`.
+
 ## Dokumentation
 
 | Fil | Innehåll |
