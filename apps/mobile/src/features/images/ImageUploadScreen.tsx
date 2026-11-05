@@ -77,7 +77,7 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
     return (
       <Screen>
         <Blob />
-        <FlowHeader step={3} onBack={() => navigation.goBack()} />
+        <FlowHeader step={3} fraction={0.3} onBack={() => navigation.goBack()} />
         <T variant="display" style={styles.title}>Godkänn bildbehandling</T>
         <T variant="body" muted mb="xl">För att analysera din hud behöver vi ditt godkännande att lagra bilderna privat. Bilderna används bara för din egen vägledning, GPS-data tas bort och du kan radera dem när som helst.</T>
         <Button
@@ -97,7 +97,7 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
     return (
       <Screen>
         <Blob />
-        <FlowHeader step={3} onBack={() => { setSlot(null); setPending(null); }} />
+        <FlowHeader step={3} fraction={0.7} onBack={() => { setSlot(null); setPending(null); }} />
         <T variant="display" style={styles.title}>{label}</T>
         <T variant="body" muted mb="lg">{slot === 'closeup' ? 'Ta en närbild på det område du vill ha hjälp med.' : 'Håll ansiktet i ovalen i jämnt dagsljus.'}</T>
         {pending ? (
@@ -121,7 +121,7 @@ export function ImageUploadScreen({ navigation, route }: AppScreenProps<'ImageUp
       }
     >
       <Blob />
-      <FlowHeader step={3} onBack={() => navigation.goBack()} onSkip={() => navigation.replace('Analyzing', { assessmentId })} />
+      <FlowHeader step={3} fraction={0.5} onBack={() => navigation.goBack()} onSkip={() => navigation.replace('Analyzing', { assessmentId })} />
       <T variant="display" style={styles.title}>Ladda upp bilder{'\n'}på din hud</T>
       <T variant="body" muted mb="xl">Bilderna hjälper vår AI att analysera din hud och ge mer personliga rekommendationer.</T>
 

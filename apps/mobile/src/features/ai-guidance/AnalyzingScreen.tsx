@@ -65,7 +65,7 @@ export function AnalyzingScreen({ navigation, route }: AppScreenProps<'Analyzing
   return (
     <Screen>
       <Blob />
-      <FlowHeader step={3} onBack={() => navigation.goBack()} />
+      <FlowHeader step={4} fraction={pct / 100} onBack={error ? () => navigation.goBack() : undefined} />
       <T variant="display" style={styles.title}>AI-analys pågår</T>
       <T variant="body" muted mb="xl">Vi analyserar dina bilder med hjälp av avancerad AI för att förstå din hud och ge personliga rekommendationer.</T>
 

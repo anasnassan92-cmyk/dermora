@@ -46,7 +46,7 @@ export function ImageReviewScreen({ navigation, route }: AppScreenProps<'ImageRe
   return (
         <Screen footer={<FlowFooter onBack={() => navigation.goBack()} onNext={() => navigation.replace('Analyzing', { assessmentId })} nextLabel={images.length ? 'Fortsätt' : 'Fortsätt utan bild'} />}>
       <Blob />
-      <FlowHeader step={3} onBack={() => navigation.goBack()} onSkip={() => navigation.replace('Analyzing', { assessmentId })} />
+      <FlowHeader step={3} fraction={1} onBack={() => navigation.goBack()} onSkip={() => navigation.replace('Analyzing', { assessmentId })} />
       <T variant="display" style={styles.title}>Granska dina bilder</T>
       <T variant="body" muted mb="xl">Kontrollera att bilderna är tydliga och att rätt vinklar har laddats upp.</T>
 

@@ -63,7 +63,7 @@ export function AssessmentScreen({ navigation, route }: AppScreenProps<'Assessme
     try {
       await assessmentService.saveAnswers(assessmentId, answers);
       await assessmentService.submit(assessmentId);
-      navigation.replace('ImageUpload', { assessmentId });
+      navigation.navigate('ImageUpload', { assessmentId });
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -72,7 +72,7 @@ export function AssessmentScreen({ navigation, route }: AppScreenProps<'Assessme
   };
 
   const next = () => (isLast ? finish() : setIndex((i) => i + 1));
-  const back = () => (index === 0 ? navigation.goBack() : setIndex((i) => i - 1));
+  const back = () => (index === 0 ? (navigation.canGoBack() ? navigation.goBack() : navigation.replace('Tabs')) : setIndex((i) => i - 1));
 
   if (!questionnaire || !current) {
     return (
@@ -85,7 +85,7 @@ export function AssessmentScreen({ navigation, route }: AppScreenProps<'Assessme
   return (
     <Screen footer={<FlowFooter onBack={index > 0 ? back : undefined} onNext={next} disabled={!canContinue} loading={submitting} />}>
       <Blob />
-      <FlowHeader step={3} onBack={back} onSkip={current.required === false ? next : undefined} />
+      <FlowHeader step={2} fraction={(Math.min(index, visible.length - 1) + 1) / Math.max(visible.length, 1)} onBack={back} onSkip={current.required === false ? next : undefined} />
       <T variant="caption" muted mb="sm">Fråga {Math.min(index, visible.length - 1) + 1} av {visible.length}</T>
       <QuestionRenderer question={current} value={answers[current.id]} onChange={setAnswer} />
       {error ? <T color={colors.danger}>{error}</T> : null}

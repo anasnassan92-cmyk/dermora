@@ -180,6 +180,8 @@ export interface ChatMessage {
   image_id?: string | null;
   /** Client-only: the reply is still streaming in. */
   streaming?: boolean;
+  /** Assistant note that the active plan was changed from the chat. */
+  plan_updated?: boolean;
 }
 
 export interface ChatStatus {

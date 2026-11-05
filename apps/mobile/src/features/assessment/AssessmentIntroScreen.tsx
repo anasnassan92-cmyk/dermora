@@ -13,11 +13,11 @@ const CARDS: { icon: IconName; title: string; text: string }[] = [
 ];
 
 export function AssessmentIntroScreen({ navigation, route }: AppScreenProps<'AssessmentIntro'>) {
-  const start = () => navigation.replace('Assessment', { assessmentId: route.params?.assessmentId });
+  const start = () => navigation.navigate('Assessment', { assessmentId: route.params?.assessmentId });
   return (
     <Screen footer={<FlowFooter onNext={start} />}>
       <Blob />
-      <FlowHeader step={3} onBack={() => navigation.goBack()} onSkip={start} />
+      <FlowHeader step={2} fraction={0} onBack={() => (navigation.canGoBack() ? navigation.goBack() : navigation.replace('Tabs'))} onSkip={start} />
       <T variant="display" style={styles.title}>Några frågor om{'\n'}din hud</T>
       <T variant="body" muted mb="xl">Detta hjälper vår AI att förstå din hud bättre och ge mer relevanta rekommendationer.</T>
 

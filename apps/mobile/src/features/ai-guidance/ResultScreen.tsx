@@ -58,6 +58,16 @@ export function ResultScreen({ navigation, route }: AppScreenProps<'Result'>) {
         </View>
       }
     >
+      <Card tone="mint">
+        <View style={styles.savedRow}>
+          <View style={styles.savedDot}><Icon name="check" size={14} color={colors.onPrimary} strokeWidth={3} /></View>
+          <View style={styles.savedText}>
+            <T variant="bodyMedium">Din behandlingsplan är sparad</T>
+            <T variant="small" muted>Analysen är klar och planen är aktiv. Du hittar den alltid under Hem och i Profil → Öppna min plan.</T>
+          </View>
+        </View>
+      </Card>
+
       <T variant="label" muted mb="xs">Din bedömning</T>
       <T variant="h1" mb="md">{g.primary_concern}</T>
       <View style={styles.chips}>
@@ -157,6 +167,9 @@ const styles = StyleSheet.create({
   gap: { marginTop: spacing.sm },
   footerRow: { flexDirection: 'row', gap: spacing.md },
   half: { flex: 1 },
+  savedRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  savedDot: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
+  savedText: { flex: 1 },
   planHead: { marginTop: spacing.md, marginBottom: spacing.md },
   planTag: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: spacing.sm },
   planDot: { width: 18, height: 18, borderRadius: 9, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },

@@ -15,7 +15,7 @@ import { HttpError, rateLimit, requireUser, signFileToken, verifyFileToken } fro
 import { UPLOAD_DIR, config, features } from '../config.js';
 import { getDb, now, parseJson } from '../db/index.js';
 import { assessmentOut, planOut, profileOut, type AssessmentRow, type ImageRow, type PlanRow, type ProfileRow } from '../db/repo.js';
-import { analyze, buildContext, chatReply, chatReplyStream, redFlagHints, updateMemory, type ChatContext, type ChatReply, type ChatTurn, type ImageInput, type SkinGuidance } from '../services/ai.js';
+import { analyze, buildContext, chatReply, chatReplyStream, planUpdateFromChat, redFlagHints, updateMemory, wantsPlanChange, type ChatContext, type ChatReply, type ChatTurn, type ImageInput, type SkinGuidance, type TreatmentPlanProposal } from '../services/ai.js';
 import { faceCheck, normalise } from '../services/images.js';
 import { loadQuestionnaire, validateAnswers } from '../services/questionnaire.js';
 
@@ -246,30 +246,67 @@ function analyzeOut(row: { assessment_id: string; provider: string; model: strin
   return { assessment_id: row.assessment_id, provider: row.provider, model: row.model, result: parseJson<SkinGuidance>(row.result, {} as SkinGuidance) };
 }
 
-appRouter.post('/ai/analyze/:id', auth, async (req, res) => {
-  const a = await getAssessment(req.user!.id, String(req.params.id));
-  if (a.status === 'draft') throw new HttpError(409, 'Skicka in svaren först.');
-  const { context, images } = await contextFor(req.user!.id, a, true);
-  let result;
-  try {
-    result = await analyze(context, images, redFlagHints(parseJson(a.answers, {})));
-  } catch (e) {
-    await getDb().run('UPDATE assessments SET status = ? WHERE id = ?', ['failed', a.id]);
-    console.error('[ai] analyze failed:', (e as Error).message);
-    throw new HttpError(502, 'AI-analysen misslyckades. Försök igen om en stund.');
-  }
+/** Runs the AI analysis and stores result + plan. Shared by the background job and the (legacy) synchronous path. */
+async function runAnalysis(userId: string, a: AssessmentRow) {
+  const { context, images } = await contextFor(userId, a, true);
+  const result = await analyze(context, images, redFlagHints(parseJson(a.answers, {})));
   const db = getDb();
   const id = crypto.randomUUID();
   await db.run(
     'INSERT INTO ai_assessments (id, user_id, assessment_id, provider, model, result, seek_care, input_tokens, output_tokens, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    [id, req.user!.id, a.id, result.provider, result.model, JSON.stringify(result.guidance), result.guidance.seek_care ? 1 : 0, result.inputTokens ?? null, result.outputTokens ?? null, now()],
+    [id, userId, a.id, result.provider, result.model, JSON.stringify(result.guidance), result.guidance.seek_care ? 1 : 0, result.inputTokens ?? null, result.outputTokens ?? null, now()],
   );
   await db.run('UPDATE assessments SET status = ?, analyzed_at = ? WHERE id = ?', ['analyzed', now(), a.id]);
   // The AI plan becomes the active plan immediately; an older active plan is archived.
-  await activatePlan(req.user!.id, await insertPlan(req.user!.id, a.id, result.guidance.plan));
+  await activatePlan(userId, await insertPlan(userId, a.id, result.guidance.plan));
   const existing = await db.get('SELECT id FROM chat_messages WHERE assessment_id = ?', [a.id]);
-  if (!existing) await db.run('INSERT INTO chat_messages (id, user_id, assessment_id, role, content, created_at, meta) VALUES (?, ?, ?, ?, ?, ?, ?)', [crypto.randomUUID(), req.user!.id, a.id, 'assistant', result.guidance.guidance, now(), JSON.stringify({ sources: result.sources ?? [], model: result.model })]);
-  res.json({ assessment_id: a.id, provider: result.provider, model: result.model, result: result.guidance });
+  if (!existing) await db.run('INSERT INTO chat_messages (id, user_id, assessment_id, role, content, created_at, meta) VALUES (?, ?, ?, ?, ?, ?, ?)', [crypto.randomUUID(), userId, a.id, 'assistant', result.guidance.guidance, now(), JSON.stringify({ sources: result.sources ?? [], model: result.model })]);
+  return result;
+}
+
+/**
+ * Analyses in flight, per assessment. The HTTP request returns at once (202) and the app polls
+ * GET /ai/analyze/:id/status – a Gemini run with four photos can take 40–70 s, longer than the hosting proxy allows.
+ */
+const analysisJobs = new Map<string, { startedAt: number; error?: string; done?: boolean }>();
+
+appRouter.post('/ai/analyze/:id', auth, async (req, res) => {
+  const a = await getAssessment(req.user!.id, String(req.params.id));
+  if (a.status === 'draft') throw new HttpError(409, 'Skicka in svaren först.');
+  const existing = await latestResult(req.user!.id, a.id);
+  if (existing && a.status === 'analyzed') return res.json({ status: 'analyzed', ...analyzeOut(existing) });
+  const job = analysisJobs.get(a.id);
+  if (job && !job.done && Date.now() - job.startedAt < 180_000) return res.status(202).json({ status: 'running' });
+  analysisJobs.set(a.id, { startedAt: Date.now() });
+  await getDb().run('UPDATE assessments SET status = ? WHERE id = ?', ['submitted', a.id]);
+  const run = runAnalysis(req.user!.id, a)
+    .then((result) => {
+      analysisJobs.set(a.id, { startedAt: Date.now(), done: true });
+      return result;
+    })
+    .catch(async (e: Error) => {
+      console.error('[ai] analyze failed:', e.message);
+      await getDb().run('UPDATE assessments SET status = ? WHERE id = ?', ['failed', a.id]).catch(() => undefined);
+      analysisJobs.set(a.id, { startedAt: Date.now(), done: true, error: 'AI-analysen misslyckades. Försök igen om en stund.' });
+      return null;
+    });
+  // Fast answers are returned directly (older app builds expect that); slow ones continue in the background.
+  const quick = await Promise.race([run, new Promise<'pending'>((r) => setTimeout(() => r('pending'), 25_000))]);
+  if (quick === 'pending') return res.status(202).json({ status: 'running' });
+  if (!quick) throw new HttpError(502, 'AI-analysen misslyckades. Försök igen om en stund.');
+  res.json({ status: 'analyzed', assessment_id: a.id, provider: quick.provider, model: quick.model, result: quick.guidance });
+});
+
+/** Poll until status is "analyzed" (result included) or "failed". */
+appRouter.get('/ai/analyze/:id/status', auth, async (req, res) => {
+  const a = await getAssessment(req.user!.id, String(req.params.id));
+  const job = analysisJobs.get(a.id);
+  if (a.status === 'analyzed') {
+    const row = await latestResult(req.user!.id, a.id);
+    return res.json({ status: 'analyzed', ...(row ? analyzeOut(row) : {}) });
+  }
+  if (a.status === 'failed' || job?.error) return res.json({ status: 'failed', detail: job?.error ?? 'AI-analysen misslyckades. Försök igen om en stund.' });
+  res.json({ status: job && !job.done ? 'running' : 'idle', seconds: job ? Math.round((Date.now() - job.startedAt) / 1000) : 0 });
 });
 
 async function latestResult(userId: string, assessmentId: string) {
@@ -295,8 +332,8 @@ interface ChatRow {
 }
 
 function chatOut(m: ChatRow) {
-  const meta = parseJson<{ suggestions?: string[]; sources?: string[]; image_id?: string; model?: string }>(m.meta, {});
-  return { id: m.id, role: m.role, content: m.content, created_at: m.created_at, rating: m.rating ?? null, suggestions: meta.suggestions ?? [], sources: meta.sources ?? [], image_id: meta.image_id ?? null };
+  const meta = parseJson<{ suggestions?: string[]; sources?: string[]; image_id?: string; model?: string; plan_updated?: boolean }>(m.meta, {});
+  return { id: m.id, role: m.role, content: m.content, created_at: m.created_at, rating: m.rating ?? null, suggestions: meta.suggestions ?? [], sources: meta.sources ?? [], image_id: meta.image_id ?? null, plan_updated: !!meta.plan_updated };
 }
 
 const DAY_MS = 86_400_000;
@@ -416,11 +453,35 @@ appRouter.post('/ai/chat/:id', auth, async (req, res) => {
   }
   const t = new Date(Date.now() + 1).toISOString(); // keep order after the user message
   const { id } = await storeTurn(req.user!.id, a.id, 'assistant', reply.text, { suggestions: reply.suggestions, sources: reply.sources, model: reply.model }, t);
-  res.json({ id, role: 'assistant', content: reply.text, created_at: t, rating: null, suggestions: reply.suggestions, sources: reply.sources, image_id: null });
+  let planUpdate: Record<string, unknown> | null = null;
+  const title = await applyPlanUpdate(req.user!.id, a.id, content, reply.text);
+  if (title) {
+    const note = `✅ Din plan är uppdaterad: ”${title}”. Du hittar den nya rutinen under Hem och Min plan.`;
+    const saved = await storeTurn(req.user!.id, a.id, 'assistant', note, { plan_updated: true }, new Date(Date.now() + 2).toISOString());
+    planUpdate = { id: saved.id, role: 'assistant', content: note, created_at: saved.created_at, rating: null, suggestions: [], sources: [], image_id: null, plan_updated: true };
+  }
+  res.json({ id, role: 'assistant', content: reply.text, created_at: t, rating: null, suggestions: reply.suggestions, sources: reply.sources, image_id: null, plan_update: planUpdate });
   void maybeUpdateMemory(req.user!.id, a.id);
 });
 
 /** Server-sent events: `delta` chunks while the model writes, then one `done` with the stored message. */
+/** When the user asked for a change and Dermora agreed, the new routine becomes the active plan. Returns the new title. */
+async function applyPlanUpdate(userId: string, assessmentId: string, userMessage: string, reply: string): Promise<string | null> {
+  if (!wantsPlanChange(userMessage)) return null;
+  try {
+    const status = await planStatus(userId);
+    if (!status.plan) return null;
+    const current = parseJson<TreatmentPlanProposal>(status.plan.plan, {} as TreatmentPlanProposal);
+    const updated = await planUpdateFromChat(current, userMessage, reply);
+    if (!updated) return null;
+    await activatePlan(userId, await insertPlan(userId, assessmentId, updated));
+    return updated.title;
+  } catch (e) {
+    console.warn('[ai] plan update skipped:', (e as Error).message);
+    return null;
+  }
+}
+
 appRouter.post('/ai/chat/:id/stream', auth, async (req, res) => {
   const { content, image_id } = chatBody.parse(req.body);
   const a = await getAssessment(req.user!.id, String(req.params.id));
@@ -436,6 +497,13 @@ appRouter.post('/ai/chat/:id/stream', auth, async (req, res) => {
         const t = new Date(Date.now() + 1).toISOString();
         const { id } = await storeTurn(req.user!.id, a.id, 'assistant', part.done.text, { suggestions: part.done.suggestions, sources: part.done.sources, model: part.done.model }, t);
         send('done', { id, role: 'assistant', content: part.done.text, created_at: t, rating: null, suggestions: part.done.suggestions, sources: part.done.sources, image_id: null });
+        // Plan changes agreed in the chat are saved as the new active plan (the app shows a confirmation bubble).
+        const title = await applyPlanUpdate(req.user!.id, a.id, content, part.done.text);
+        if (title) {
+          const note = `✅ Din plan är uppdaterad: ”${title}”. Du hittar den nya rutinen under Hem och Min plan.`;
+          const saved = await storeTurn(req.user!.id, a.id, 'assistant', note, { plan_updated: true }, new Date(Date.now() + 2).toISOString());
+          send('plan', { id: saved.id, role: 'assistant', content: note, created_at: saved.created_at, rating: null, suggestions: [], sources: [], image_id: null, plan_updated: true });
+        }
       }
     }
   } catch (e) {

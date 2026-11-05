@@ -106,6 +106,25 @@ const stepSchema = {
   required: ['step', 'product_type', 'frequency', 'why'],
 };
 const severity = { type: 'string', enum: ['none', 'mild', 'moderate', 'severe'] };
+/** The plan part of the schema – also used when the chat changes an existing plan. */
+export const PLAN_JSON_SCHEMA = {
+  type: 'object',
+  properties: {
+    title: { type: 'string' },
+    summary: { type: 'string' },
+    goals: { type: 'array', items: { type: 'string' } },
+    morning: { type: 'array', items: stepSchema, maxItems: 4 },
+    evening: { type: 'array', items: stepSchema, maxItems: 4 },
+    weekly: { type: 'array', items: stepSchema, maxItems: 3 },
+    key_ingredients: { type: 'array', items: { type: 'string' } },
+    tips: { type: 'array', items: { type: 'string' } },
+    avoid: { type: 'array', items: { type: 'string' } },
+    expectations: { type: 'string' },
+    follow_up_days: { type: 'integer', minimum: 7, maximum: 90 },
+  },
+  required: ['title', 'summary', 'goals', 'morning', 'evening', 'weekly', 'key_ingredients', 'tips', 'avoid', 'expectations', 'follow_up_days'],
+};
+
 export const GUIDANCE_JSON_SCHEMA = {
   type: 'object',
   properties: {
@@ -489,6 +508,49 @@ export async function* chatReplyStream(ctx: ChatContext): AsyncGenerator<{ delta
       model,
     },
   };
+}
+
+/** Words that suggest the user wants the plan itself changed (cheap filter before the extra model call). */
+const PLAN_CHANGE_RE = /\b(ändra|ändrar|byt|byta|ta bort|lägg till|lägga till|färre|fler|bara|endast|utan|hoppa över|skippa|enklare|kortare|istället|i stället|uppdatera|justera|plan|rutin)\w*/i;
+
+export function wantsPlanChange(message: string): boolean {
+  return PLAN_CHANGE_RE.test(message);
+}
+
+/**
+ * After a reply: did Dermora agree to change the routine? If so, return the complete updated plan so the
+ * server can save it as the new active plan (the user asked for this to happen automatically).
+ */
+export async function planUpdateFromChat(currentPlan: TreatmentPlanProposal, userMessage: string, reply: string): Promise<TreatmentPlanProposal | null> {
+  if (!config.gemini.apiKey) {
+    // Demo mode: a very small deterministic edit so the flow can be shown without a key.
+    if (!/morgon/i.test(userMessage)) return null;
+    return { ...currentPlan, title: `${currentPlan.title} (förenklad)`, evening: [], summary: `${currentPlan.summary} Förenklad efter ditt önskemål: bara morgonrutin.` };
+  }
+  const ai = new GoogleGenAI({ apiKey: config.gemini.apiKey });
+  const prompt =
+    `## Nuvarande aktiva plan (JSON)\n${JSON.stringify(currentPlan)}\n\n## Användarens meddelande\n${userMessage}\n\n## Dermoras svar\n${reply}\n\n` +
+    'Avgör om Dermora i sitt svar gick med på att ändra planen (steg, produkter, frekvens, ta bort/lägga till något). ' +
+    'Om JA: returnera changed=true och HELA den uppdaterade planen enligt schemat – behåll allt som inte ändrades, ändra bara det som sades, samma språk (svenska), inga varumärken, stegnamn aldrig siffror. ' +
+    'Om NEJ (bara information, frågor eller allmänna råd): returnera changed=false och nuvarande plan oförändrad.';
+  const { value: res } = await withGemini(
+    (model, abortSignal) =>
+      ai.models.generateContent({
+        model,
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        config: {
+          responseMimeType: 'application/json',
+          responseJsonSchema: { type: 'object', properties: { changed: { type: 'boolean' }, reason: { type: 'string' }, plan: PLAN_JSON_SCHEMA }, required: ['changed', 'plan'] },
+          temperature: 0.1,
+          abortSignal,
+        },
+      }),
+    { models: [config.gemini.chatModel], perCallMs: 25_000, budgetMs: 40_000 },
+  );
+  const out = JSON.parse(res.text ?? '{}') as { changed?: boolean; plan?: TreatmentPlanProposal };
+  if (!out.changed || !out.plan?.title) return null;
+  const fixed = normalise({ plan: out.plan } as SkinGuidance, []).plan;
+  return { ...currentPlan, ...fixed };
 }
 
 /** Rolling memory: short notes the bot keeps between conversations (max ~120 words). */

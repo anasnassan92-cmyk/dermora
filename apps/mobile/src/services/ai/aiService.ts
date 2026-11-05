@@ -22,6 +22,8 @@ export interface SendOptions {
   imageId?: string | null;
   /** Called with the text so far while the reply streams in. */
   onDelta?: (text: string) => void;
+  /** The chat changed the plan: the server sends a confirmation bubble (already stored) to show after the reply. */
+  onPlanUpdated?: (message: ChatMessage) => void;
 }
 
 /** Streaming fetch: expo/fetch supports response streaming on iOS/Android; the browser's fetch does on web. */
@@ -64,6 +66,7 @@ async function sendStreaming(assessmentId: string, content: string, opts: SendOp
         text += payload.text;
         opts.onDelta?.(text);
       } else if (event === 'done') done = payload as ChatMessage;
+      else if (event === 'plan') opts.onPlanUpdated?.(payload as ChatMessage);
       else if (event === 'error') throw new Error(payload.detail ?? 'AI-chatten svarar inte just nu.');
     }
   }
@@ -79,7 +82,18 @@ export const aiService = {
       mockChats.set(assessmentId, [{ id: 1, role: 'assistant', content: mockGuidance.guidance, suggestions: MOCK_SUGGESTIONS }]);
       return result;
     }
-    return api.post<AnalyzeResult>(`/ai/analyze/${assessmentId}`);
+    // The server runs the analysis in the background (it can take 30–70 s with photos); we poll for the result.
+    const started = await api.post<{ status: string } & Partial<AnalyzeResult>>(`/ai/analyze/${assessmentId}`);
+    if (started.status === 'analyzed' && started.result) return started as AnalyzeResult;
+    const deadline = Date.now() + 150_000;
+    while (Date.now() < deadline) {
+      await wait(2500);
+      const s = await api.get<{ status: string; detail?: string } & Partial<AnalyzeResult>>(`/ai/analyze/${assessmentId}/status`);
+      if (s.status === 'analyzed' && s.result) return s as AnalyzeResult;
+      if (s.status === 'failed') throw new Error(s.detail ?? 'AI-analysen misslyckades. Försök igen om en stund.');
+      if (s.status === 'idle') await api.post(`/ai/analyze/${assessmentId}`); // server restarted mid-run – start again
+    }
+    throw new Error('Analysen tar längre tid än vanligt. Vänta en stund och tryck på Försök igen.');
   },
 
   async latestResult(assessmentId: string): Promise<AnalyzeResult | null> {
@@ -120,7 +134,9 @@ export const aiService = {
     } catch (e) {
       if ((e as Error).message && !/network|stream|body|TypeError/i.test(String(e))) throw e;
     }
-    return api.post<ChatMessage>(`/ai/chat/${assessmentId}`, { content, image_id: opts.imageId ?? undefined });
+    const r = await api.post<ChatMessage & { plan_update?: ChatMessage | null }>(`/ai/chat/${assessmentId}`, { content, image_id: opts.imageId ?? undefined });
+    if (r.plan_update) opts.onPlanUpdated?.(r.plan_update);
+    return r;
   },
 
   async rate(assessmentId: string, messageId: string | number, rating: 1 | -1 | 0, comment?: string): Promise<void> {

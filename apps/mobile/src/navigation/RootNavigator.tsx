@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, createNavigationContainerRef } from '@react-navigation/native';
+import { Platform } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
@@ -58,6 +59,36 @@ export const tabOptions = {
   tabBarStyle: { backgroundColor: colors.surfaceRaised, borderTopColor: colors.line, height: 66, paddingTop: 6 },
 } as const;
 
+export const navigationRef = createNavigationContainerRef();
+
+/**
+ * Web: the app lives on one URL, so the browser's back button would leave for the landing page and feel like a
+ * logout. We keep one history entry per in-app screen: back pops the app's own stack instead.
+ */
+function useBrowserBack() {
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    let depth = 0;
+    const onPop = () => {
+      if (navigationRef.isReady() && navigationRef.canGoBack()) {
+        depth = Math.max(0, depth - 1);
+        navigationRef.goBack();
+      } else {
+        // nothing to go back to inside the app – stay put instead of leaving the app
+        window.history.pushState({ dermora: true }, '');
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+  return () => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined' || !navigationRef.isReady()) return;
+    const route = (navigationRef.getCurrentRoute() as { name?: string } | undefined)?.name;
+    const last = (window.history.state as { route?: string } | null)?.route;
+    if (route && route !== last && navigationRef.canGoBack()) window.history.pushState({ dermora: true, route }, '');
+  };
+}
+
 export function MainTabs({ initial = 'Home' }: { initial?: keyof TabParamList }) {
   return (
     <Tabs.Navigator initialRouteName={initial} screenOptions={tabOptions}>
@@ -78,6 +109,7 @@ function startRoute(): keyof AuthStackParamList {
 
 export function RootNavigator() {
   const { session, loading } = useAuth();
+  const syncHistory = useBrowserBack();
   // Onboarding gate: a verified user without a basic profile starts on "Grundprofil" (design screen 04).
   const [needsProfile, setNeedsProfile] = useState<boolean | null>(null);
   const verified = !!session?.emailVerified;
@@ -92,7 +124,7 @@ export function RootNavigator() {
   if (loading || (verified && needsProfile === null)) return null; // splash is still visible
 
   return (
-    <NavigationContainer theme={navTheme}>
+    <NavigationContainer theme={navTheme} ref={navigationRef} onStateChange={syncHistory}>
       {!session ? (
         <AuthStack.Navigator initialRouteName={startRoute()} screenOptions={stackOptions}>
           <AuthStack.Screen name="Welcome" component={WelcomeScreen} />

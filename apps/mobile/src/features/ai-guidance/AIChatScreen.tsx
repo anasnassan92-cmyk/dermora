@@ -124,6 +124,10 @@ function Chat({ assessmentId, onDetails }: { assessmentId: string; onDetails: ()
           setMessages((m) => m.map((x) => (x.id === streamingId ? { ...x, content: partial } : x)));
           scrollThrottled();
         },
+        onPlanUpdated: (note) => {
+          setMessages((m) => [...m, { ...note, plan_updated: true }]);
+          scrollToEnd();
+        },
       });
       setMessages((m) => m.map((x) => (x.id === streamingId ? { ...reply, created_at: reply.created_at ?? new Date().toISOString() } : x)));
       if (status?.checkin_due) setStatus({ ...status, checkin_due: false });
