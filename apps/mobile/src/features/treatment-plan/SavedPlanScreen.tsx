@@ -1,17 +1,25 @@
 /** Full view of the confirmed plan ("Min plan"). Owner: Even. */
 import React, { useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { useFocusEffect, type CompositeScreenProps } from '@react-navigation/native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { Button, Disclaimer, Icon, InfoPanel, Screen, T } from '../../components/ui';
-import type { AppScreenProps } from '../../navigation/types';
+import type { AppStackParamList, TabParamList } from '../../navigation/types';
 import { colors, palette, radius, shadow, spacing } from '../../theme';
 import type { TreatmentPlan } from '../../types/api';
+import { showMessage } from '../../utils/dialog';
+import { assessmentService } from '../assessment/services/assessmentService';
 import { RoutineStepStrip } from './components/RoutineStepCard';
 import { planService } from './services/planService';
 
-export function SavedPlanScreen({ navigation }: AppScreenProps<'Plan'>) {
+/** "Min plan" is a tab without its own button (the bottom menu stays visible), opened from Hem or Profil. */
+type Props = CompositeScreenProps<BottomTabScreenProps<TabParamList, 'Plan'>, NativeStackScreenProps<AppStackParamList>>;
+
+export function SavedPlanScreen({ navigation }: Props) {
   const [plan, setPlan] = useState<TreatmentPlan | null | undefined>(undefined);
+  const [starting, setStarting] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -19,11 +27,38 @@ export function SavedPlanScreen({ navigation }: AppScreenProps<'Plan'>) {
     }, []),
   );
 
-  if (plan === undefined) return <Screen><T muted>Laddar …</T></Screen>;
+  /** Back to the page the plan was opened from (Hem or Profil). */
+  const goBack = () => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Profile'));
+
+  /** Same as Profil → "Ny analys med nya bilder": the answers are reused, only new photos are uploaded. */
+  const newPhotos = async () => {
+    setStarting(true);
+    try {
+      const a = await assessmentService.createFromLatest();
+      navigation.navigate('ImageUpload', { assessmentId: a.id });
+    } catch (e) {
+      showMessage('Kunde inte starta', (e as Error).message);
+    } finally {
+      setStarting(false);
+    }
+  };
+
+  const header = (
+    <View style={styles.header}>
+      <Pressable onPress={goBack} hitSlop={12} accessibilityRole="button" accessibilityLabel="Tillbaka" style={styles.back}>
+        <Icon name="chevron-left" size={26} color={colors.ink} strokeWidth={2.2} />
+      </Pressable>
+      <T variant="h3" style={styles.headerTitle}>Min plan</T>
+      <View style={styles.back} />
+    </View>
+  );
+
+  if (plan === undefined) return <Screen>{header}<T muted>Laddar …</T></Screen>;
 
   if (!plan) {
     return (
       <Screen>
+        {header}
         <T variant="display" style={styles.title}>Ingen plan ännu</T>
         <T variant="body" muted mb="xl">Gör en hudanalys så får du din personliga plan direkt.</T>
         <Button title="Starta hudanalys  →" onPress={() => navigation.navigate('AssessmentIntro')} />
@@ -36,6 +71,7 @@ export function SavedPlanScreen({ navigation }: AppScreenProps<'Plan'>) {
 
   return (
     <Screen>
+      {header}
       <T variant="label" muted mb="xs">Aktiv plan · sedan {confirmed}</T>
       <T variant="display" style={styles.title}>{plan.title}</T>
       <T variant="body" muted mb="lg">{plan.summary}</T>
@@ -65,8 +101,8 @@ export function SavedPlanScreen({ navigation }: AppScreenProps<'Plan'>) {
       </View>
 
       <InfoPanel title="Vad du kan förvänta dig" text={`${p.expectations} Uppföljning med ny bild om ${p.follow_up_days} dagar.`} />
-      <Button title="Chatta om planen" variant="secondary" onPress={() => navigation.navigate('Tabs', { screen: 'Chat' })} />
-      <Button title="Uppdatera med nya bilder" variant="ghost" onPress={() => navigation.navigate('Tabs', { screen: 'Profile' })} style={styles.gap} />
+      <Button title="Chatta om planen" variant="secondary" onPress={() => navigation.navigate('Chat')} />
+      <Button title="Uppdatera med nya bilder" variant="ghost" onPress={newPhotos} loading={starting} style={styles.gap} />
       <Disclaimer />
     </Screen>
   );
@@ -95,6 +131,9 @@ function Bullet({ text }: { text: string }) {
 }
 
 const styles = StyleSheet.create({
+  header: { flexDirection: 'row', alignItems: 'center', minHeight: 32, marginBottom: spacing.lg },
+  back: { width: 36, alignItems: 'flex-start' },
+  headerTitle: { flex: 1, textAlign: 'center', marginBottom: 0 },
   title: { fontSize: 28, lineHeight: 34, marginBottom: spacing.xs },
   goals: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, backgroundColor: colors.surfaceMint, borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.md },
   goalsIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.7)', alignItems: 'center', justifyContent: 'center' },

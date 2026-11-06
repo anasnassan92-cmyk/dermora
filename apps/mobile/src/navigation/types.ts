@@ -23,7 +23,6 @@ export type AppStackParamList = {
   ImageReview: { assessmentId: string };
   Analyzing: { assessmentId: string };
   Result: { assessmentId: string }; // summary + the plan (activated automatically)
-  Plan: undefined; // active plan (full view)
 };
 
 export type TabParamList = {
@@ -31,6 +30,7 @@ export type TabParamList = {
   Chat: undefined; // AI chat for the active plan's assessment
   Progress: undefined;
   Profile: undefined;
+  Plan: undefined; // active plan (full view) – a tab without its own button, so the bottom menu stays visible
 };
 
 export type AuthScreenProps<T extends keyof AuthStackParamList> = NativeStackScreenProps<AuthStackParamList, T>;

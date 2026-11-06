@@ -28,7 +28,6 @@ import { ImageUploadScreen } from '../features/images/ImageUploadScreen';
 import { ImageReviewScreen } from '../features/images/ImageReviewScreen';
 import { AnalyzingScreen } from '../features/ai-guidance/AnalyzingScreen';
 import { ResultScreen } from '../features/ai-guidance/ResultScreen';
-import { SavedPlanScreen } from '../features/treatment-plan/SavedPlanScreen';
 import { MainTabs, headerOptions, navTheme, stackOptions } from '../navigation/RootNavigator';
 import type { AppStackParamList, AuthStackParamList, TabParamList } from '../navigation/types';
 import { seedDemo, type DemoSeed } from '../services/mock/seed';
@@ -66,9 +65,9 @@ export function PreviewApp({ screen, q, tab }: { screen: string; q: number; tab?
   }
 
   const a = seed.assessmentId;
-  const stackScreens = new Set(['EditProfile', 'MyInfo', 'ChangePassword', 'ChangeEmail', 'ProfileSetup', 'AssessmentIntro', 'Assessment', 'ImageUpload', 'ImageReview', 'Analyzing', 'Result', 'Plan']);
+  const stackScreens = new Set(['EditProfile', 'MyInfo', 'ChangePassword', 'ChangeEmail', 'ProfileSetup', 'AssessmentIntro', 'Assessment', 'ImageUpload', 'ImageReview', 'Analyzing', 'Result']);
   const initial = (stackScreens.has(screen) ? screen : 'Tabs') as keyof AppStackParamList;
-  const initialTab = (tab ?? 'Home') as keyof TabParamList;
+  const initialTab = (tab ?? (screen === 'Plan' ? 'Plan' : 'Home')) as keyof TabParamList;
 
   return (
     <NavigationContainer theme={navTheme}>
@@ -85,7 +84,6 @@ export function PreviewApp({ screen, q, tab }: { screen: string; q: number; tab?
         <AppStack.Screen name="ImageReview" component={ImageReviewScreen} initialParams={{ assessmentId: a }} />
         <AppStack.Screen name="Analyzing" component={AnalyzingScreen} initialParams={{ assessmentId: a }} />
         <AppStack.Screen name="Result" component={ResultScreen} initialParams={{ assessmentId: a }} options={{ ...headerOptions, headerShown: true, title: 'Din hudprofil' }} />
-        <AppStack.Screen name="Plan" component={SavedPlanScreen} options={{ ...headerOptions, headerShown: true, title: 'Min plan' }} />
       </AppStack.Navigator>
     </NavigationContainer>
   );

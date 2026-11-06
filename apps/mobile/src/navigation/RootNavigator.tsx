@@ -91,11 +91,13 @@ function useBrowserBack() {
 
 export function MainTabs({ initial = 'Home' }: { initial?: keyof TabParamList }) {
   return (
-    <Tabs.Navigator initialRouteName={initial} screenOptions={tabOptions}>
+    <Tabs.Navigator initialRouteName={initial} screenOptions={tabOptions} backBehavior="history">
       <Tabs.Screen name="Home" component={HomeScreen} options={{ title: 'Hem', tabBarIcon: ({ color }) => <Icon name="home" size={22} color={color} /> }} />
       <Tabs.Screen name="Chat" component={AIChatScreen} options={{ title: 'Chatt', tabBarIcon: ({ color }) => <Icon name="chat" size={22} color={color} /> }} />
       <Tabs.Screen name="Progress" component={ProgressTabScreen} options={{ title: 'Framsteg', tabBarIcon: ({ color }) => <Icon name="trend-up" size={22} color={color} /> }} />
       <Tabs.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profil', tabBarIcon: ({ color }) => <Icon name="user" size={22} color={color} /> }} />
+      {/* "Min plan" is a tab without its own button, so the bottom menu stays visible on that page. */}
+      <Tabs.Screen name="Plan" component={SavedPlanScreen} options={{ title: 'Min plan', tabBarButton: () => null, tabBarItemStyle: { display: 'none' } }} />
     </Tabs.Navigator>
   );
 }
@@ -151,7 +153,6 @@ export function RootNavigator() {
           <AppStack.Screen name="ImageReview" component={ImageReviewScreen} />
           <AppStack.Screen name="Analyzing" component={AnalyzingScreen} options={{ gestureEnabled: false }} />
           <AppStack.Screen name="Result" component={ResultScreen} options={{ ...headerOptions, headerShown: true, headerBackVisible: false, gestureEnabled: false, title: 'Din hudprofil' }} />
-          <AppStack.Screen name="Plan" component={SavedPlanScreen} options={{ ...headerOptions, headerShown: true, title: 'Min plan' }} />
         </AppStack.Navigator>
       )}
     </NavigationContainer>
